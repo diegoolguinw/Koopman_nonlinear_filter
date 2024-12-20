@@ -1,0 +1,157 @@
+% Template:     Tesis LaTeX
+% Documento:    Archivo principal
+% Versión:      3.3.9 (12/04/2024)
+% Codificación: UTF-8
+%
+% Autor: Pablo Pizarro R.
+%        pablo@ppizarror.com
+%
+% Manual template: [https://latex.ppizarror.com/tesis]
+% Licencia MIT:    [https://opensource.org/licenses/MIT]
+
+% CREACIÓN DEL DOCUMENTO
+\documentclass[
+	spanish, % Idioma: spanish, english, etc.	
+	letterpaper, oneside
+]{book}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{dsfont}
+
+\newcommand{\indep}{\perp \!\!\! \perp}
+\newcommand{\U}{\mathcal{U}}
+
+% INFORMACIÓN DEL DOCUMENTO
+\def\documenttitle {Título de la tesis}
+\def\documentsubtitle {}
+\def\degreetitle {
+	Tesis para optar al grado de magíster en ciencias de la ingeniería, mención matemáticas aplicadas
+	\bigbreak\vspace{0.3cm}
+	Memoria para optar al título de ingeniero civil matemático
+}
+
+\def\universityname {Universidad de Chile}
+\def\universityfaculty {Facultad de Ciencias Físicas y Matemáticas}
+\def\universitydepartment {Departamento de Ingeniería Matemática}
+\def\universitydepartmentimage {departamentos/uchile2}
+\def\universitydepartmentimagecfg {height=3cm}
+\def\universitylocation {Santiago de Chile}
+
+% INTEGRANTES, PROFESORES Y FECHAS
+\def\documentauthor {Diego Andrés Olguín Wende}
+\def\documentdate {2025}
+
+\def\portrait {
+	\begin{center}
+	\vspace{1.5cm} ~ \\
+	\MakeUppercase{\textbf{\documenttitle}} ~ \\
+	\vspace{1.5cm}
+	\MakeUppercase{\degreetitle} ~ \\
+	\vfill
+	\begin{tabular}{c}
+		\MakeUppercase{\textbf{\documentauthor}} \\ \\
+		\vspace{1.0cm} \\
+		PROFESOR GUÍA: \\
+		HÉCTOR ARIEL RAMÍREZ CABRERA \\
+		PROFESOR CO-GUÍA: \\
+		AXEL ESTEBAN OSSES ALVARADO \\
+		\vspace{0.5cm} \\
+		MIEMBROS DE LA COMISIÓN: \\
+		PROFESOR 2 \\
+		PROFESOR 3 \\
+		\vspace{0.5cm} \\
+		Este trabajo ha sido parcialmente financiado por: \\
+		NOMBRE INSTITUCIÓN \\
+		\vspace{0.5cm} \\
+		\MakeUppercase{\universitylocation} \\
+		\MakeUppercase{\documentdate}
+	\end{tabular}
+	\end{center}
+}
+\def\abstracttable {
+	\begin{tabular}{l}
+		RESUMEN DE LA MEMORIA PARA OPTAR \\
+		AL TÍTULO DE MAGÍSTER EN CIENCIAS \\
+		DE LA INGENIERÍA CON MENCIÓN MATEMÁTICAS APLICADAS \\
+		POR: \MakeUppercase{\documentauthor} \\
+		FECHA: \MakeUppercase{\documentdate} \\
+		PROF. GUÍA: HÉCTOR ARIEL RAMÍREZ CABRERA \\
+		PROF. CO-GUÍA: AXEL ESTEBAN OSSES ALVARADO \\
+	\end{tabular}
+}
+
+% IMPORTACIÓN DEL TEMPLATE
+\input{template}
+
+% INICIO DE LAS PÁGINAS
+\begin{document}
+
+% PORTADA
+\templatePortrait
+
+% CONFIGURACIÓN DE PÁGINA Y ENCABEZADOS
+\templatePagecfg
+
+% RESUMEN O ABSTRACT
+\begin{abstractd}
+	\lipsum[1]
+\end{abstractd}
+
+% DEDICATORIA
+\begin{dedicatory}
+	Dedicatoria \\
+	\textbf{Saludos}
+\end{dedicatory}
+
+% AGRADECIMIENTOS
+\begin{acknowledgments}
+	\lipsum[1]
+\end{acknowledgments}
+
+% TABLA DE CONTENIDOS - ÍNDICE
+\templateIndex
+
+% CONFIGURACIONES FINALES
+\templateFinalcfg
+
+% ======================= INICIO DEL DOCUMENTO =======================
+
+% Capítulo 1: Introducción
+\chapter{Introducción}
+\input{chapters/chapter1}
+
+% Capítulo 2: Problema resolver, relevancia, algoritmos existentes
+% problemática. Estado del arte.
+\chapter{Preliminares}
+\input{chapters/chapter2.tex}
+
+% Capítulo 3: Kernel Extended Dynamic Mode Decomposition 
+\chapter{Kernel Extended Dynamic Mode Decomposition}
+\input{chapters/chapter3.tex}
+
+% Capítulo 4: Algoritmo de filtraje en tiempo discreto
+\chapter{Algoritmo de filtraje en tiempo discreto}
+\input{chapters/chapter4.tex}
+
+% Capítulo 5: Algoritmo de filtraje en tiempo continuo
+\chapter{Algoritmo de filtraje en tiempo continuo}
+\input{chapters/chapter5.tex}
+
+% Capítulo 6: Algoritmo de suavizado
+\chapter{Algoritmo de suavizado en tiempo continuo y tiempo discreto}
+\input{chapters/chapter6.tex}
+
+% Capítulo 7: Algoritmo de estimación de parámetros
+\chapter{Algoritmo de estimación de parámetros}
+\input{chapters/chapter7.tex}
+
+% Capítulo 8: Modelos epidemiológicos?
+\chapter{Modelos epidemiológicos}
+\input{chapters/chapter8.tex}
+
+\bibliographystyle{plain}
+\bibliography{library}
+
+% FIN DEL DOCUMENTO
+\end{document}

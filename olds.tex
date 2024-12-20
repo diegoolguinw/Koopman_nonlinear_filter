@@ -1,0 +1,1166 @@
+% Cap 2
+
+\section{Extended Dynamic Mode Decomposition}
+
+Denotemos por $\B_\X$ la $\sigma$-álgebra Boreliana de $\X$ y $\B_\Y$ a la de $\R^p$.
+Se definen las medidas de probabilidad
+\begin{equation*}
+	\begin{aligned}
+		\rho_f: \X \times \B_\X \to [0, 1], & \quad \rho_f (\mathbf{x}, A) = \P (\mathbf{f}(\mathbf{x}, \cdot ) \in A ) \\
+		\rho_f: \X \times \B_\Y \to [0, 1], & \quad \rho_g(\mathbf{x}, A) = \P (\mathbf{g}(\mathbf{x}, \cdot ) \in A)
+	\end{aligned}
+\end{equation*}
+Es decir, $\rho_f$ es la medida inducida por la dinámica y $\rho_g$ es la medida inducida por la observación.
+\\
+Supondremos que el espacio de estados $\X$ es compacto y que existe un conjunto compacto $\Y \subseteq \R^p$ tal que
+\begin{equation*}
+	\rho_f (\mathbf{x}, \X) = 1, \quad \rho_g (\mathbf{x}, \Y) = 1, \quad \forall \mathbf{x} \in \X
+\end{equation*}
+Adoptaremos la notación
+\begin{equation*}
+	\rho_f (\mathbf{x}, dx) = d \rho_f (\mathbf{x}, \cdot)(x), \quad \rho_g (\mathbf{x}, dy) = d \rho_f (\mathbf{x}, \cdot)(y)
+\end{equation*}
+Supondremos además que, para $\mu_\X$ medida sobre $\X$ y $\mu_\Y$ medida sobre $\Y$, existen \begin{equation*}
+	p_f : \X \times \X \to \R_+, \quad p_g : \X \times \Y \to \R_+
+\end{equation*}
+tales que
+\begin{equation*}
+	\rho_f (\mathbf{x}, A) = \int_A p_f (\mathbf{x}, y) d \mu_\X (y), \quad \rho_g (\mathbf{x}, A) = \int_A p_g (\mathbf{x}, y) d \mu_\Y (y)
+\end{equation*}
+Llamaremos:
+\begin{itemize}
+	\item $X$ la variable aleatoria asociada a $\mu_\X$.
+	\item $X^+ | \textbf{x}$ la variable aleatoria asociada a $\rho_\X$, es decir, la variable aleatoria asociada a avanzar un paso, dado $\textbf{x}$.
+	\item $Y  | \textbf{x}$ la variable aleatorias asociada a $\rho_\Y$, es decir, la variable aleatoria asociada a la observación, dado $\textbf{x}$.
+\end{itemize}
+Por ejemplo, si la función de dinámica es de la forma
+$$\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k) = \Tilde{\mathbf{f}}(\mathbf{x}_k) + \mathbf{w}_k$$ 
+con $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{Q}_k)$, siendo $\mathbf{Q}_k$ definida positiva y $\mu_\X$ la medida de Lebesgue sobre $\X$, se tiene que 
+\begin{equation*}
+	\rho_f (\mathbf{x}_k, \cdot) \sim \mathcal{N}(\tilde{\mathbf{f}}(\mathbf{x}_k), \mathbf{Q}_k)
+\end{equation*}
+con lo que $p_f$ es
+\begin{equation*}
+	p_f(x, y) = (2 \pi \text{det} \, \mathbf{Q}_k )^{-1} \text{exp} \left ( -(\tilde{\mathbf{f}}(x) - y)^\top \mathbf{Q}_k^{-1} (\tilde{\mathbf{f}}(x) - y) \right ) 
+\end{equation*}
+que cumple ser acotada, incluso si $\Tilde{\mathbf{f}}$ no lo es.\\
+Similar a \cite{Philipp2024} se asume lo siguiente
+\begin{enumerate}
+    \item[a)] $k_\X:\X \times \X \to \R$, $k_\Y: \Y \times \Y \to \R$ dos kernels simétricos, continuos, acotados y semi-definidos positivos. Se denotará por $\H_\X$, $\H_\Y$ a su RKHS asociados.
+    \item[b)] Si $\psi_\X \in L^2(\X)$, $\psi_\Y \in L^2(\Y)$ son tales que 
+    \begin{equation*}
+        \int_{\X \times \X} k_\X(x,y) \psi_\X (x) \psi_\X (y) d \mu_\X (x) d \mu_\X (y) = 0 
+    \end{equation*}
+      \begin{equation*}
+    	\int_{\Y \times \Y} k_\Y(x,y) \psi_\Y (x) \psi_\Y (y) d \mu_\Y (x) d \mu_\Y (y) = 0 
+    \end{equation*}
+    entonces $\psi_\X = 0$, $\psi_\Y = 0$ c.s.
+    \item[c)] Si $\psi_\X \in \H_\X$, $\psi_\Y \in \H_\Y$ son tales que $\psi_\X(x) = 0$, $\psi_\Y(y) = 0$ para todo $x \in \X$ $\mu_\X$-c.s., y para todo $y \in \Y$ $\mu_\Y$-c.s. entonces $\psi_\X \equiv 0$, $\psi_\Y \equiv 0$.
+    \item[d)] Se cumplen las siguientes relaciones de $\rho_\X$ y $\rho_\Y$ con respecto de $\mu_\X$ y $\mu_\Y$:
+    \begin{equation*}
+        \int_\X \rho_\X (x, A_\X) d\mu_\X (x) \leq L_\X \mu_\X (A_\X), \quad \forall A_\X \in \B_\X
+    \end{equation*}
+    \begin{equation*}
+    	\int_\X \rho_\Y (x, A_\Y) d\mu_\X (x) \leq L_\Y \mu_\Y (A_\Y), \quad  \forall A_\Y \in \B_\Y
+    \end{equation*}
+\end{enumerate}
+Un ejemplo de kernel que cumple a) y b) es Matérn, siendo el punto a) expuesto en la sección anterior y b) debido a la universalidad en $L^2$. La suposición c) se cumple si $\mu$ tiene densidad con respecto a Lebesgue, mientras que d) se cumple en el caso estocástico cuando existen las funciones $p_f$ y $p_g$ y estas son acotadas, mientras que en el caso determinista se necesita que las funciones asociadas sean difeomorfismos.
+
+\begin{prop}
+    Si $p_f \in L^{\infty} (\X \times \X)$, $p_g \in L^{\infty} (\X \times \Y)$ entonces 
+    \begin{equation*}
+        \int_\X \rho_\X (x, A) d\mu_\X (x) \leq L_\X \mu_\X (A), \quad \int_\X \rho_\Y (x, A) d\mu_\X (x) \leq L_\Y \mu_\Y (A)
+    \end{equation*}
+    con 
+    \begin{equation*}
+        L_\X = \mu_\X (\X) || p_f ||_\infty, \quad L_\Y = \mu_\X (\X) || p_g ||_\infty
+    \end{equation*}
+\end{prop}
+
+\begin{proof}
+	Para $\rho_\X$ se tiene que
+    \begin{equation*}
+        \begin{aligned}
+            \int_\X \rho_\X (x, A) d\mu_\X (x) &= \int_\X \int_A d \rho (x, \cdot) (y) d \mu (x) \\
+            &= \int_\X \int_A p_\mathbf{f} (x, y) d \mu_\X (y) d \mu_\X (x) \\
+            &\leq || p_f ||_\infty \int_\X \int_A d \mu_\X (y) d \mu_\X (x) \\ 
+            &= || p_f ||_\infty \mu_\X (\X) \mu_\X (A) \\
+            &= L_\X \mu_\X (A)
+        \end{aligned}
+    \end{equation*}
+    Mientras que para $\rho_\Y$ se tiene que
+     \begin{equation*}
+    	\begin{aligned}
+    		\int_\X \rho_\Y (x, A) d\mu (x) & = \int_\X \int_A d \rho_\Y (x, \cdot) (y) d \mu_\X (x) \\
+    		&= \int_\X \int_A p_g(x, y) d \mu_\Y (y) d \mu_\X (x) \\
+    		&\leq || p_g ||_\infty \int_\X \int_A d \mu_\Y (y) d \mu_\X (x) \\ 
+    		&= || p_g ||_\infty \mu_\X (\X) \mu_\Y (A) \\
+    		&= L_\Y \mu_\Y (A)
+    	\end{aligned}
+    \end{equation*}
+\end{proof}
+En el caso en que la dinámica o la observación sean deterministas, que es equivalente a que $\mathbf{f}(\mathbf{x}, \mathbf{w}) = \Tilde{\mathbf{f}}(\mathbf{x})$ o $\mathbf{g}(\mathbf{x}, \mathbf{v}) = \Tilde{\mathbf{g}}(\mathbf{x})$, con lo que $\rho (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ o $\xi (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$, entonces se necesita mayor regularidad sobre las funciones.
+\begin{prop}
+    Si $\rho (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ o $\xi (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ y $\tilde{\mathbf{f}}$ o $\tilde{\mathbf{g}}$, según corresponda, son difeomorfismos $C^1$ tal que
+    \begin{equation*}
+        \inf_{x \in \X} | \text{det} \,  D \tilde{\mathbf{f}} (x) | > 0, \quad \inf_{x \in \X} | \text{det} \,  D \tilde{\mathbf{g}} (x) | > 0
+    \end{equation*}
+    entonces
+    \begin{equation*}
+        \int_\X \rho (x, A) d\mu (x) \leq L_\rho \mu (A), \quad \int_\X \xi (x, A) d\mu (x) \leq L_\xi \mu (A)
+    \end{equation*}
+    con 
+    \begin{equation*}
+        L_\rho = || \text{det} \, D \tilde{\mathbf{f}}^{-1} ||_\infty, \quad L_\xi = || \text{det} \, D \tilde{\mathbf{g}}^{-1} ||_\infty
+    \end{equation*}
+\end{prop}
+
+\begin{proof}
+    La demostración se hace similar a \cite{Kohne2024}. Notar que para $A \in \B$, se tiene que $\rho (x, A) = \delta_{\Tilde{\mathbf{f}}(x)}(A) = \mathds{1}_A (\Tilde{\mathbf{f}}(x))$, con ello
+    \begin{equation*}
+        \begin{aligned}
+            \int_\X \rho (x, A) d\mu (x) &= \int_\X \mathds{1}_A (\mathbf{f}(x)) d \mu (x) \\
+            &= \int_\X \mathds{1}_A (x) | \text{det} \, D \mathbf{f}^{-1}(x) | d \mu (x) \\
+            &\leq || \text{det} \, D \mathbf{f}^{-1} ||_{\infty}  \int_\X \mathds{1}_A (x)  d\mu (x) \\
+            &\leq || \text{det} \, D \mathbf{f}^{-1} ||_{\infty}  \mu (A) \\
+            &= L_\rho \mu (A)
+        \end{aligned}
+    \end{equation*}
+    Y para $\xi$ es análogo.
+\end{proof}
+Ahora se definen los operadores de Koopman estocásticos para la dinámica y la observación, adaptados en el caso en que se tienen las funciones $p_f$ y $p_g$ como densidades.
+\begin{defn}[Operador de Koopman estocástico para la dinámica]
+	Se define el operador asociado a $\mathbf{f}$ como $\U : L^2(\X) \to L^2(\X)$
+	\begin{equation*}
+		[\U h](x) = \E [h (\mathbf{f} (x, \cdot) )]  = \int_\X h(y) d \rho_\X (x, \cdot) (y) = \int_\X h(y) p_f (x, y) d \mu_\X (y)
+	\end{equation*}
+\end{defn}
+\begin{defn}[Operador de Koopman estocástico para la observación]
+	Se define el operador asociado a $\mathbf{g}$ como $\G : L^2(\Y) \to L^2(\X)$
+	\begin{equation*}
+		[\G h](x) = \E [h (\mathbf{g} (x, \cdot) )]  = \int_\Y h(y) d \rho_\Y (x, \cdot) (y) = \int_\Y h(y) p_g (x, y) d \mu_\Y (y)
+	\end{equation*}
+\end{defn}
+Un objeto que tendrá interés pronto será el operador de Perron-Frobenius
+\begin{defn}[Operador de Perron-Frobenius estocástico para la dinámica]
+	Se define el operador asociado a $\mathbf{f}$ como $\mathcal{P}_\mathbf{f} : L^2(\X) \to L^2(\X)$
+	\begin{equation*}
+		[\mathcal{P}_\mathbf{f} h](x) = \int_\X h(y) p_\mathbf{f} (y, x) d \mu_\X (y)
+	\end{equation*}
+\end{defn}
+\begin{defn}[Operador de Perron-Frobenius estocástico para la observación]
+	Se define el operador asociado a $\mathbf{g}$ como $\mathcal{P}_\mathbf{g} : L^2(\X) \to L^2(\Y)$
+	\begin{equation*}
+		[\mathcal{P}_\mathbf{g} h](x) =  \int_\X h(y) p_\mathbf{g} (y, x) d \mu_\X (y)
+	\end{equation*}
+\end{defn}
+Entonces notar que, gracias a la representación de los operadores a través de $p_\mathbf{f}$ y $p_\mathbf{g}$ se tiene que
+\begin{equation*}
+	\U^* = \mathcal{P}_\mathbf{f}, \quad \G^* = \mathcal{P}_\mathbf{g}
+\end{equation*}
+
+\begin{defn}[Feature map]
+	Se definen $\Phi_\X : \X \to \H_X$, $\Phi_\Y : \Y \to \H_\Y$ los \textit{feature maps} de ambos \textit{kernels} como
+	\begin{equation*}
+		\Phi_\X (x) = k_\X (x, \cdot), \quad \Phi_\Y (y) = k_\Y (y, \cdot)
+	\end{equation*}
+\end{defn}
+
+\begin{defn}
+    Se definen, para $x_1, x_2 \in \X$, $y_1, y_2 \in \Y$ los operadores de rango 1 $C_{x_1,x_2}: \H_\X \to \H_\X$, $C_{y_1,y_2}: \H_\Y \to \H_\Y$ y $C_{y_1,x_1}: \H_\X \to \H_\Y$ respectivamente, como
+     \begin{equation*}
+    	C_{x_1, x_2} \psi = [\Phi_\X (x_1) \otimes \Phi_\X (x_2)] \psi = \langle \psi, \Phi_\X (x_2) \rangle \Phi_\X (x_1) = \psi (x_2) \Phi_\X (x_1)
+    \end{equation*}
+    \begin{equation*}
+    	C_{y_1, y_2} \psi = [\Phi_\Y (y_1) \otimes \Phi_\Y (y_2)] \psi = \langle \psi, \Phi_\Y (y_2) \rangle \Phi_\Y (y_1) = \psi (y_2) \Phi_\Y (y_1)
+    \end{equation*}
+    \begin{equation*}
+    	C_{y_1, x_1} \psi = [\Phi_\Y (y_1) \otimes \Phi_\X (x_1)] \psi = \langle \psi, \Phi_\X (x_1) \rangle \Phi_\Y (y_1) = \psi (x_1) \Phi_\Y (y_1)
+    \end{equation*}
+\end{defn}
+
+\begin{defn}
+    Se definen los operadores de covarianza $C_\X : \H_\X \to \H_\X$, $C_\Y : \H_\Y \to \H_\Y$ como
+        \begin{equation*}
+        C_\X \psi = \int_\X C_{x, x} \psi d \mu_\X (x) = \int_\X [\Phi_\X (x) \otimes \Phi_\X (x)] \psi d \mu_\X (x)
+    \end{equation*}
+     \begin{equation*}
+    	C_\Y \psi = \int_\Y C_{y,y} \psi d \mu_\X (y) =  \int_\Y [\Phi_\Y (y) \otimes \Phi_\Y (y)] \psi d \mu_\Y (y)
+    \end{equation*}
+\end{defn}
+\begin{defn}
+    Se define el operador de covarianza cruzada asociada a la dinámica como el operador $C_{\X \X^+} : \H_\X \to \H_\X$ dado por 
+    \begin{equation*}
+        C_{\X \X^+} \psi = \int_\X \int_\X C_{x, y} \psi d\rho_\X (x, \cdot)(y) d \mu_\X (x)= \int_\X \int_\X [\Phi_\X (x) \otimes \Phi_\X (y)] d\rho_\X (x, \cdot)(y) d \mu_\X (x) 
+    \end{equation*}
+    Y el operador de covarianza cruzada asociada a la observación como $C_{\Y \X} : \H_\X \to \H_\Y$ dado por
+    \begin{equation*}
+        C_{\Y \X} \psi = \int_\X \int_\Y C_{y,x} \psi d\rho_\Y (x, \cdot) (y) d \mu_\X (x) = \int_\X \int_\Y [\Phi_\Y (y) \otimes \Phi_\X (x)] \psi d\rho_\Y (x, \cdot) (y) d \mu_\X (x)
+    \end{equation*}
+\end{defn}
+\begin{defn}[Operadores de embedding condicional \cite{Song2009}]   
+	Se definen los operadores de embedding condicional como $C_{\X^+ | \X} : \H_\X \to \H_\X$, $C_{\Y | \X} : \H_\X \to \H_\Y$
+	\begin{equation*}
+		C_{\X^+ | \X} = C_{\X^+ \X} C_{\X}^{-1}
+	\end{equation*}
+	\begin{equation*}
+		C_{\Y | \X} = C_{\Y \X} C_{\X}^{-1}
+	\end{equation*}
+\end{defn}
+Asumiremos ahora que $\U \H_\X \subset \H_\X$ y $\G \H_\Y \subset \H_\X$, para ello primero asumiremos que $\H_\X$ y $H_\Y$ son espacios de Sobolev (pensar en Matérn) y ahora la siguiente proposición.
+\begin{prop}[Invarianza Sobolev para Koopman]
+	Si $p_\mathbf{f} \in C^{k,k} (\X \times \X)$ y $p_\mathbf{g} \in C^{k,k} (\X \times \Y)$, entonces 
+	\begin{equation*}
+		\U \H^k (\X) \subset \H^k (\X), \quad \G \H^k (\Y) \subset \H^k (\X)
+	\end{equation*}
+\end{prop}
+\begin{proof}
+	Basta tomar primero $m \in \N$, $m \leq k$ y $| \alpha | = m$ un multiíndice, luego, por teorema de la convergencia dominada, para $h \in \H^k (\X)$
+	\begin{equation*}
+		\partial^\alpha_x (\U h)(x) = \int_\X h(y) \partial^\alpha_x p_{\mathbf{f}} (x, y) d \mu_\X (y)
+	\end{equation*}
+	Así
+	\begin{equation*}
+		\begin{aligned}
+			\| \partial^\alpha_x (\U h) \|_{L^2}^2 & \leq \int_\X \int_\X h(y)^2 \partial^\alpha_x p_{\mathbf{f}} (x, y)^2 d \mu_\X (y) d \mu_\X (x) \\
+			& \leq \| \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} \mu (\X) \int_\X h(y)^2 d \mu_\X (y) \\
+			& \leq \| \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} \mu_\X (\X) \| h \|_{H^k (\X)} 
+		\end{aligned}
+	\end{equation*}
+	Con lo que 
+	\begin{equation*}
+		\| \U h \|_{H^k} \leq \left ( \mu_\X (\X) \sum_{|\alpha| \leq k} \|  \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} \right ) \| h \|_{H^k} 
+	\end{equation*}
+	Y se concluye que $\U h \in H^k$, y de hecho
+	\begin{equation*}
+		\| \U \|_{H^k \to H^k} \leq  \mu_\X (\X) \sum_{|\alpha| \leq k} \|  \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} 
+	\end{equation*}
+	Análogamente, para $h \in H^k(\Y)$
+	\begin{equation*}
+		\| \G h \|_{H^k (\X)} \leq \left ( \mu_\X (\X) \sum_{|\alpha| \leq k} \|  \partial^\alpha_x p_{\mathbf{g}} \|_{C^{k,k}} \right ) \| h \|_{H^k (\Y)} 
+	\end{equation*}
+\end{proof}
+\noindent Suponiendo la invarianza de los operadores de Koopman a través del RKHS, se tiene lo siguiente
+\begin{equation*}
+	\begin{aligned}
+		C_{\X \X} \psi & = \int_\X \int_\X [\Phi_\X (x) \otimes \Phi_\X (y)] \psi d\rho_\X (x, \cdot) (y) d \mu_\X (x)  \\
+		& =  \int_\X \int_\Y \psi(y) \Phi_\X (x) d\rho_\X (x, \cdot) (y) d \mu_\X (x) \\
+		& = \int_\X (\U \psi) (x) \Phi_\X (x) d \mu_\X (x) \\
+		& = \int_\X [\Phi_\X (x) \otimes \Phi_\X (x) ] (\U \psi) d \mu_\X (x) \\
+		& = C_\X  \U  \psi \\
+	\end{aligned}
+\end{equation*}
+Por tanto se tiene que $C_{\X \X} = C_{\X} \U  $. Notando que
+\begin{equation*}
+    	C_{\X} = \E[\Phi_\X (\X) \otimes \Phi_\X (\X)], \quad	C_{\X \X^+} = \E[\Phi_\X (\X) \otimes \Phi_\X (\X^+)]
+\end{equation*}
+y que 
+\begin{equation*}
+	(\Phi_\X (\X) \otimes \Phi_\X (\Y))^* = \Phi_\X (\Y) \otimes \Phi_\X (\X)
+\end{equation*}
+se tiene $C_{\X}* = C_{\X}$ y $C_{\X \X^+}^* = C_{\X^+ \X}$
+\begin{equation*}
+	C_{\X^+ \X} C_\X^{-1} =  \U^* 
+\end{equation*}
+con lo que $C_{\X^+ \X} C_\X^{-1} = C_{\X^+ | \X} = \U^* = \mathcal{P}_\mathbf{f}$ y análogamente $C_{\Y | \X} = \G^* = \mathcal{P}_\mathbf{g}$. Esto debe entenderse de manera cuidadosa y está bien definido si es que $C_{\X \X}$ es inyectivo \cite{Fukumizu2013}.
+\begin{defn}
+    Se definen los operadores $S_\X : \H_\X \to L^2(\X; \mu_\X)$, $S_\Y : \H_\Y \to L^2(\Y; \mu_\Y)$ como
+    \begin{equation*}
+        (S_\X \psi) (\cdot) = \langle \psi, \Phi_\X (\cdot) \rangle = \psi (\cdot), \quad (S_\Y \psi) (\cdot) = \langle \psi, \Phi_\Y (\cdot) \rangle = \psi (\cdot)
+    \end{equation*}
+\end{defn}
+\noindent En \cite{Philipp2024} se prueba que
+\begin{equation*}
+    T_\X = S_\X S_\X^*, \quad  C_\X = S_\X^*S_\X, \quad  T_\Y = S_\Y S_\Y^*, \quad  C_\Y = S_\Y^*S_\Y
+\end{equation*}
+\begin{equation*}
+	C_{\X \X}^{\mathbf{f}} = S_\X^* \U S_\X, \quad C_{\X \X}^{\mathbf{g}} = S_\X^* \G S_\Y
+\end{equation*}
+donde $T_\X : L^2(\X; \mu_\X) \to L^2(\X; \mu_\X)$, $T_\Y:L^2(\Y; \mu_\Y) \to L^2(\Y; \mu_\Y)$ son los operadores integrales
+\begin{equation*}
+    T_\X f (x) = \int_\X k_\X(x,y) f(y) d\mu_\X(y), \quad T_\Y f (x) = \int_\Y k_\Y (x,y) f(y) d\mu_\Y (y)
+\end{equation*}
+
+\begin{lema}[Teorema 4.27 \cite{Christmann2008}]
+	Sea \( \X \) un espacio medible con medida \(\sigma\)-finita \(\mu\) y \( \H \) un RKHS separable sobre \( \X \) con \textit{kernel} medible \( k : \X \times \X \to \mathbb{R} \) que satisface \( \|k\|_{L^2(\mu)} < \infty \). Entonces, \( S_\X : L^2(\mu) \to H \) es un operador de Hilbert-Schmidt con
+	\[
+	\|S_\X\|_{HS} = \|k\|_{L^2(\mu)}
+	\]
+	Además, el operador integral \( T_\X = S_\X^* S_\X : L^2 (\mu) \to L^2 (\mu) \) es compacto, positivo, auto-adjunto y nuclear con
+	\[
+	\|T_\X\|_{\text{nuc}} = \|S_\X\|_{HS} = \|k\|_{L^2(\mu)}.
+	\]
+\end{lema}
+
+\begin{prop}
+    $C_\X : \H_\X \to \H_\X$, $C_\Y : \H_\Y \to \H_Y$ son operadores lineales compactos y autoadjuntos.
+\end{prop}
+
+\begin{proof}
+    Es directo que $C_\X = S_\X^*S_\X$, $C_\Y = S_\Y^*S_\Y$ son autoadjuntos. Son continuos y con norma a lo más $|| k_\X ||_{L^2(\X, \mu_\X)}$ ya que para $h \in \H_\X$
+        \begin{equation*}
+            \begin{aligned}
+                || C_\X h ||_{\H_\X} ^2
+                &= \langle C_\X h, C_\X h \rangle \\
+                &= \langle S_\X^*S_\X h, S_\X^*S_\X h \rangle \\
+                &= \langle S_\X h, S_\X S_\X^*S_\X h \rangle \\
+                &= \langle S_\X h,  S_\X^*S_\X h \rangle \\
+                &= \langle S_\X S_\X h,  S_\X h \rangle \\
+                &= \langle S_\X h,  S_\X h \rangle \\
+                &= || S_X h ||^2_{L^2 (\X; \mu_\X)} \\
+                &\leq || k_\X ||^2_{L^2(\X, \mu_\X)} || h ||^2_{\H_\X}
+            \end{aligned}
+        \end{equation*}
+        Análogamente, para $h \in \H_\Y$,  $|| C_\Y h ||_{\H_\Y} ^2 \leq || k_\Y ||^2_{L^2(\Y, \mu_\Y)} || h ||^2_{\H_\Y}$.
+\end{proof}
+
+
+%\begin{prop}
+ %   Los valores propios no nulos de $T_k$ y $C_\X$ coinciden, esto es, si $\lambda \neq 0$ y $E_\lambda(A) = \{ x : Ax = \lambda x \}$, entonces
+ %   \begin{equation*}
+ %       E_\lambda(C_\X) = E_\lambda(T_k)
+ %   \end{equation*}
+%\end{prop}
+
+%\begin{prop}
+ %   Si $k(x,x) > 0$ para todo $x \in \X$, entonces los valores propios de %$C_\X$ son simples, es decir, tienen multiplicidad $1$.
+%\end{prop}
+
+\noindent Sea $\mu$ una medida de probabilidad sobre $\X$ y $\{x_i\}_{i=1}^N$ puntos sampleados desde $\mu_\X$ y 
+\begin{equation*}
+	y_i \sim \rho_\X (x_i, \cdot), \quad z_i \sim \rho_\Y (x_i, \cdot), \quad i = 1, \dots, N
+\end{equation*}
+Se definen las matrices
+    \begin{equation*}
+        \mathbf{K}^N_{x,x} = \left ( \frac{1}{N} k(x_i, x_j) \right )_{i,j = 1}^N
+        \quad 
+        \mathbf{K}^N_{x,y} = \left ( \frac{1}{N} k(x_i, y_j) \right )_{i,j = 1}^N
+        \quad  \mathbf{K}^N_{x,z} = \left ( \frac{1}{N} k(z_i, z_j) \right )_{i,j = 1}^N
+    \end{equation*} 
+
+\noindent Estas matrices representan, respectivamente, a los operadores $\hat{C}_\X$, $\hat{C}^{\mathbf{f}}_\X$ y $\hat{C}^{\mathbf{g}}_\X$
+\begin{equation*}
+    \hat{C}_\X \Phi_\X (x_j) = \frac{1}{N} \sum_{i=1}^N [\Phi_\X (x_i) \otimes \Phi_\X (x_i)] \Phi_\X (x_j) = \frac{1}{N} \sum_{i=1}^N k_\X (x_i, x_j) \Phi_\X (x_i)
+\end{equation*}
+
+\begin{equation*}
+    \hat{C}_{\X \X}^{\mathbf{f}} \Phi_\X (x_j) = \frac{1}{N} \sum_{i=1}^N [\Phi_\X (x_i) \otimes \Phi_\X (y_i)] \Phi_\X (x_j) = \frac{1}{N} \sum_{i=1}^N k_\X (y_i, x_j) \Phi_\X (x_i)
+\end{equation*}
+
+\begin{equation*}
+    \hat{C}_{\X \X}^{\mathbf{g}} \Phi_\X (x_j) = \frac{1}{N} \sum_{i=1}^N [\Phi_\Y (z_i) \otimes \Phi_\X (x_i)] \Phi_\X (x_j) = \frac{1}{N} \sum_{i=1}^N k_\X (x_i, x_j) \Phi_\Y(z_i)
+\end{equation*}
+La aproximación de Koopman para la dinámica viene dada por
+    \begin{equation*}
+        \mathbf{U}_N = (\mathbf{K}^N_{x,x})^{-1} \mathbf{K}^N_{x,y} \in \R^{N \times N}
+    \end{equation*}
+    y para la observación
+    \begin{equation*}
+        \mathbf{G}_N = (\mathbf{K}^N_{x,x})^{-1} \mathbf{K}^N_{x,z} \in \R^{N \times N}
+    \end{equation*}
+    donde $\mathbf{K}_{x,x}$ es invertible ya que el kernel es definido positivo.
+Si la inversa de $\mathbf{K}_{x,x}$, a pesar de existir, está mal condicionada, se puede disminuir el rango de la matriz a $r < N$ (pensemos en SVD) y cambiar la inversa por una pseudo-inversa:
+\begin{equation*}
+    \mathbf{U}_N^r = [\mathbf{K}_{x,x}]^{\dagger}_r \mathbf{K}_{x,y}  \in \R^{N \times N}
+\end{equation*}
+\begin{equation*}
+    \mathbf{G}_N^r = [\mathbf{K}_{x,x}]^{\dagger}_r \mathbf{K}_{x,z}  \in \R^{N \times N}
+\end{equation*}
+Entonces, el operador que aproxima a Koopman de la dinámica viene dado por 
+\begin{equation*}
+    \U_N^r = [\hat{C}_\X]^{\dagger}_r \hat{C}_{\X \X}^{\mathbf{f}}
+\end{equation*}
+y el de la observación por
+\begin{equation*}
+    \G_N^r = [\hat{C}_\X]^{\dagger}_r \hat{C}_{\X \X}^\mathbf{g}
+\end{equation*}
+Denotemos por $P_r$ a la proyección ortogonal de $L^2(\X, \mu)$ en span$\{ e_1, \dots, e_r \}$ con $e_i$ la función propia de $C_\X$ asociada al i-ésimo valor propio de $C_\X$ ordenados de mayor a menor.
+
+Aquí el teorema que le dará forma al resultado principal de esta presentación, probado por Phillip et al.\footnote{Error analysis of kernel EDMD for prediction and control in the Koopman framework} y que también se hace referencia en\footnote{Error bounds for kernel-based approximations of the Koopman operator}.\\ 
+Para ello primero sea $r \in \N$ arbitrario, y asumamos que los primeros $r + 1$ valores propios de $C_\X$ son simples: $\lambda_{j+1} < \lambda_j, \,  j = 1, \dots, r$ y definamos las cantidades
+\begin{equation*}
+        \delta_r = \min_{j = 1, \dots, r} \frac{\lambda_{j} - \lambda_{j+1}}{2}
+\end{equation*}
+\begin{equation*}
+    \varphi(x) = k(x,x)
+\end{equation*}
+\begin{equation*}
+        c_r = \frac{1}{\sqrt{\lambda_{r}}} + \frac{r + 1}{\sqrt{\lambda_r}} (1 + || \varphi ||_{L^1}) || \varphi ||_{L^1}^{1/2}
+\end{equation*}
+
+Se hace mímica de la demostración de la proposición 4.1 en \cite{Philipp2024}, que hace lo mismo para el caso a tiempo continuo, en ella se utiliza la desigualdad de Hoeffding, una herramienta importante para obtener cotas de probabilidad de variables aleatorias \cite{Pinelis1994} \cite{Mollenhauer2021}.
+
+\begin{lema}[Desigualdad de Hoeffding en espacios de Hilbert]
+	Sea \(\xi_1, \dots, \xi_n\) un conjunto de variables aleatorias independientes en un espacio de Hilbert separable \(H\) tal que \( \|\xi_i\|_H \leq M \) c.s. y \(\E[\xi_i] = 0\) para todo \(1 \leq i \leq n\). Entonces, para todo \(\varepsilon > 0\), se tiene:
+	
+	\[
+	\P\left( \left\| \frac{1}{n} \sum_{i=1}^{n} \xi_i \right\|_H \geq \varepsilon \right) \leq 2 \exp\left( -\frac{n \varepsilon^2}{2M^2} \right)
+	\]
+	\label{hoeffding}
+\end{lema}
+
+\begin{teo} Para todo $N \in \N$ y para todo $\varepsilon > 0$ se tiene que 
+	\[
+	\P\left( \|C_{\X \X} - \hat{C}_{\X \X}^{\mathbf{f}}\|_{HS} > \varepsilon \right) \leq 2e^{-\frac{N\epsilon^2}{8\|k\|_\infty^2}}
+	\]
+	
+	\[
+	\P\left( \|C_{\X \X} - \hat{C}_{\X \X}^{\mathbf{g}}\|_{HS} > \varepsilon \right) \leq 2e^{-\frac{N\epsilon^2}{8\|k\|_\infty^2}}
+	\]
+	
+	\[
+	\P\left( \|C_\X - \hat{C}_\X\|_{HS} > \varepsilon \right) \leq 2e^{-\frac{N\epsilon^2}{8\|k\|_\infty^2}}.
+	\]
+\end{teo}
+
+\begin{proof}
+	Para \( x, y \in \X \) se denota \( C_x := \Phi(x) \otimes \Phi(x) \) y \( C_{xy} := \Phi(x) \otimes \Phi(y) \). Si \( (f_i) \subset \H \) denota la base ortonormal de \( \H \) correspondiente a \( k \) en \( \X \times \X \), para \( x, x', y, y' \in \X \), se tiene:
+\[
+\langle C_{xy}, C_{x'y'} \rangle_{HS} = \sum_i \langle C_{xy} f_i, C_{x'y'} f_i \rangle_{\H} = \sum_i f_i(y) f_i(y') k(x, x') = k(x, x') k(y, y').
+\]
+Esto demuestra que \( \|C_{xy}\|^2_{HS} = \varphi(x)\varphi(y) \). Además, se obtiene:
+\begin{equation*}
+	\begin{aligned}
+		\|C^{\mathbf{f}}_{\X \X}\|^2_{HS} &= \left\|\int C^{\mathbf{f}}_{xy} \, d \rho (x, \cdot)(y) d \mu(x) \right\|^2_{HS} \\ 
+		&= \int \int k(x, x') k(y, y') \, d \rho (x, \cdot)(y) d \mu(x) d \rho (x', \cdot)(y') d \mu(x') \\
+		&\leq \|k\|^2_\infty.
+	\end{aligned}
+\end{equation*}
+Dado que los \( C_{x_k, y_k} \) son independientes, \( \E[C_{\X \X} - C_{x_k, y_k}] = 0 \) y 
+\[
+\|C_{\X \X}^{\mathbf{f}} - C_{x_k, y_k}\|_{HS} \leq \|C_{\X \X}^{\mathbf{f}} \|_{HS} + \|C_{x_k, y_k}\|_{HS} \leq 2\|k\|_\infty,
+\]
+con esto se puede aplicar el lema \ref{hoeffding} y obtener que para todo $\varepsilon \geq 0$ se tiene la siguiente cota de probabilidad
+\[
+\P \left( \|C_{\X \X}^{\mathbf{f}}  - \hat{C}_{\X \X}\|_{HS} > \varepsilon \right) = \P \left( \left\|\frac{1}{N} \sum_{k=0}^{N-1} \left( C_{\X \X}^{\mathbf{f}}  - C_{x_k, y_k} \right)\right\|_{HS} > \varepsilon \right) \leq 2e^{-\frac{N\varepsilon^2}{8\|k\|_\infty^2}}.
+\]
+Las otras dos cotas son análogas.
+\end{proof}
+
+\begin{teo}    
+    Sean $\varepsilon \in (0, \delta_r)$ y $\delta \in (0, 1)$ arbitrarios, $N \geq \max \left \{ r, \frac{8 || k ||_\infty^2 \ln (4/\delta)}{\varepsilon^2} \right \}$. Luego con probabilidad al menos $1 - \delta$ se tiene que 
+    
+    \begin{equation*}
+        || P_r\U - \U_N^r ||_{\H \to L^2(\X, \mu)} \leq c_r \varepsilon
+    \end{equation*}
+\end{teo}
+
+\begin{proof}
+	Notar primero que
+	\begin{equation*}
+		\begin{aligned}
+			\P \left( \|C_{\X \X}^{\mathbf{f}}  - \hat{C}_{\X \X}\|_{HS} > \varepsilon \right) \leq 2e^{-\frac{N\varepsilon^2}{8\|k\|_\infty^2}} &\iff 1 - \P \left( \|C_{\X \X}^{\mathbf{f}}  - \hat{C}_{\X \X}\|_{HS} > \varepsilon \right)  \geq 1 - 2e^{-\frac{N\varepsilon^2}{8\|k\|_\infty^2}} \\
+			&\iff \P \left( \|C_{\X \X}^{\mathbf{f}}  - \hat{C}_{\X \X}\|_{HS} \leq \varepsilon \right)  \geq 1 - 2e^{-\frac{N\varepsilon^2}{8\|k\|_\infty^2}}
+		\end{aligned}
+	\end{equation*}
+	Denotando $\delta = 2e^{-\frac{N\varepsilon^2}{8\|k\|_\infty^2}}$, entonces los eventos $\|C_{\X \X}^{\mathbf{f}}  - \hat{C}_{\X \X}\|_{HS} \leq \varepsilon$ y $\|C_{\X}  - \hat{C}_{\X}\|_{HS} \leq \varepsilon$ ocurren por separado con probabilidad al menos $1 - \delta$, por tanto, y debido a la independencia, se tiene que 
+	\begin{equation*}
+		\P \left( \|C_{\X \X}^{\mathbf{f}}  - \hat{C}_{\X \X}\|_{HS} \leq \varepsilon \land \|C_{\X}  - \hat{C}_{\X}\|_{HS} \leq \varepsilon \right) \geq (1 - \delta/2)^2 
+	\end{equation*}
+	es decir, ambos eventos ocurren simultáneamente con probabilidad al menos $(1 - \delta)^2$. Luego
+	\begin{equation*}
+		\begin{aligned}
+			\| \hat{C}_{\X \X} \hat{C}_{\X}^{-1} - C_{\X \X} C_{\X}^{-1} \| & \leq \| \hat{C}_{\X \X} \hat{C}_{\X}^{-1} - \hat{C}_{\X \X} C_{\X}^{-1} \| + \| \hat{C}_{\X \X} C_{\X}^{-1} - C_{\X \X} C_{\X}^{-1} \| \\
+			&  \leq \| \hat{C}_{\X \X} \| \| \hat{C}_{\X}^{-1} - C_{\X}^{-1} \| + \| C_{\X}^{-1} \| \| \hat{C}_{\X \X} - C_{\X \X} \| \\
+			& \leq 
+		\end{aligned}
+	\end{equation*} 
+\end{proof}
+
+\begin{teo}
+    Sean $\varepsilon \in (0, \delta_r)$ y $\delta \in (0, 1)$ arbitrarios, $N \geq \max \{ r, \frac{8 || k ||_\infty^2 \ln (4/\delta)}{\varepsilon^2} \}$. Supongamos que $\U \H \subseteq \H$, luego con probabilidad al menos $1 - \delta$ se tiene que 
+    
+    \begin{equation*}
+        || \U - \U_N^r ||_{\H \to \L^2(\X, \mu)} \leq \sqrt{\lambda_{r+1}} || \U ||_{\H \to L^2(\X, \mu)} + c_r \varepsilon
+    \end{equation*}
+\end{teo}
+
+\subsection{Resultados numéricos}
+
+A pesar de que las cotas de error del kernel Extended Dynamic Mode Decomposition serán útiles para la construcción de la cota de error para el filtro, también son interesantes por sí solas y se puede visualizar al aproximar distintos sistemas dinámicos y operadores de manera empírica.
+
+% Cap 3
+
+
+\section{Filtro de Kalman a tiempo discreto en RKHS}
+
+El objetivo de esta sección es estudiar el error que se produce entre una regla de Kalman dada y otra, que posteriormente se utilizará para cuantificar el error que comete la regla de Kalman aproximante y la regla de Kalman exacta, ambas por introducirse también en la presente sección. \\
+Primero, se supone que existen dos sistemas dinámicos observados en un espacio de Hilbert, con espacio de estados $E_x$ y de observaciones $E_y$, de la forma
+\begin{equation*}
+	\begin{aligned}
+		\mu_{i,k}  &= A_{i,k} \mu_{i,k-1} + \nu_{i,k} \\
+		y_{i,k} &= C_{i,k} \mu_{i,k} + \xi_{i, k}
+	\end{aligned}
+\end{equation*}
+Donde $A_{i,k} : E_x \to E_x$, $C_{i,k}: E_x \to E_y$ se supondrán lineales y $\nu_{i,k} \in E_x$, $\xi_{i,k} \in E_y$ son variables aleatorias con segundo momento finito y operadores de covarianza $\mathcal{Q}_{i,k}$, $\mathcal{R}_{i,k}$, respectivamente, todo esto para $i \in {1,2}$ y $k \geq 1$. \\
+Entonces, se tiene una regla de Kalman asociada a cada uno de los sistemas, que vienen dadas por
+\begin{equation*}
+	\begin{aligned}
+		\mathcal{P}_{i,k}^- &= A_{i,k}^* \mathcal{P}_{i,k-1}^+ A_{i,k} + \mathcal{Q}_{i,k} \\
+		\S_{i,k} &= C_{i,k} \mathcal{P}_{i,k}^- C_{i,k}^* + \mathcal{R}_{i,k} \\
+		\K_{i,k} &= \mathcal{P}_{i,k}^- C_{i,k}\S_{i,k}^{-1} \\
+		\mathcal{P}_{i,k}^+  &= (I - \K_{i,k} C_{i,k}) \mathcal{P}_{i,k}^- \\
+		\hat{\mu}_{i,k} &= A_{i,k} \hat \mu_{i,k-1} + \K_{i,k} (y_{k} - C_{i,k} \hat\mu_{i,k-1}) 
+	\end{aligned}
+\end{equation*}
+con $i \in \{ 1,2 \}$, $k \geq 1$, $\mathcal{P}_{i,k}^-, \mathcal{P}_{i,k}^+ : E_x \to E_x$ los operadores de covarianza de error a priori y a posteriori, respectivamente y $\K_{i,k} : E_y \to E_x$ el operador de ganancia de Kalman. Estas reglas se inicializan como
+\begin{equation*}
+	\hat{\mu}_{i,0} = \E [\mu_{i,0}], \quad \mathcal{P}_{i,0} = \text{Cov} ( \mu_{i,0})
+\end{equation*}
+Con esto se tiene el siguiente resultado que ilustra el hecho de que la discrepancia en norma entre las reglas de Kalman se puede descomponer en la discrepancia en norma de cada uno de los elementos asociados y de la iteración anterior.
+
+\begin{teo}[Descomposición de error de Kalman]
+	Sea $k \geq 1$, si los operadores $\S_{i,k}$ son invertibles entonces existen constantes $c_{k,j}^i$ con $j \in \{ 1, \dots, 7\}$, $i \in \{ 1, 2\}$ tales que
+	 \begin{equation*}
+	 	\begin{aligned}
+	 		\| \hat \mu_{1,k} - \hat \mu_{2,k}  \| \leq & \, c_{1,k}^1 \| A_{1, k} - A_{2, k} \| +  c_{2,k}^1 \| C_{1, k} - C_{2, k} \| \\ 
+	 		&+ c_{3,k}^1 \| \mathcal{Q}_{1, k} - \mathcal{Q}_{2, k} \| +c_{4,k}^1 \| \mathcal{R}_{1, k} - \mathcal{R}_{2, k} \| \\
+	 		& + c_{5,k}^1 \| y_{1,k} - y_{2,k} \| + c_{6,k}^1 \| \hat \mu_{1, k-1} - \hat \mu_{2, k-1} \| + c_{7,k}^1 \| \mathcal{P}_{1, k-1}^+ - \mathcal{P}_{2, k-1}^+ \|
+	 	\end{aligned}
+	 \end{equation*}
+	 \begin{equation*}
+	 	\begin{aligned}
+	 		\| \mathcal{P}_{1,k}^+ - \mathcal{P}_{2,k}^+  \| \leq & \, c_{1,k}^2 \| A_{1, k} - A_{2, k} \| +  c_{2,k}^2 \| C_{1, k} - C_{2, k} \| \\ 
+	 		&+ c_{3,k}^2 \| \mathcal{Q}_{1, k} - \mathcal{Q}_{2, k} \| + c_{4,k}^2 \| \mathcal{R}_{1, k} - \mathcal{R}_{2, k} \| \\
+	 		&+ c_{5,k}^2 \| y_{1,k} - y_{2,k} \|+ c_{6,k}^2 \| \hat \mu_{1, k-1} - \hat \mu_{2, k-1} \| + c_{7,k}^2 \| \mathcal{P}_{1, k-1}^+ - \mathcal{P}_{2, k-1}^+ \|
+	 	\end{aligned}
+	 \end{equation*}
+	 En donde las constante $c_{k,j}^i$ son positivas y dependen de $k$ solo a través de $\| A_{i,k} \| $, $\| C_{i,k}\| $, $\| \mathcal{Q}_{i,k} \| $, $\| \mathcal{R}_{i,k} \| $, $\| \S_{i,k}^{-1} \| $, $\| y_{i,k}\|$, $\| \mu_{i,k-1} \| $ y $\| \mathcal{P}_{i,k-1}^+ \| $.
+	 \label{teo:error_kalman}
+\end{teo}
+\begin{proof}
+	Notar que
+	\begin{equation*}
+		\begin{aligned}
+			&	\| \hat \mu_{1,k} - \hat \mu_{2,k} \|_{E_x}  \\
+			\leq & \, \| A_{1,k} \mu_{1,k-1}  - A_{2,k} \mu_{2,k-1} \|  \\
+			& + \|  \K_{1,k} (y_{1,k} - C_{1,k} \hat\mu_{1,k-1}) -  \K_{2,k} (y_{2,k} - C_{2,k} \hat\mu_{2,k-1})  \|
+		\end{aligned}
+	\end{equation*}
+	El primero término, que se denotará error de predicción, entrega
+	\begin{equation*}
+		\begin{aligned}
+			& \| A_{1,k} \mu_{1,k-1}  - A_{2,k} \mu_{2,k-1} \|  \\
+			&\leq \| A_{1,k} \mu_{1,k-1}  - A_{1,k} \mu_{2,k-1} \| + \| A_{1,k} \mu_{2,k-1}  - A_{2,k} \mu_{2,k-1} \| \\
+			& \leq \| A_{1,k} \| \| \mu_{1,k-1}  - \mu_{2,k-1} \| +  \| \mu_{2,k-1} \| \| A_{1,k} - A_{2,k} \| 
+		\end{aligned}
+	\end{equation*}
+	Mientras que el segundo términos, que se denotará error de actualización, entrega
+	\begin{equation*}
+		\begin{aligned}
+ 			& \|  \K_{1,k} (y_{1,k} - C_{1,k} \hat\mu_{1,k-1}) -  \K_{2,k} (y_{2,k} - C_{2,k} \hat\mu_{i,k-1})  \| \\
+ 			& \leq  \| \K_{1,k} y_{1,k} -  \K_{2,k} y_{2,k}  \| + \| \K_{1,k} C_{1,k} \hat\mu_{1,k-1} - \K_{2,k} C_{2,k} \hat\mu_{2,k-1}  \| \\
+ 			& \leq \| \K_{1,k} y_{1,k} -  \K_{1,k} y_{2,k}  \| + \| \K_{1,k} y_{2,k} -  \K_{2,k} y_{2,k}  \| \\
+ 			& \quad + \| \K_{1,k} C_{1,k} \hat\mu_{1,k-1} - \K_{1,k} C_{2,k} \hat\mu_{2,k-1}  \| + \| \K_{1,k} C_{2,k} \hat\mu_{2,k-1} - \K_{2,k} C_{2,k} \hat\mu_{2,k-1}  \| \\
+ 			& \leq \| \K_{1,k} \| \|  y_{1,k} - y_{2,k}  \| + \| y_{2,k} \| \| \K_{1,k}  -  \K_{2,k}  \| \\
+ 			& \quad + \| \K_{1,k} \| \|  C_{1,k} \hat\mu_{1,k-1} - C_{2,k} \hat\mu_{2,k-1}  \| + \| C_{2,k} \hat\mu_{2,k-1} \| \| \K_{1,k}  - \K_{2,k} \| \\
+ 			& \leq \| \K_{1,k} \| \|  y_{1,k} - y_{2,k}  \| + \| y_{2,k} \| \| \K_{1,k}  -  \K_{2,k}  \| \\
+ 			& \quad + \| \K_{1,k} \| \left ( \|  C_{1,k} \hat\mu_{1,k-1} - C_{1,k} \hat\mu_{2,k-1}  \| + \|  C_{1,k} \hat\mu_{2,k-1} - C_{2,k} \hat\mu_{2,k-1}  \| \right ) \\
+ 			& \quad + \| C_{2,k} \hat\mu_{2,k-1} \| \| \K_{1,k}  - \K_{2,k} \| \\
+ 			& \leq \| \K_{1,k} \| \|  y_{1,k} - y_{2,k}  \| + \| y_{2,k} \| \| \K_{1,k}  -  \K_{2,k}  \| \\
+ 			& \quad + \| \K_{1,k} \| \left ( \| C_{1,k}  \| \|  \hat\mu_{1,k-1} - \hat\mu_{2,k-1}  \| + \| \hat\mu_{2,k-1}  \| \| C_{1,k} - C_{2,k}  \| \right ) \\
+ 			& \quad + \| C_{2,k} \hat\mu_{2,k-1} \| \| \K_{1,k}  - \K_{2,k} \| 
+		\end{aligned}		
+	\end{equation*}
+	En virtud de lo anterior, se debe ver la diferencia en norma de los operadores de ganancia
+	\begin{equation*}
+		\begin{aligned}
+			& \| \K_{1,k}  - \K_{2,k} \| \\
+			& \leq \| \mathcal{P}_{1,k}^- C_{1,k}\S_{1,k}^{-1} -  \mathcal{P}_{2,k}^- C_{2,k} \S_{2,k}^{-1} \| \\
+			& \leq \| \mathcal{P}_{1,k}^- C_{1,k}\S_{1,k}^{-1} - \mathcal{P}_{2,k}^- C_{1,k}\S_{1,k}^{-1} \| + \| \mathcal{P}_{2,k}^- C_{1,k}\S_{1,k}^{-1} - \mathcal{P}_{2,k}^- C_{2,k}\S_{2,k}^{-1} \| \\
+			& \leq \| C_{1,k}\S_{1,k}^{-1} \| \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| + \| \mathcal{P}_{2,k}^- \| \|  C_{1,k}\S_{1,k}^{-1} -  C_{2,k}\S_{2,k}^{-1}\| \\
+			& \leq \| C_{1,k}\S_{1,k}^{-1} \| \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| \\
+			& \quad + \| \mathcal{P}_{2,k}^- \| \|  C_{1,k}\S_{1,k}^{-1} -  C_{2,k}\S_{2,k}^{-1}\| \\
+			& \leq \| C_{1,k}\S_{1,k}^{-1} \| \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| \\
+			& \quad + \| \mathcal{P}_{2,k}^- \| ( \|  C_{1,k}\S_{1,k}^{-1} -  C_{1,k}\S_{2,k}^{-1}\| + \|  C_{1,k}\S_{2,k}^{-1} -  C_{2,k}\S_{2,k}^{-1}\|) \\
+			& \quad + \| \mathcal{P}_{2,k}^- \| ( \|  C_{1,k} \| \| \S_{1,k}^{-1} -  \S_{2,k}^{-1}\| + \| \S_{2,k}^{-1} \| \| C_{1,k} -  C_{2,k}\|) \\
+		\end{aligned}
+	\end{equation*}
+	En donde
+	\begin{equation*}
+		\begin{aligned}
+			\| \mathcal{P}_{i,k}^- \|  \leq \| A_{i,k} \|^2 \| \mathcal{P}_{i,k-1}^+\| + \| \mathcal{Q}_{i,k}\|, \quad i \in \{ 1, 2 \}
+		\end{aligned}
+	\end{equation*}
+	Primero para las diferencia en norma de los operadores de covarianza de error a priori se tiene
+	\begin{equation*}
+		\begin{aligned}
+			 & \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| \\
+			 & = \| A_{1,k}^* \mathcal{P}_{1,k-1}^+ A_{1,k} + \mathcal{Q}_{1,k} -A_{2,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} + \mathcal{Q}_{2,k}  \| \\
+			 & \leq \|A_{1,k}^* \mathcal{P}_{1,k-1}^+ A_{1,k} - A_{2,k}^* \mathcal{P}_{2,k}^+ A_{2,k} \| + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+			 & \leq \|A_{1,k}^* \mathcal{P}_{1,k-1}^+ A_{1,k} - A_{1,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} \| +  \|A_{1,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} - A_{2,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} \| \\ 
+			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+			 & \leq \|A_{1,k}^* \| \| \mathcal{P}_{1,k-1}^+ A_{1,k} - \mathcal{P}_{2,k-1}^+ A_{2,k} \| + \| \mathcal{P}_{2,k-1}^+ A_{2,k}  \| \|A_{1,k}^* - A_{2,k}^* \| \\ 
+			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+			 & \leq \|A_{1,k} \| \| \mathcal{P}_{1,k-1}^+ A_{1,k} - \mathcal{P}_{2,k-1}^+ A_{2,k} \| + \| \mathcal{P}_{2,k-1}^+ A_{2,k}  \| \|A_{1,k} - A_{2,k} \| \\ 
+			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+			 & \leq \|A_{1,k} \| (\| \mathcal{P}_{1,k}^+ A_{1,k} - \mathcal{P}_{1,k-1}^+ A_{2,k} \| + \| \mathcal{P}_{1,k-1}^+ A_{2,k} - \mathcal{P}_{2,k-1}^+ A_{2,k} \| ) \\
+			 & \quad + \| \mathcal{P}_{2,k-1}^+ \| \| A_{2,k}  \| \|A_{1,k} - A_{2,k} \| \\ 
+			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+			 & \leq \|A_{1,k} \| ( \| \mathcal{P}_{1,k-1}^+ \| \|  A_{1,k} - A_{2,k} \| + \| A_{2,k} \| \| \mathcal{P}_{1,k-1}^+  - \mathcal{P}_{2,k-1}^+  \| ) \\
+			 & \quad + \| \mathcal{P}_{2,k-1}^+ \| \| A_{2,k}  \| \|A_{1,k} - A_{2,k} \| \\ 
+			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \|
+		\end{aligned}
+	\end{equation*}
+	Por último queda ver el término $\| \S_{1,k}^{-1} -  \S_{2,k}^{-1}\|$, para ello notar que
+	\begin{equation*}
+		\S_{1,k}^{-1} -  \S_{2,k}^{-1} = \S_{2,k}^{-1} (\S_{2,k} - \S_{1,k}) \S_{1,k}^{-1}
+	\end{equation*}
+	Con lo que se tiene
+	\begin{equation*}
+		\begin{aligned}
+			& \| \S_{1,k}^{-1} -  \S_{2,k}^{-1} \| \\
+			& \leq  \| \S_{2,k}^{-1} (\S_{2,k} - \S_{1,k}) \S_{1,k}^{-1} \| \\
+			& \leq \| \S_{1,k}^{-1} \| \|  \S_{2,k}^{-1} \| \| \S_{2,k} - \S_{1,k}\| \\
+			& \leq  \| \S_{1,k}^{-1} \| \|  \S_{2,k}^{-1} \|  \| C_{1,k} \mathcal{P}_{1,k}^- C_{1,k}^* + \mathcal{R}_{1,k} - C_{2,k} \mathcal{P}_{2,k}^- C_{2,k}^* + \mathcal{R}_{2,k} \|
+		\end{aligned}
+	\end{equation*}
+	En donde, análogo a lo anterior, se obtiene
+	\begin{equation*}
+		\begin{aligned}
+			 & \| C_{1,k} \mathcal{P}_{1,k}^- C_{1,k}^* + \mathcal{R}_{1,k} - C_{2,k} \mathcal{P}_{2,k}^- C_{2,k}^* + \mathcal{R}_{2,k} \| \\
+			 & \leq \|C_{1,k-1} \| ( \| \mathcal{P}_{1,k-1}^+ \| \|  C_{1,k} - C_{2,k} \| + \| C_{2,k} \| \| \mathcal{P}_{1,k-1}^+  - \mathcal{P}_{2,k-1}^+  \| ) \\
+			 & \quad + \| \mathcal{P}_{2,k-1}^+ \| \| C_{2,k}  \| \|C_{1,k} - C_{2,k} \| \\ 
+			 & \quad + \| \mathcal{R}_{1,k} - \mathcal{R}_{2,k}  \|
+		\end{aligned}
+	\end{equation*}
+	Concluyendo que
+		 \begin{equation*}
+		\begin{aligned}
+			\| \hat \mu_{1,k} - \hat \mu_{2,k}  \| \leq & \, c_{1,k}^1 \| A_{1, k} - A_{2, k} \| +  c_{2,k}^1 \| C_{1, k} - C_{2, k} \| \\ 
+			&+ c_{3,k}^1 \| \mathcal{Q}_{1, k} - \mathcal{Q}_{2, k} \| +c_{4,k}^1 \| \mathcal{R}_{1, k} - \mathcal{R}_{2, k} \| \\
+			& + c_{5,k}^1 \| y_{1,k} - y_{2,k} \| + c_{6,k}^1 \| \hat \mu_{1, k-1} - \hat \mu_{2, k-1} \| + c_{7,k}^1 \| \mathcal{P}_{1, k-1}^+ - \mathcal{P}_{2, k-1}^+ \|
+		\end{aligned}
+	\end{equation*}
+	Para la diferencia de los errores de covarianza a posteriori basta notar que
+	\begin{equation*}
+		\begin{aligned}
+			& \| \mathcal{P}_{1,k}^+ - \mathcal{P}_{2,k}^+  \| \\
+			& \leq \| (I - \K_{1,k} C_{1,k}) \mathcal{P}_{1,k}^-  - (I - \K_{2,k} C_{2,k}) \mathcal{P}_{2,k}^- \| \\
+			& = \| \K_{1,k} C_{1,k} \mathcal{P}_{1,k}^-  -  \K_{2,k} C_{2,k} \mathcal{P}_{2,k}^- \| \\
+			&  \leq \| \K_{1,k} C_{1,k} \mathcal{P}_{1,k}^-  -  \K_{1,k} C_{2,k} \mathcal{P}_{2,k}^- \| +  \| \K_{1,k} C_{2,k} \mathcal{P}_{2,k}^-  -  \K_{2,k} C_{2,k} \mathcal{P}_{2,k}^- \| \\
+			& \leq \| \K_{1,k} \| \| C_{1,k} \mathcal{P}_{1,k}^-  -  C_{2,k} \mathcal{P}_{2,k}^- \| + \| C_{2,k} \mathcal{P}_{2,k}^- \|  \| \K_{1,k}   -  \K_{2,k}  \| \\
+			& \leq \| \K_{1,k} \| ( \| C_{1,k} \mathcal{P}_{1,k}^-  -  C_{1,k} \mathcal{P}_{2,k}^- \| + \| C_{1,k} \mathcal{P}_{2,k}^-  -  C_{2,k} \mathcal{P}_{2,k}^- \|) + \| C_{2,k} \mathcal{P}_{2,k}^- \|  \| \K_{1,k}   -  \K_{2,k}  \| \\
+			& \leq \| \K_{1,k} \| ( \| C_{1,k} \| \| \mathcal{P}_{1,k}^-  -  \mathcal{P}_{2,k}^- \| + \| \mathcal{P}_{2,k}^- \| \| C_{1,k}   -  C_{2,k} \|) + \| C_{2,k} \mathcal{P}_{2,k}^- \|  \| \K_{1,k}   -  \K_{2,k}  \| 
+		\end{aligned}
+	\end{equation*}
+	Observando que todos los términos ya se analizaron antes, se concluye que
+	\begin{equation*}
+		\begin{aligned}
+			\| \mathcal{P}_{1,k}^+ - \mathcal{P}_{2,k}^+  \| \leq & \, c_{1,k}^2 \| A_{1, k} - A_{2, k} \| +  c_{2,k}^2 \| C_{1, k} - C_{2, k} \| \\ 
+			&+ c_{3,k}^2 \| \mathcal{Q}_{1, k} - \mathcal{Q}_{2, k} \| + c_{4,k}^2 \| \mathcal{R}_{1, k} - \mathcal{R}_{2, k} \| \\
+			&+ c_{5,k}^2 \| y_{1,k} - y_{2,k} \|+ c_{6,k}^2 \| \hat \mu_{1, k-1} - \hat \mu_{2, k-1} \| + c_{7,k}^2 \| \mathcal{P}_{1, k-1}^+ - \mathcal{P}_{2, k-1}^+ \|
+		\end{aligned}
+	\end{equation*}
+\end{proof}
+Con esto se concluye que para una iteración $k$, el error depende del error en la condición tanto para la estimación del estado como para el operador de covarianza de error a posteriori.\\
+Notemos que
+\begin{equation*}
+	\begin{aligned}
+		\Phi_\X (\mathbf{x_{k+1}}) &= \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) \\
+		&= \E[\Phi_\X (\mathbf{f}(\mathbf{x}_k, \cdot)] + \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) - \E[\Phi_\X (\mathbf{f}(\mathbf{x}_k, \cdot))] \\
+		&= (\U \Phi_\X) (\mathbf{x}_k) + \zeta_k
+	\end{aligned}
+\end{equation*}
+donde $\zeta_k$ es una variable aleatoria infinito dimensional, centrada y con operador de covarianza acotado, digamos $\mathcal{Q}_k$. Análogamente
+\begin{equation*}
+	\Phi_\Y (\mathbf{y}_k) = (\G \Phi_\Y) (\mathbf{x}_k) + \nu_k
+\end{equation*}
+donde $\nu_k$ es una variable aleatoria infinito dimensional, centrada y con operador de covarianza acotado, digamos $\mathcal{R}_k$. \\
+Haciendo algo similar a \cite{Gebhard2019}, se denota
+\begin{equation*}
+	\hat{\mu}_k = \E [\Phi_\X (\mathbf{x}_k) | \mathbf{y}_{1:k}], \quad \mathcal{P}_{k} = \text{Cov}(\Phi_\X(\mathbf{x}_k) - \hat{\mu}_k)  
+\end{equation*}
+con 
+\begin{equation*}
+	\hat{\mu}_0 = \E [\Phi_\X (\mathbf{x}_0)], \quad \mathcal{P}_{0} = \text{Cov}(\Phi_\X (\mathbf{x}_0) - \hat{\mu}_0).
+\end{equation*}
+Y se define
+\begin{equation*}
+	\hat{\mu}_{k+1}^- = \E [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}], \quad \mathcal{P}_{k+1}^- = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-) 
+\end{equation*}
+Que por la Kernel Bayes Rule \cite{Fukumizu2013} cumple
+\begin{equation*}
+	\hat{\mu}_{k+1}^- = \E [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}] = C_{X^+|X} \E [\Phi_\X (\mathbf{x}_{k}) | \mathbf{y}_{1:k}] = C_{X^+|X} \hat{\mu}_k.
+\end{equation*}
+Con ello, utilizando la independiencia de $\zeta_k$ con $\Phi_\X (\mathbf{x}_k)$
+\begin{equation*}
+	\begin{aligned}
+		\mathcal{P}_{k+1}^- &= \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-)  \\
+		&= \text{Cov}(C_{X^+|X}\Phi_\X (\mathbf{x}_{k}) + \zeta_{k+1} - C_{X^+|X}\hat{\mu}_{k}) \\
+		&= C_{X^+|X} \text{Cov} (\Phi_\X (\mathbf{x}_{k}) - \hat{\mu}_{k} )C_{X^+|X}^* + \text{Cov}(\zeta_{k+1}) \\
+		&= C_{X^+|X} \mathcal{P}_k (C_{X^+|X})^* + \mathcal{Q}_{k+1}
+	\end{aligned}
+\end{equation*}
+Ahora, debemos proyectar sobre las observaciones para obtener la estimación a posteriori, es decir
+\begin{equation*}
+	\hat{\mu}_{k+1}^- = \E [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}] \to \hat{\mu}_{k+1} = \E [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k+1}]
+\end{equation*}
+Proponiendo que
+\begin{equation*}
+	\hat{\mu}_{k+1} = \hat{\mu}_{k+1}^- + \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)
+\end{equation*}
+Es decir, actualizar igual que en Kalman lineal, en donde ahora $\K_k : \R^p \to \H_\X$ es el operador de ganancia de Kalman, que cumple
+\begin{equation*}
+	\begin{aligned}
+		\K_{k+1} = \mathcal{P}_{k+1}^- (C_{Y|X})^*(C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1})^{-1}
+	\end{aligned}
+\end{equation*}
+y entonces el operador de covarianza de error a posteriori es
+\begin{equation*}
+	\mathcal{P}_{k+1} = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}) 
+\end{equation*}
+    Desarrollando este término, y utilizando independencia
+\begin{equation*}
+	\begin{aligned}
+		\mathcal{P}_{k+1} &= \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}) \\
+		& = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^- - \K_k (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)) \\
+		& = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-) + \text{Cov}( \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)) \\
+		& = \mathcal{P}_{k+1}^- + \K_{k+1} \text{Cov} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-) (\K_{k+1})^* \\
+		& =  \mathcal{P}_{k+1}^- + \K_{k+1} (C_{Y|X} \Phi_\X( \mathbf{x}_{k+1}) + \nu_k - C_{Y|X} \hat{\mu}_{k+1}^- ) (\K_{k+1})^* \\
+		& =  \mathcal{P}_{k+1}^- + \K_{k+1} (C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \text{Cov} (\nu_{k+1}))  (\K_{k+1})^* \\
+		& = \mathcal{P}_{k+1}^- + \K_{k+1} (C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1})  (\K_{k+1})^* \\
+		& = \mathcal{P}_{k+1}^- + \K_{k+1} C_{Y|X} \mathcal{P}_{k+1}^- \\
+		& = (I + \K_{k+1} C_{Y|X}) \mathcal{P}_{k+1}^- 
+	\end{aligned} 
+\end{equation*}
+Donde se utilizó que
+\begin{equation*}
+	\begin{aligned}
+		(\K_{k+1})^* = (C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1})^{-1}   C_{Y|X}(\mathcal{P}_{k+1}^-)^*
+	\end{aligned}
+\end{equation*}
+y que $C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^*$, $\mathcal{R}_{k+1}$ son simétricos y $\mathcal{P}_{k+1}$ es autoadjunto.
+    Entonces, las ecuaciones para cada iteración vienen dadas por
+\begin{equation*}
+	\begin{aligned}
+		\hat{\mu}_{k+1}^- & = C_{X^+|X} \hat{\mu}_{k} \\
+		\mathcal{P}_{k+1}^- & = C_{X^+|X} \mathcal{P}_k (C_{X^+|X})^* + \mathcal{Q}_{k+1} \\
+		\S_{k+1} & = C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1} \\
+		\K_{k+1} & = \mathcal{P}_{k+1}^- (C_{Y|X})^* \S_{k+1}^{-1} \\
+		\mathcal{P}_{k+1} & = (I + \K_{k+1} C_{Y|X}) \mathcal{P}_{k+1}^- \\
+		\hat{\mu}_{k+1} &= C_{X^+|X} \hat{\mu}_k + \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)
+	\end{aligned}
+\end{equation*}
+Con 
+\begin{equation*}
+	\hat{\mu}_0 = \E [\Phi_\X (\mathbf{x}_0)], \quad \mathcal{P}_{0} = \text{Cov}(\Phi_\X (\mathbf{x}_0) - \hat{\mu}_0)  
+\end{equation*}
+    Ahora dejando todo en función del operador de Koopman, gracias a que
+\begin{equation*}
+	C_{X^+|X} = \U^*, \quad C_{Y|X} = \G^*
+\end{equation*}
+Con lo que queda
+\begin{equation*}
+	\begin{aligned}
+		\hat{\mu}_{k+1}^- & = \U^* \hat{\mu}_{k} \\
+		\mathcal{P}_{k+1}^- & = \U^* \mathcal{P}_k \U + \mathcal{Q}_{k+1} \\
+		\S_{k+1} & = \G^* \mathcal{P}_{k+1}^- \G + \mathcal{R}_{k+1} \\
+		\K_{k+1} & = \mathcal{P}_{k+1}^- \G \S_{k+1}^{-1} \\
+		\mathcal{P}_{k+1} & = (I + \K_{k+1} \G^*) \mathcal{P}_{k+1}^- \\
+		\hat{\mu}_{k+1} &= \U^* \hat{\mu}_k + \K_{k+1} (\mathbf{y}_{k+1} - \G^* \hat{\mu}_{k+1}^-)
+	\end{aligned}
+\end{equation*}
+    Si hacemos las aproximaciones finito dimensionales, queda
+\begin{equation*}
+	\begin{aligned}
+		\hat{\mu}_{N, k+1}^- & = \U^*_N \hat{\mu}_{N, k} \\
+		\mathcal{P}_{N, k+1}^- & = \U^*_N \mathcal{P}_{N,k} \U_N + \mathcal{Q}_{N, k+1} \\
+		\K_{N,k+1} & = \mathcal{P}_{N, k+1}^- \G_N (\G^*_N \mathcal{P}_{N, k+1}^- \G_N + \mathcal{R}_{N, k+1})^{-1} \\
+		\mathcal{P}_{N, k+1} & = (I + \K_{N,k+1} \G_N^*) \mathcal{P}_{N,k+1}^- \\
+		\hat{\mu}_{N,k+1} &= \U^* \hat{\mu}_{N,k} + \K_{N,k+1} (\mathbf{y}_{k+1} - \G^*_N \hat{\mu}_{N,k+1}^-)
+	\end{aligned}
+\end{equation*}
+    En donde $\mathcal{Q}_{N,k+1}$, $\mathcal{R}_{N,k+1}$ son los estimadores insesgados de $\mathcal{Q}_{k+1}$ y $\mathcal{R}_{k+1}$, respectivamente, esto es
+\begin{equation*}
+	\mathcal{Q}_{N,k+1} = \frac{1}{N-1}\sum_{j=1}^N (z_{1,j} - \bar{z}_1)^2, \quad \mathcal{R}_{N,k+1} = \frac{1}{N-1}\sum_{j=1}^N (z_{2,j} - \bar{z}_2)^2
+\end{equation*}
+en donde $\{ z_{1,j} \}_{j=1}^N \sim \zeta_k^N$, $\{ z_{2,j} \}_{j=1}^N \sim \nu_k^N$ y 
+\begin{equation*}
+	\bar{z}_i = \frac{1}{N} \sum_{j=1}^N z_{i,j}
+\end{equation*}
+Si $X_0$ es la distribución dada para la condición inicial y $\{ x_j \}_{j=1}^N \sim X_0$, entonces la inicialización viene dada por
+\begin{equation*}
+	\mathcal{P}_{N,0} = \frac{1}{N} \sum_{j=1}^N \Phi_\X(x_{k}), \quad \hat{\mu}_{N,0} = \frac{1}{N-1} \sum_{j=1}^N (\Phi_\X(x_{k}) - \hat{\mu}_{N,0})^2
+\end{equation*}
+Aplicando el teorema anterior, es directo lo siguiente
+\begin{prop}
+	Para $k \geq 1$, existen constantes $c_{k,j}^i$ con $j \in \{ 1, \dots, 6\}$, $i \in \{ 1, 2\}$ tales que
+	\begin{equation*}
+		\begin{aligned}
+			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, c_{1,k}^1 \| \U - \U_N \| +  c_{2,k}^1 \| \G - \G_N \| \\ 
+			&+ c_{3,k}^1 \| \mathcal{Q}_{k} - \mathcal{Q}_{N, k} \| +c_{4,k}^1 \| \mathcal{R}_{k} - \mathcal{R}_{N, k} \| \\
+			& + c_{5,k}^1 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + c_{6,k}^1 \| \mathcal{P}_{k-1} - \mathcal{P}_{N, k-1} \|
+		\end{aligned}
+	\end{equation*}
+	\begin{equation*}
+		\begin{aligned}
+			\| \mathcal{P}_{k} - \mathcal{P}_{N,k} \| \leq & \, c_{1,k}^2 \| \U - \U_N \| +  c_{2,k}^2 \| \G - \G_N \| \\ 
+			&+ c_{3,k}^2 \| \mathcal{Q}_{k} - \mathcal{Q}_{N, k} \| +c_{4,k}^2 \| \mathcal{R}_{k} - \mathcal{R}_{N, k} \| \\
+			& + c_{5,k}^2 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + c_{6,k}^2 \| \mathcal{P}_{k-1} - \mathcal{P}_{N, k-1} \|
+		\end{aligned}
+	\end{equation*}
+	En donde las constantes $c_{k,j}^i$ son positivas y dependen de $k$ solo a través de $\| \U \| $, $\| \G \| $, $\| \mathcal{Q}_{k} \| $, $\| \mathcal{R}_{k} \| $, $\| \S_{k}^{-1} \| $, $\| \hat{\mu}_{k-1} \| $ y $\| \mathcal{P}_{k-1} \| $.
+\end{prop}
+
+
+\begin{proof}
+	Se hará por inducción, se prueba el caso $k=0$ primero, notar que si denotamos
+	\begin{equation*}
+		\Tilde{\mu}_N = \mu^N_{\mathbf{x}, 0|0} - \mu_{\mathbf{x}, 0|0}  = \frac{1}{n} \sum_{i=1}^{n} \Phi (x_i) - \E [\Phi (X_0)] = \frac{1}{n}  \sum_{i=1}^{n} (   \Phi (x_i) - \E [\Phi (X_0)] )
+	\end{equation*}
+	Llamando $\xi_i = \Phi (x_i) - \E [\Phi (X_0)]$, para $i = 1, \dots, n$, que son independientes por la independencia de los $x_i$ y centrados ya que $\E [\Phi (x_i)] = \E [\Phi (X_0)]$ al cumplirse que $x_i \sim X_0$. Además
+	\begin{equation*}
+		\begin{aligned}
+				\left \| \frac{1}{n}  \sum_{i=1}^{n} \Phi (x_i) - \E [\Phi (X_0)] \right \| & \leq \frac{1}{n} \sum_{i=1}^n \left \| \Phi (x_i) \right \| + \| \E[\Phi (X_0)] \| \\
+			&  \leq \frac{1}{n} \sum_{i=1}^n \left \| \varphi \right \|_\infty + \E [ \| \Phi (X_0) \| ] \\
+			&  \leq 2 \left \| \varphi \right \|_\infty 
+		\end{aligned}
+	\end{equation*}
+	En donde en la penúltima desigualdad se ha utilizado la desigualdad de Jensen. Entonces por desigualdad de Hoeffding (lema \ref{hoeffding}) se tiene que
+	\begin{equation*}
+		\P ( \|  \mu^N_{\mathbf{x}, 0|0} - \mu_{\mathbf{x}, 0|0}  \|_\H  > c_r \varepsilon) \leq 2e^{-\frac{N\varepsilon^2 c_r}{8\|k\|_\infty^2}} = \delta^{c_r}
+	\end{equation*}
+	Se considera como aproximación para $\mathcal{P}_{0|0}$ el estimador insesgado para el operador de covarianza en RKHS dado por
+	\begin{equation*}
+		\mathcal{P}^N_{0|0} = \frac{1}{N-1} \sum_{i=1}^N (\Phi (x_i) - \mu_{0|0}^N ) \otimes (\Phi (x_i) - \mu_{0|0}^N ) 
+	\end{equation*}
+	Que análogo a lo hecho en la sección anterior cumple
+	\begin{equation*}
+		\P ( \| \mathcal{P}^N_{0|0} - \mathcal{P}_{0|0}  \| > c_r \varepsilon) \leq 2e^{-\frac{N\varepsilon^2 c_r}{8\|k\|_\infty^2}} 
+	\end{equation*}
+	Luego con probabilidad al menos $(1-\delta)^2(1 -  \delta^{c_r} )^2$ se tiene que 
+	\begin{equation*}
+		\|  \mu^N_{\mathbf{x}, 0|0} - \mu_{\mathbf{x}, 0|0}  \|_\H, \| \mathcal{P}^N_{0|0} - \mathcal{P}_{0|0}  \|, \| \U - \U_N^r \|, \| \G - \G_N^r \| \leq c_r \varepsilon
+	\end{equation*}
+	Sea $k \geq 1$ tal que se cumple lo que se busca probar, se demostrará que también se cumple para $k+1$. Primero, las aproximaciones de las matrices de covarianza de ruido y dinámica inyectadas a través del \textit{feature map} vienen dadas por
+	\begin{equation*}
+		\mathcal{Q}_k^N = \frac{1}{N-1}  \sum_{i=1}^{N} ( \Phi (x_i) - q_k^N ) \otimes ( \Phi (x_i) - q_k^N ), \quad \mathcal{R}_k^N = \frac{1}{N-1}  \sum_{i=1}^{N} ( \Phi (x_i) - r_k^N ) \otimes ( \Phi (x_i) - r_k^N )
+	\end{equation*}
+	Donde
+	\begin{equation*}
+		q_k^N = \frac{1}{N} \sum_{i=1}^{N} \Phi (x_i), \quad r_k^N = \frac{1}{N} \sum_{i=1}^{N} \Phi (x_i)
+	\end{equation*}
+	De manera similar a lo anterior
+	\begin{equation*}
+		\P ( \| \mathcal{Q}_k^N - \mathcal{Q}_k^N \| > c_r \varepsilon) \leq 2e^{-\frac{N\varepsilon^2 c_r}{8\|k\|_\infty^2}}, \quad \P ( \| \mathcal{R}_k^N - \mathcal{R}_k^N \| > c_r \varepsilon) \leq 2e^{-\frac{N\varepsilon^2 c_r}{8\|k\|_\infty^2}}
+	\end{equation*}
+	Por tanto, con probabilidad al menos $(1 - \delta)^2 (1 - \delta^{c_r})^{2 + 2(k+1)} $
+	\begin{equation*}
+		\|  \mu^N_{\mathbf{x}, 0|0} - \mu_{\mathbf{x}, 0|0}  \|_\H, \| \mathcal{P}^N_{0|0} - \mathcal{P}_{0|0}  \|, \| \U - \U_N^r \|, \| \G - \G_N^r \|, \, \{ \| \mathcal{Q}_j^N - \mathcal{Q}_j^N \|, \, \| \mathcal{R}_j^N - \mathcal{R}_j^N \|  \}_{j=1}^k \leq c_r \varepsilon
+	\end{equation*}
+	Ahora se procede a acotar las normas correspondientes, para ello, desde las ecuaciones de recurrencia se tiene que
+	\begin{equation*}
+		\begin{aligned}
+		&	\| \mu^N_{\mathbf{x}, k+1|k+1} - \mu_{\mathbf{x}, k+1|k+1} \|_\H  \\
+		\leq & \, \| \U_N^r   \mu^N_{\mathbf{x}, k|k}  - S_\X^* \U S_\X \mu_{\mathbf{x}, k|k} \|  \\
+		& + \| \K_k (\Phi(\mathbf{y}_k) -  \G  \U \mu_{\mathbf{x},k-1|k-1}) -  \K_k^N (\Phi(\mathbf{y}_k) - \G_N^r \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N)  \|
+		\end{aligned}
+	\end{equation*}
+	Entonces se pueden acotar ambos término, se procede con el primero
+	\begin{equation*}
+		\begin{aligned}
+			&\| \U_N^r   \mu^N_{\mathbf{x}, k|k}  -  \U \mu_{\mathbf{x}, k|k} \| \\ 
+			& \leq  \| \U_N^r   \mu^N_{\mathbf{x}, k|k}  - \U_N^r   \mu_{\mathbf{x}, k|k} \| + \| \U_N^r   \mu_{\mathbf{x}, k|k}  - \U \mu_{\mathbf{x}, k|k} \| \\
+			& \leq \| \U_N^r  \| \cdot \| \mu^N_{\mathbf{x}, k|k}  - \mu_{\mathbf{x}, k|k} \| +  \| \U_N^r  -  \U \| \cdot \| \mu_{\mathbf{x}, k|k} \|
+		\end{aligned}		 
+	\end{equation*}
+	Y el segundo
+	\begin{equation*}
+		\begin{aligned}
+			&\| \K_k (\Phi(\mathbf{y}_k) -  \G \U  \mu_{\mathbf{x},k-1|k-1}) -  \K_k^N (\Phi(\mathbf{y}_k) - \G_N^r \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N)  \| \\
+			& \leq \|  \K_k \Phi(\mathbf{y}_k) - \K_k^N \Phi(\mathbf{y}_k) \| + \| \K_k \G \U  \mu_{\mathbf{x},k-1|k-1} - \K_k^N \G_N \U_N  \mu_{\mathbf{x},k-1|k-1} \|
+		\end{aligned}
+	\end{equation*}
+		Además, recordar las ecuaciones para  $\K_k$ y $\K_k^N$, llamando
+	\begin{equation*}
+		\S_k = \G \mathcal{P}_{k|k-1} \G^* + \mathcal{R}_k, \quad \S_k^N =  \G_N^r \mathcal{P}^N_{k|k-1} (\G^r_N)^* + \mathcal{R}_k^N
+	\end{equation*}
+	\begin{equation*}
+		\K_k = \mathcal{P}_{k|k-1} \G
+		\S_k^{-1}, \quad \K_k^N = \mathcal{P}_{k|k-1}^N \G_N^r
+		(\S_k^N)^{-1}
+	\end{equation*}
+	Se debe ser riguroso con esa inversa (no acotada), se supondrá que $\Phi_\Y (y) \in \S_k$, para todo $k \in \N$ e $y \in \Y$, con lo que existe $h_k \in \H_\Y$ tal que $S_k h_k = \Phi_\Y(\mathbf{y}_k)$, así
+	\begin{equation*}
+		\begin{aligned}
+			\|  \K_k \Phi(\mathbf{y}_k) - \K_k^N \Phi(\mathbf{y}_k) \|  
+			& = \| \mathcal{P}_{k|k-1} \G
+			\S_k^{-1} \Phi(\mathbf{y}_k) -  \mathcal{P}_{k|k-1}^N \G_N^r (\S_k^N)^{-1} \Phi(\mathbf{y}_k)  \| \\
+			& =  \| \mathcal{P}_{k|k-1} \G h_k -  \mathcal{P}_{k|k-1}^N \G_N^r (\S_k^N)^{-1} \Phi(\mathbf{y}_k)  \|  \\
+			& \leq  \| \mathcal{P}_{k|k-1} \G h_k -  \mathcal{P}_{k|k-1} \G (\S_k^N)^{-1} \Phi(\mathbf{y}_k)  \| \\ 
+			& \quad +  \| \mathcal{P}_{k|k-1} \G (\S_k^N)^{-1} \Phi(\mathbf{y}_k)  -  \mathcal{P}_{k|k-1}^N \G_N (\S_k^N)^{-1} \Phi(\mathbf{y}_k)  \| \\
+			& \leq \| \mathcal{P}_{k|k-1} \G \| \| h_k - (\S_k^N)^{-1} \Phi(\mathbf{y}_k)  \| \\
+			& \quad + \|  \mathcal{P}_{k|k-1}^N \G_N -  \mathcal{P}_{k|k-1} \G \| \| (\S_k^N)^{-1} \Phi(\mathbf{y}_k)\| \\
+			& \leq \| \mathcal{P}_{k|k-1} \G \| \| h_k - (\S_k^N)^{-1} \Phi(\mathbf{y}_k)  \| \\
+			& \quad + \|  \mathcal{P}_{k|k-1}^N \G_N -  \mathcal{P}_{k|k-1} \G \| ( \| h_k - (\S_k^N)^{-1} \Phi(\mathbf{y}_k)\|  + \| h_k \|) \\
+			& \leq \| \mathcal{P}_{k|k-1} \G \| \| h_k - (\S_k^N)^{-1} \Phi(\mathbf{y}_k)  \| \\
+			& \quad +  (\| \mathcal{P}_{k|k-1} - \mathcal{P}_{k|k-1}^N \| \| \G_N \| ( \| h_k - (\S_k^N)^{-1} \Phi(\mathbf{y}_k)\|  + \| h_k \|) \\
+			& \quad + \| \G_N - \G \| \| \mathcal{P}_{k|k-1} \| ( \| h_k - (\S_k^N)^{-1} \Phi(\mathbf{y}_k)\|  + \| h_k \|) \\
+		\end{aligned}
+	\end{equation*}
+	Notando que
+	\begin{equation*}
+		\| h_k - (\S_k^N)^{-1} \Phi(\mathbf{y}_k) \|  = \| h_k - (\S_k^N)^{-1} \S_k h_k \| \leq \| I_{H_\Y \to \H_\Y} - (\S_k^N)^{-1} \S_k \| \| h_k \|
+	\end{equation*}
+	Y 
+	\begin{equation*}
+		\| \G_N \| \leq \| \G - \G_N \| + \| \G \|
+	\end{equation*}
+	Viendo el segundo término de dicha expresión
+	\begin{equation*}
+		\begin{aligned}
+			& \| \K_k  \G  \U  \mu_{\mathbf{x},k-1|k-1} - \K_k^N \G_N^r \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N  \| \\
+			& \leq \| \K_k  \G  \U  \mu_{\mathbf{x},k-1|k-1} - \K_k^N \G \U \mu_{\mathbf{x}, k-1 | k-1}  \|  +  \| \K_k^N \G \U \mu_{\mathbf{x}, k-1 | k-1} - \K_k^N \G_N^r \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N \| 
+		\end{aligned}
+	\end{equation*}
+	Sea $r_k \in \H_\Y$ tal que $S_k r_k = \G  \U  \mu_{\mathbf{x},k-1|k-1}$, luego 
+	\begin{equation*}
+		\begin{aligned}
+			\| \K_k  \G  \U  \mu_{\mathbf{x},k-1|k-1} - \K_k^N \G \U \mu_{\mathbf{x}, k-1 | k-1}  \| = 
+			& \| \mathcal{P}_{k|k-1} \G
+			r_k -  \mathcal{P}_{k|k-1}^N \G_N^r (\S_k^N)^{-1} S_k r_k \| 
+		\end{aligned}
+	\end{equation*}
+	Y llamando $r_k^N \in \H_\Y$ tal que $S_k r_k^N = \G_N  \U_N  \mu_{\mathbf{x},k-1|k-1}^N$
+	\begin{equation*}
+		\begin{aligned}
+			 \| \K_k^N \G \U \mu_{\mathbf{x}, k-1 | k-1} - \K_k^N \G_N^r \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N \| 
+			 & = \| \K_k^N S_k r_k - \K_k^N S_k r_k^N \| \\
+			 & = \|  \mathcal{P}_{k|k-1}^N \G_N^r (\S_k^N)^{-1} S_k r_k -  \mathcal{P}_{k|k-1}^N \G_N^r (\S_k^N)^{-1} S_k r_k^N  \| \\
+			 & \leq \| \mathcal{P}_{k|k-1}^N \G_N^r (\S_k^N)^{-1} S_k \| \| r_k - r_k^N \|
+		\end{aligned}
+	\end{equation*}
+	Ahora, como $\G$ tiene rango cerrado \cite{Philipp2024} se tiene que 
+	\begin{equation*}
+	  \| r_k - r_k^N\| \leq C \| S_k r_k - S_k r_k^N \| \leq C \| \G \U  \mu_{\mathbf{x},k-1|k-1} - \G_N  \U_N  \mu_{\mathbf{x},k-1|k-1}^N  \|
+	\end{equation*}
+	Vemos primero uno de los términos
+	\begin{equation*}
+		\begin{aligned}
+			& \|   \G  \U  \mu_{\mathbf{x},k-1|k-1} -  \G_N^r \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N  \| \\
+			& \leq \|   \G  \U  \mu_{\mathbf{x},k-1|k-1} -  \G \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N  \| + \| \G  \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N-  \G_N^r \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N  \| \\
+			& \leq \| \G \| \cdot \| \U \mu_{\mathbf{x}, k-1 | k-1} - \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N\| + \| \G - \G_N^r \| \cdot \| \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N \| \\
+			& \leq \| \G \| ( \| \U \mu_{\mathbf{x}, k-1 | k-1} - \U \mu_{\mathbf{x}, k-1 | k-1}^N\| +  \| \U \mu_{\mathbf{x}, k-1 | k-1}^N - \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N\| ) \\
+			& \quad + \| \G - \G_N^r \| \cdot \| \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N \| \\
+			& \leq \| \G \| ( \| \U \| \cdot \| \mu_{\mathbf{x}, k-1 | k-1} -  \mu_{\mathbf{x}, k-1 | k-1}^N\| +  \| \U - \U_N^r \| \cdot \| \mu_{\mathbf{x}, k-1 | k-1}^N \| ) \\
+			& \quad + \| \G - \G_N^r \| \cdot \| \U_N^r \mu_{\mathbf{x}, k-1 | k-1}^N \| 
+		\end{aligned}
+	\end{equation*}
+
+
+	Por tanto
+	\begin{equation*}
+		\begin{aligned}
+			& \| \K_k - \K_k^N  \| \\
+			= & \, \| \mathcal{P}_{k|k-1} \G
+			\S_k^{-1} - \mathcal{P}_{k|k-1}^N \G_N^r
+			(\S_k^N)^{-1} \| \\
+			\leq & \, \| \mathcal{P}_{k|k-1} \G
+			\S_k^{-1} - \mathcal{P}_{k|k-1}\G_N^r
+			(\S_k^N)^{-1}  \| + \|  \mathcal{P}_{k|k-1}\G_N^r
+			(\S_k^N)^{-1} - \mathcal{P}_{k|k-1}^N \G_N^r
+			(\S_k^N)^{-1}  \| \\
+			\leq & \, \|  \mathcal{P}_{k|k-1} \| \cdot \| \G
+			\S_k^{-1} - \G_N^r
+			(\S_k^N)^{-1} \| + \|\G_N^r
+			(\S_k^N)^{-1} \|  \|  \mathcal{P}_{k|k-1}^N -  \mathcal{P}_{k|k-1} \| \\
+			\leq & \, \|  \mathcal{P}_{k|k-1} \| ( \| \G
+			\S_k^{-1} - \G (\S_k^N)^{-1} \| + \|\G (\S_k^N)^{-1}  - \G_N^r
+			(\S_k^N)^{-1} \| ) + \|  \mathcal{P}_{k|k-1}^N -  \mathcal{P}_{k|k-1} \| \\
+			\leq & \, \|  \mathcal{P}_{k|k-1} \| ( \| \G \| \| \S_k^{-1} - (\S_k^N)^{-1} \| + \|(\S_k^N)^{-1} \| \|\G  - \G_N^r \| ) + \|  \mathcal{P}_{k|k-1}^N -  \mathcal{P}_{k|k-1} \|
+		\end{aligned}		
+	\end{equation*}
+	Para acotar el término $\| \S_k^{-1} - (\S_k^N)^{-1} \| $ notar que
+	\begin{equation*}
+	  \|  (\S_k^N)^{-1} (\S_k^N - \S_k) \S_k^{-1}  \| = \|  (\S_k^N)^{-1} \S_k^N \S_k^{-1} - (\S_k^N)^{-1} \S_k \S_k^{-1}  \|  =\|  \S_k^{-1} - (\S_k^N)^{-1} \|
+	\end{equation*}
+	Así
+	\begin{equation*}
+		\begin{aligned}
+			 \|  \S_k^{-1} - (\S_k^N)^{-1} \|  & \leq \| \S_k^{-1} \| \| (\S_k^N)^{-1} \| \|  \S_k - \S_k^N \| \\
+			 & \leq \| \S_k^{-1} \| \| (\S_k^N)^{-1} \|   \| \G \mathcal{P}_{k|k-1} \G^* + \mathcal{R}_k - \G_N^r \mathcal{P}^N_{k|k-1} (\G^r_N)^* - \mathcal{R}_k^N \| \\
+			 & \leq \| \S_k^{-1} \| \| (\S_k^N)^{-1} \|  (  \| \G \mathcal{P}_{k|k-1} \G^* - \G_N^r \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| + \| \mathcal{R}_k - \mathcal{R}_k^N \| ) 
+		\end{aligned}
+	\end{equation*}
+	Con 
+	\begin{equation*}
+		\begin{aligned}
+			 \| \G \mathcal{P}_{k|k-1} \G^* - \G_N^r \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| & \leq \|  \G \mathcal{P}_{k|k-1} \G^* - \G \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| \\
+			 & \quad +  \|  \G  \mathcal{P}^N_{k|k-1} (\G^r_N)^* - \G_N^r \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| \\
+			 & \leq \|  \G \| \| \mathcal{P}_{k|k-1} \G^* - \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| \\
+			 & \quad +  \|  \G  - \G_N^r  \| \| \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| \\
+			 & \leq \|  \G \| ( \| \mathcal{P}_{k|k-1} \G^* - \mathcal{P}_{k|k-1} (\G^r_N)^* \| + \| \mathcal{P}_{k|k-1} (\G_N^r)^* - \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| ) \\
+			 & \quad +  \|  \G  - \G_N^r  \| \| \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| \\
+			 & \leq \|  \G \|  \| \mathcal{P}_{k|k-1} \| \| \G^* - (\G^r_N)^* \|   + \| (\G_N^r)^* \| \| \mathcal{P}_{k|k-1}  - \mathcal{P}^N_{k|k-1}  \|  \\
+			 & \quad + \|  \G  - \G_N^r  \| \| \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| \\
+			 & = \|  \G \|  \| \mathcal{P}_{k|k-1} \| \| \G - \G^r_N \|   + \| \G_N^r \| \| \mathcal{P}_{k|k-1}  - \mathcal{P}^N_{k|k-1}  \|  \\
+			 & \quad + \|  \G  - \G_N^r  \| \| \mathcal{P}^N_{k|k-1} (\G^r_N)^* \| 
+		\end{aligned}
+	\end{equation*}
+	Falta ver el término
+	\begin{equation*}
+		\begin{aligned}
+			 \| \mathcal{P}_{k|k-1}  - \mathcal{P}^N_{k|k-1} \|  &  \leq \| \U \mathcal{P}_{k-1|k-1} \U^* - \U_N^r \mathcal{P}_{k-1|k-1}^N (\U_N^r)^* \| + \|  \mathcal{Q}_k^N -  \mathcal{Q}_k \| \\
+			 & \leq \| \U \mathcal{P}_{k-1|k-1} \U^* - \U \mathcal{P}_{k-1|k-1}^N (\U_N^r)^*  \| + \| \U \mathcal{P}_{k-1|k-1}^N (\U_N^r)^*  - \U_N^r \mathcal{P}_{k-1|k-1}^N (\U_N^r)^*  \| \\
+			 & \quad + \|  \mathcal{Q}_k^N -  \mathcal{Q}_k \| \\
+			 & \leq \| \U \| \| \mathcal{P}_{k-1|k-1} \U^* -  \mathcal{P}_{k-1|k-1}^N (\U_N^r)^*  \| + \|  \U  - \U_N^r \|  \|  \mathcal{P}_{k-1|k-1}^N (\U_N^r)^* \| \\
+			 & \quad + \|  \mathcal{Q}_k^N -  \mathcal{Q}_k \| \\
+			 & \leq \| \U \| ( \| \mathcal{P}_{k-1|k-1} \U^* -  \mathcal{P}_{k-1|k-1} (\U_N^r)^*  \| +  \| \mathcal{P}_{k-1|k-1} ^N\U^* -  \mathcal{P}_{k-1|k-1}^N (\U_N^r)^*  \| ) \\
+			 & \quad + \|  \U  - \U_N^r \|  \|  \mathcal{P}_{k-1|k-1}^N (\U_N^r)^* \| \\
+			 & \quad + \|  \mathcal{Q}_k^N -  \mathcal{Q}_k \| \\
+			 & \leq \| \U \| ( \| \mathcal{P}_{k-1|k-1} \| \| \U^* - (\U_N^r)^* \| + \| \mathcal{P}_{k-1|k-1} ^N \|  \| \U^* - (\U_N^r)^*  \| ) \\
+			 & \quad + \|  \U  - \U_N^r \|  \|  \mathcal{P}_{k-1|k-1}^N (\U_N^r)^* \| \\
+			 & \quad + \|  \mathcal{Q}_k^N -  \mathcal{Q}_k \| \\
+			 & \leq \| \U \| ( \| \mathcal{P}_{k-1|k-1} \| \| \U - \U_N^r \| + \| \mathcal{P}_{k-1|k-1} ^N \|  \| \U - \U_N^r  \| ) \\
+			 & \quad + \|  \U  - \U_N^r \|  \|  \mathcal{P}_{k-1|k-1}^N \U_N^r \| \\
+			 & \quad + \|  \mathcal{Q}_k^N -  \mathcal{Q}_k \| \\
+		\end{aligned}
+	\end{equation*}
+	Con esto mismo además se obtiene que
+	\begin{equation*}
+		\begin{aligned}
+			\| \mathcal{P}_{k|k}^N  -  \mathcal{P}_{k|k} \| & = \| (I - \K_k^N \G_N^r) \mathcal{P}_{k|k-1}^N - (I - \K_k \G) \mathcal{P}_{k|k-1} \| \\
+			& \leq \| (I - \K_k^N \G_N^r) \mathcal{P}_{k|k-1}^N - (I - \K_k \G) \mathcal{P}_{k|k-1}^N \| \\
+			& \quad + \|  (I - \K_k \G) \mathcal{P}_{k|k-1}^N - (I - \K_k \G) \mathcal{P}_{k|k-1} \| \\
+			& \leq \| (I - \K_k^N \G_N^r) - (I - \K_k \G)  \| \| \mathcal{P}_{k|k-1}^N \| \\
+			& \quad + \|  \mathcal{P}_{k|k-1}^N - \mathcal{P}_{k|k-1} \| \| I - \K_k \G \| \\
+			& \leq \|  \K_k^N \G_N^r - \K_k \G  \| \| \mathcal{P}_{k|k-1}^N \| \\
+			& \quad + \|  \mathcal{P}_{k|k-1}^N - \mathcal{P}_{k|k-1} \| \| I - \K_k \G \| \\
+			& \leq \| \mathcal{P}_{k|k-1}^N \| ( \|  \K_k^N \G_N^r - \K_k^N \G  \| + \| \K_k^N \G - \K_k \G \| ) \\
+			& \quad + \|  \mathcal{P}_{k|k-1}^N - \mathcal{P}_{k|k-1} \| \| I - \K_k \G \| \\ 
+			& \leq \| \mathcal{P}_{k|k-1}^N \| ( \| \K_k^N \| \| \G_N^r - \G  \| + \| \G \| \| \K_k^N  - \K_k \| ) \\
+			& \quad + \|  \mathcal{P}_{k|k-1}^N - \mathcal{P}_{k|k-1} \| ( \| I \| + \| \K_k \| \| \G \| )\\ 
+		\end{aligned}
+	\end{equation*}
+	Con todo esto, se ha probado que 
+	\begin{equation*}
+		\begin{aligned}
+				\| \mu^N_{\mathbf{x}, k+1|k+1} - \mu_{\mathbf{x}, k+1|k+1} \|_\H & \leq c_{1, k+1}  \| \U_N^r - \U  \| + c_{2, k+1}  \| \G_N^r - \G  \| \\
+				& \quad + c_{3, k+1}  \| \mathcal{Q}_k^N - \mathcal{Q}_k \| + c_{4, k+1}  \| \mathcal{R}_k^N - \mathcal{R}_k \|
+		\end{aligned}
+	\end{equation*}
+	Con lo que se concluye que 
+		\begin{equation*}
+		\begin{aligned}
+			\| \mu^N_{\mathbf{x}, k+1|k+1} - \mu_{\mathbf{x}, k+1|k+1} \|_\H & \leq c_{k+1}  (\sqrt{\lambda_{r+1}} || \U ||_{\H \to L^2(\X, \mu)} + c_r \varepsilon )
+		\end{aligned}
+	\end{equation*}
+	Por inducción se prueba entonces para todo $k \in \N$.
+\end{proof}
+
+\begin{teo}[Aproximación de la medida, con preservación de espacio]
+	Sean $r \in \N$,  $\varepsilon \in (0, \delta_r)$ y $\delta \in (0, 1)$ arbitrarios y $N$ cumpliendo
+	
+	$$N \geq \max \left \{ r, \frac{8 \| k \|_\infty^2 \ln (4/\delta)}{\varepsilon^2} \right \}$$ Supongamos que $\U \H \subset \H$ y $\G \H \subset \H$, luego con probabilidad al menos $1 - \delta$ se tiene que
+	\begin{equation*}
+		\| \mu^N_{\mathbf{x}, k|k} - \mu_{\mathbf{x}, k|k} \|_\H \leq M_k (\sqrt{\lambda_{r+1}} (\| \K \| + \| \G \|) + 2 c_r \varepsilon)
+	\end{equation*}
+	con $M_k > 0$ una constante que depende de la iteración.
+\end{teo}
+
+    Ahora basta proponer como estimador (inaccesible en la práctica):
+\begin{equation*}
+	\hat{\mathbf{x}}_{k|k} = \B \mu_{\mathbf{x}, k|k}
+\end{equation*}
+que satisface
+\begin{equation*}
+	\hat{\mathbf{x}}_{k|k} = \B \mu_{\mathbf{x}, k|k} = \B \E[\Phi(\mathbf{x}_k) | \mathbf{y}_{0:k}] = \E[\mathbf{x}_k | \mathbf{y}_{0:k}] 
+\end{equation*}
+¡que es la solución exacta del problema de filtraje! Y que por tanto también tiene mínimo error cuadrático medio. Denotemos su aproximación finito dimensional (accesible en la práctica)
+\begin{equation*}
+	\hat{\mathbf{x}}_{k|k}^N = \B_N \mu_{\mathbf{x}, k|k}^N
+\end{equation*}
+
+    \begin{cor}[Estimación del estado, sin preservación de espacio]
+	Sea $r \in \N$ arbitrario y $\delta \in (0, 1)$ arbitrario, luego con probabilidad al menos $1 - \delta$ se tiene para todo $k \in \N$ que 
+	\begin{equation*}
+		\| \hat{\mathbf{x}}^N_{k|k} - \hat{\mathbf{x}}_{k|k} \| \to 0, \quad N \to \infty
+	\end{equation*}
+\end{cor}
+\begin{proof}
+	\begin{equation*}
+		\begin{aligned}
+			\| \hat{\mathbf{x}}^N_{k|k} - \hat{\mathbf{x}}_{k|k} \| & = \| \B_N \mu_{\mathbf{x}, k|k}^N -  \hat{\mathbf{x}}_{k|k} \| \\
+			& \leq \| \B_N \mu_{\mathbf{x}, k|k}^N -   \B_N \mu_{\mathbf{x}, k|k} \| + \|  \B_N \mu_{\mathbf{x}, k|k} - \hat{\mathbf{x}}_{k|k} \| \\
+			& \leq \| \B_N \| \| \mu_{\mathbf{x}, k|k}^N - \mu_{\mathbf{x}, k|k}  \| + \|  \B_N \mu_{\mathbf{x}, k|k} - \hat{\mathbf{x}}_{k|k}  \|
+		\end{aligned}
+	\end{equation*}
+	Denotando a la variable aleatoria $\mathbf{x}_{k|k}$ con ley $\mathbf{x}_k | \mathbf{y}_{0:k}$, se tiene que
+	\begin{equation*}
+		\begin{aligned}
+			\|  \B_N \mu_{\mathbf{x}, k|k} - \hat{\mathbf{x}}_{k|k}  \| & = \| \B_N \E [\Phi (\mathbf{x}_{k|k})]  - \E[\mathbf{x}_k | y_{0:k}] \| \\
+			& = \| \E [\B_N \Phi (\mathbf{x}_{k|k}]  - \E[\mathbf{x}_k | y_{0:k}] \| \\
+			& = \| \E [\B_N \Phi (\mathbf{x}_{k|k}]  - \mathbf{x}_k | y_{0:k}] \| \\
+			& = \| \E [(S_X \mathbf{I}_n)(\mathbf{x}_{k|k}) - \mathbf{I}_n (\mathbf{x}_{k|k})] \| \\
+			& \leq \E [\| (S_X \mathbf{I}_n)(\mathbf{x}_{k|k}) - \mathbf{I}_n (\mathbf{x}_{k|k}) \|] \\
+			& \leq \E [\| S_X \mathbf{I}_n - \mathbf{I}_n) \| \| \mathbf{x}_{k|k} \|] \\
+			& \leq \E [ \| S_X - I \| \| \mathbf{I}_n \| \sup_{\mathbf{x} \in \X} \| \mathbf{x}  \| ] \\
+			& = \| S_X - I \| \| \mathbf{I}_n \| \sup_{\mathbf{x} \in \X} \| \mathbf{x}  \| 
+		\end{aligned}
+	\end{equation*}
+	Por tanto
+\end{proof}
+
+\begin{cor}[Estimación del estado, con preservación de espacio]
+	Sean $r \in \N$,  $\varepsilon \in (0, \delta_r)$ y $\delta \in (0, 1)$ arbitrarios y $N$ cumpliendo
+	$$N \geq \max \left \{ r, \frac{8 \| k \|_\infty^2 \ln (4/\delta)}{\varepsilon^2} \right \}$$ Supongamos que $\U \H \subset \H$ y $\G \H \subset \H$, luego con probabilidad al menos $1 - \delta$ se tiene para todo $k \in \N$ que
+	
+	\begin{equation*}
+		\| \hat{\mathbf{x}}^N_{k|k} - \hat{\mathbf{x}}_{k|k} \| \leq M_k (\sqrt{\lambda_{r+1}} (\| \K \| + \| \G \|) + 2 c_r \varepsilon) + M_{d} \| S_X - I \|
+	\end{equation*}
+	con $M_k, \, M_{n} > 0$ una constante que dependen de la iteración y de la dimensión.
+\end{cor}
+
+    \begin{cor}[Sesgo]
+	La estimación dada por el filtro $\hat{\mathbf{x}}^N_{k|k}$, es asintóticamente insesgada en $N$, esto es
+	
+	\begin{equation*}
+		\lim_{N \to \infty} \E[\hat{\mathbf{x}}^N_{k|k} - \mathbf{x}_k] = 0
+	\end{equation*}
+	Si además $\U \H \subset \H$ y $\G \H \subset \H$ y el RKHS es equivalente en norma a un Sobolev $W_2^{2m}$, entonces
+	
+	\begin{equation*}
+		\|\text{Bias}(\hat{\mathbf{x}}^N_{k|k}, \mathbf{x}_k)\| = O(N^{-1/2})
+	\end{equation*}
+	para todo $k \in \N$.
+\end{cor}
+
+\begin{proof}
+	\begin{equation*}
+		\begin{aligned}
+			\| \E [ \hat{\mathbf{x}}^N_{k|k} - \hat{\mathbf{x}}_{k|k} ] \|  & \leq   \E [ \| \hat{\mathbf{x}}^N_{k|k} - \hat{\mathbf{x}}_{k|k} \| ] \\
+		& = \E [ \| \B_N  \mu^N_{\mathbf{x}, k|k}-  \B \mu_{\mathbf{x}, k|k} \| ] \\
+		& \leq \E [ \| \B_N  \mu^N_{\mathbf{x}, k|k} -  \B_N  \mu_{\mathbf{x}, k|k}\| + \|  \B_N  \mu_{\mathbf{x}, k|k}   -  \B \mu_{\mathbf{x}, k|k} \| ] \\
+		& \leq \E [ \| \B_N  \mu^N_{\mathbf{x}, k|k} -  \B_N  \mu_{\mathbf{x}, k|k}\| + \|  \B_N  \mu_{\mathbf{x}, k|k}   -  \B \mu_{\mathbf{x}, k|k} \| ]
+		\end{aligned}		
+	\end{equation*}
+	
+
+\end{proof}
+
+    \begin{cor}[Sobre el ECM]
+	El error cuadrático  medio de la estimación de KKF $\hat{\mathbf{x}}^N_{k|k}$ cumple
+	
+	\begin{equation*}
+		ECM(\hat{\mathbf{x}}^N_{k|k}, \mathbf{x}_k) \to \text{trace}(\mathbf{P}^x_{k|k}), \quad N \to \infty
+	\end{equation*}
+	donde $\text{trace}(\mathbf{P}^x_{k|k})$ es el mínimo error cuadrático medio posible para el problema de filtraje.
+	Si además $\U \H \subset \H$ y $\G \H \subset \H$ y el RKHS es equivalente en norma a un Sobolev $W_2^{2m}$, entonces
+	
+	\begin{equation*}
+		ECM(\hat{\mathbf{x}}^N_{k|k}, \mathbf{x}_k) \leq \text{trace}(\mathbf{P}^x_{k|k}) + O(N^{-1/2})
+	\end{equation*}
+\end{cor}
+Es decir, $\hat{\mathbf{x}}^N_{k|k}$ es un $\varepsilon$-mínimo del problema, con $\varepsilon=O(N^{-1/2})$.
+
+\section{Reconstrucción del estado} 
+
+Lema 4.55 de\footnote{Support Vector Machines, Steinwart}
+\begin{prop}[Inyectividad del \text{feature map}]
+    Sea $k: \X \times \X \to \R$ un kernel universal, luego su \textit{feature map} $\Phi (x) = k (x, \cdot)$ es inyectivo.
+\end{prop}
+
+En virtud de ello, podemos encontrar una inversa por izquierda de $\Phi$, digamos $\mathcal{B}$, es decir, se tiene que $\mathcal{B} : \H \to \X$ y $\mathcal{B} \Phi (x) = x$, para todo $x \in \X$. Esta función será de utilidad para la reconstrucción del estado.
+
+
