@@ -1,0 +1,1 @@
+Dependencies: Numpy, Matplotlib, Scipy, Pandas, Plotly, Kaleido, Sklearn, KKKF, nbformat
