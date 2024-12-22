@@ -348,22 +348,23 @@ con lo que $C_{\X^+ \X} C_\X^{-1} = C_{\X^+ | \X} = \U^* = \mathcal{P}_\mathbf{f
 		\label{teo:error_koop}
 	\end{teo}
 	La misma cota es válida para $\G_N$ y $\B_N$. El siguiente teorema culmina esta sección y será la síntesis de la cota necesaria para la sección siguiente.
-	\begin{teo}
-		Si $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$, entonces 
-		\[
-		\|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2}
-		\]
-		\label{teo:error_koop_sqrt_N}
-	\end{teo}
-	Antes de su demostración, un lema para el orden de los valores propios de la matriz de covarianza.
-	\begin{lema}[\cite{Santin2016ApproximationSpaces}]
+\begin{teo}
+    Si $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$, entonces 
+    \begin{equation}
+        \| \U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2}  
+        \label{eq:kEDMD_bound}
+    \end{equation}
+	\label{teo:error_koop_sqrt_N}
+    \end{teo}
+Antes de su demostración, un lema para el orden de los valores propios de la matriz de covarianza.
+	\begin{teo}[Santin et al. \cite{Santin2016ApproximationSpaces}]
 		Si $\H_\X$ es equivalente en norma a un espacio de Sobolev $H^{\nu + n/2}$ y $\lambda_j$ son los valores propios de $C_X$ en orden descendente, luego
 	\begin{equation*}
 		\sqrt{\lambda_{N+1}} \leq c_1 N^{-(\nu + n)/(2n)}
 	\end{equation*}
 	con $c_1$ alguna constante que no depende de $N$.
 	\label{lema:eig_val_decay}
-	\end{lema}
+	\end{teo}
 	\begin{proof}
 		Gracias a la arbitrariedad de $\varepsilon$ en el teorema \ref{teo:error_koop} se tiene que
 		\[
@@ -386,28 +387,91 @@ con lo que $C_{\X^+ \X} C_\X^{-1} = C_{\X^+ | \X} = \U^* = \mathcal{P}_\mathbf{f
 A pesar de que las cotas de error del kernel Extended Dynamic Mode Decomposition serán útiles para la construcción de la cota de error para el filtro, también son interesantes por sí solas y se puede visualizar al aproximar distintos sistemas dinámicos y operadores de manera empírica.\\
 Será de interés en esta sección no solo explorar cómo un sistema lineal puede aproximar otro sistema de interés mediante el \textit{sampleo} de datos.
 
+\subsubsection{kEDMD para el caso lineal}
+
+Un primer caso de interés es estudiar qué ocurre cuando se tiene un sistema lineal, esto es considerar un sistema de la forma
+\begin{equation*}
+    \mathbf{x}_{k+1} = \mathbf{A} \mathbf{x}_{k}.
+\end{equation*}
+Para este ejemplo se considera
+\begin{equation*}
+    \mathbf{A} = 
+    \begin{pmatrix}
+        1.01 & 0.04 & 0 \\
+        0.01 & 1.02 & \alpha \\
+        0 & 0.04 & 1.02
+    \end{pmatrix}
+\end{equation*}
+en donde el parámetro $\alpha$ determinará el comportamiento del sistema dinámico en el tiempo. Se considera como distribución de probabilidad en $\X = \R^n$ una normal $N(0_{3}, 3 \cdot I_{3\times3})$, para la dinámica se considera un ruido normal $N(0_{3}, 10^{-7} \cdot I_{3\times3})$ y $\mathbf{x}_0 = (0.1, 0.1, 0.1)^T$ como condición inicial.\\
+Notar que en este ejemplo no se satisface la hipótesis de compacidad, pero el sistema con alta probabilidad se mantiene en un compacto en horizonte de tiempo finito.\\
+Se compara la dinámica original con aquella linealizada vía Operador de Koopman \textit{sampleando} 2500 puntos del espacio de estados, utilizando \textit{kernel} de Matérn de parámetro $\nu = 1/2$ y un ancho de banda $\gamma = 10^{-3}$. Esto es, se compara con el sistema
+\begin{align*}
+    \mathbf{z}_{k+1} = & \mathbf{U}_N \mathbf{z}_k \\
+    \hat{\mathbf{x}}_k = & \mathbf{B}_N \mathbf{z}_k \\
+    \mathbf{z}_0 = & \Phi_N(\mathbf{x}_0)
+\end{align*}
+
+Se compara lo obtenido para $\alpha \in \{ -0.3, -0.1, 0.05\}$.
 \begin{figure}[htbp]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/content/chapter3/Linear1.pdf}
-        \caption{Imagen 1}
+        \caption{$\alpha=-0.3$}
         \label{fig:image1}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/content/chapter3/Linear2.pdf}
-        \caption{Imagen 2}
+        \caption{$\alpha=-0.1$}
         \label{fig:image2}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/content/chapter3/Linear3.pdf}
-        \caption{Imagen 3}
+        \caption{$\alpha=0.05$}
+    \end{subfigure}
+    \caption{Ilustración de los tres casos de $\alpha$ elegidos para la comparación entre el sistema lineal original y el sistema linealizado por Koopman a 2500 puntos \textit{sampleados} de una variable aleatoria normal. En forma de puntos se dejan los valores reales que toma el sistema y en línea continua los valores entregados por el sistema linealizado, que se consideran como predicción.}
+    \label{fig:Comp_traj_lin}
+\end{figure}
+Aunque la cota en \eqref{eq:kEDMD_bound} no hace referencia directa a la diferencia en norma de las trayectorias, es de interés analizar el orden en que decae el error en función de $N$, para ello se calcula la diferencia en norma de las trayectorias generadas para $N \in \{ 100k : k \in \{1, \dots, 30\} \}$. \\
+En la figura \ref{fig:Comp_traj_lin} se observa que las trayectorias obtenidas con el sistema linealizado vía Koopman son muy cercanas a las obtenidas con el sistema lineal original, solo difiriendo en zonas donde el sistema original toma valores muy altos, lo que se puede asociar a la poca probabilidad de \textit{sampleo} que le da la distribución normal elegida a puntos muy alejados del origen. \\
+Mientras que en la figura \ref{fig:ErrorLin} se observa que en realidad el orden de decaimiento del error en función de $N$ es mayor que $N^{-1/2}$, mejorando la cota mostrada en \eqref{eq:kEDMD_bound}.
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/Linear1Errors.pdf}
+        \caption{$\alpha=-0.3$}
+        \label{fig:image1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/Linear2Errors.pdf}
+        \caption{$\alpha=-0.1$}
+        \label{fig:image2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/Linear3Errors.pdf}
+        \caption{$\alpha=0.05$}
         \label{fig:image3}
     \end{subfigure}
-    \caption{Tres imágenes en una línea}
-    \label{fig:three_images}
+    \caption{Ilustración de los tres casos de $\alpha$ elegidos para la evolución en función de $N$ de la diferencia en norma entre el sistema lineal original y el sistema linealizado por Koopman a $N$ puntos \textit{sampleados} de una variable aleatoria normal. En forma de puntos se deja la evolución observada del error y en línea continua la mejor curva de la forma $C \cdot N^{a}$, donde $a$ es el exponente que se deja en la leyenda.}
+    \label{fig:ErrorLin}
 \end{figure}
+\subsubsection{kEDMD para modelos utilizados en epidemiología}
+Para esta sección se ilustrarán los resultados de kEDMD para modelos epidemiológicos que no consideran nacimientos ni muertes, es decir, su población total se mantiene constante en el tiempo. Estos modelos reciben el nombre de compartimentales, ya que cada parte de la población se encuentra en un único compartimento y toda la población está en alguno de ellos. Para estos casos se supondrá que la población está normalizada, esto es, que cada compartimento está en $[0, 1]$.\\
+Esto último permite decir que el espacio de estados de este modelo es, sin considerar los eventuales factores estocásticos, un $(n-1)$-simplex, siendo $n$ la cantidad de compartimentos considerados, que se define como el conjunto
+\begin{equation*}
+    \Delta_{n-1} = \left \{ x \in \R^n : \sum_{i=1}^n x_i = 1, \, x_i \geq 0, \, \forall i \in \{1, \dots, n\} \right \}.
+\end{equation*}
+De este conjunto se puede \textit{samplear} de manera eficiente desde una distribución Dirichlet \cite{Frigyik2010IntroductionProcesses}, y se encuentra implementado en las principales librerías con funcionalidades estadísticas. 
+
+
+
+El primer ejemplo clásico es el modelo SIR, en donde se supone 
