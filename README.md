@@ -13,9 +13,9 @@
 
 **Comisión:**
 
-    - **Integrante 1 (presidente).**
-    - **Integrante 2.**
-    - **Integrante 3.**
+* **Integrante 1 (presidente).**
+* **Integrante 2.**
+* **Integrante 3.**
 
 Este repositorio contiene el código y los notebooks utilizados en esta tesis. A continuación, se describen los diferentes archivos y notebooks, así como las dependencias necesarias para ejecutar el proyecto.
 
