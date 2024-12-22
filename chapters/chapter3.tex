@@ -470,14 +470,47 @@ Esto último permite decir que el espacio de estados de este modelo es, sin cons
 \begin{equation*}
     \Delta_{n-1} = \left \{ x \in \R^n : \sum_{i=1}^n x_i = 1, \, x_i \geq 0, \, \forall i \in \{1, \dots, n\} \right \}.
 \end{equation*}
-De este conjunto se puede \textit{samplear} de manera eficiente desde una distribución Dirichlet \cite{Frigyik2010IntroductionProcesses}, y se encuentra implementado en las principales librerías con funcionalidades estadísticas como SciPy \cite{Virtanen2020SciPyPython}, que será la utilizada en este trabajo. 
-\begin{figure}[h]
+De este conjunto se puede \textit{samplear} de manera eficiente desde una distribución Dirichlet \cite{Frigyik2010IntroductionProcesses}, y se encuentra implementado en las principales librerías con funcionalidades estadísticas como SciPy \cite{Virtanen2020SciPyPython}, que será la utilizada en este trabajo.\\
+La densidad de una variable aleatoria Dirichlet con parámetros $\alpha_1, \alpha_2, \ldots, \alpha_K$ se define como:
+\[
+f(x_1, x_2, \ldots, x_K; \alpha_1, \alpha_2, \ldots, \alpha_K) = \frac{1}{B(\alpha)} \prod_{i=1}^{K} x_i^{\alpha_i - 1}
+\]
+donde $x_i \geq 0$ para todo $i$, $\sum_{i=1}^{K} x_i = 1$, y
+\[
+B(\alpha) = \frac{\prod_{i=1}^{K} \Gamma(\alpha_i)}{\Gamma\left(\sum_{i=1}^{K} \alpha_i\right)}
+\]
+es la función beta multivariable, y $\Gamma(\cdot)$ es la función gamma. En la figura \ref{fig:Dirichlet_samples} se puede apreciar la diferencia de \textit{samplear} para diferentes valores de $\alpha$. Un valor de $\alpha$ con entradas iguales genera la misma dispersión en todas las direcciones, siendo $(1, 1, 1)$ la variable aleatoria uniforme en $\Delta_{n-1}$, mientras que valores altos de $\alpha$ generan una alta concentración de muestras en el centro del conjunto. Por otro lado valores desiguales generar mayor cantidad de muestras en alguna de las caras del conjunto.
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\linewidth]{img/content/chapter3/Dirichlet.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \includegraphics[width=0.95\linewidth]{img/content/chapter3/Dirichlet.pdf}
+    \caption{1000 muestras de una variable aleatoria Dirichlet para diferentes valores de $\alpha$, observando dos casos de $\alpha$ con valores homogéneos y uno con valores heterogéneos, lo que provoca un desbalance de muestras.}
+    \label{fig:Dirichlet_samples}
 \end{figure}
-
-
-
-El primer ejemplo clásico es el modelo SIR, en donde se supone 
+El primer ejemplo clásico es el modelo SIR, en donde se supone que se tiene una dinámica de contagios tal que los susceptibles y los infectados interactúan y a cierta tasa se generan más contagios; luego, a cierta tasa, estos infectados se recuperan, ganan inmunidad y por tanto son removidos de la dinámica de contagio, por lo que no vuelven a ser susceptibles.\\
+En tiempo discreto, la dinámica de este modelo viene dada por las ecuaciones
+\begin{equation}
+    \begin{aligned}
+    S_{k+1} &= S_k -\beta S_k I_k, \\
+    I_{k+1} &= I_k + \beta S_k I_k - \gamma I_k, \\
+    S_{k+1} &= R_k + \gamma I_k,
+    \end{aligned}
+    \label{eq:SIR}
+\end{equation}
+donde:
+\begin{itemize}
+    \item \(S_k\) es el número de individuos susceptibles en el tiempo k,
+    \item \(I_k\) es el número de individuos infecciosos en el tiempo \(k\),
+    \item \(R_k\) es el número de individuos recuperados en el tiempo \(k\),
+    \item \(\beta\) es la tasa de transmisión de la enfermedad,
+    \item \(\gamma\) es la tasa de recuperación.
+\end{itemize}
+Con ello, de manera sencilla puede incluirse un factor de pérdida de inmunidad, lo que viene dado por las ecuaciones
+\begin{equation}
+    \begin{aligned}
+    S_{k+1} &= S_k -\beta S_k I_k + \alpha R_k, \\
+    I_{k+1} &= I_k + \beta S_k I_k - \gamma I_k, \\
+    S_{k+1} &= R_k + \gamma I_k - \alpha R_k,
+    \end{aligned}
+    \label{eq:SIR_rec}
+\end{equation}
+En donde el nuevo parámetro $\alpha$ es la tasa de pérdida de inmunidad después de haberse recuperado de la enfermedad.
