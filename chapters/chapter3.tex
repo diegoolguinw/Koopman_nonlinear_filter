@@ -504,6 +504,37 @@ donde:
     \item \(\beta\) es la tasa de transmisión de la enfermedad,
     \item \(\gamma\) es la tasa de recuperación.
 \end{itemize}
+Se visualiza lo obtenido por kEDMD, utilizando \textit{kernel} de Matérn de parámetro $\nu=1/2$ y ancho de banda $\gamma=10^{-3}$. Se utiliza una distribución Dirichlet de parámetro $(1,1,1)$ como variable aleatoria asociada al espacio de estados y ruido aditivo centrado y Gaussiano de matriz de covarianza $10^{-7} I_{3 \times 3}$. Los resultados obtenidos se pueden ver en la imagen \ref{fig:SIR_kEDMD}. \\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{img/content/chapter3/SIR.pdf}
+    \caption{Comparación de kEDMD para modelo SIR, \textit{sampleando} 1000 puntos desde una distribución de Dirichlet. En forma de puntos se puede observar la trayectoria real y en línea continua la trayectoria generada por kEDMD.}
+    \label{fig:SIR_kEDMD}
+\end{figure}
+Similar a lo hecho en el caso lineal, se compara la diferencia en norma entre la trayectoria original y la trayectoria linealizada, con la mejor curva de la forma $C \cdot N^{a}$, para observar si los errores andan en el orden de decaimiento en \eqref{eq:kEDMD_bound}.
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR1Errors.pdf}
+        \caption{$\alpha=-0.3$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR2Errors.pdf}
+        \caption{$\alpha=-0.1$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/Linear3Errors.pdf}
+        \caption{$\alpha=0.05$}
+    \end{subfigure}
+    \caption{Ilustración de los tres casos del modelo SIR elegido para la evolución en función de $N$ de la diferencia en norma entre el sistema lineal original y el sistema linealizado por Koopman a $N$ puntos,  \textit{sampleados} de una variable aleatoria normal. En forma de puntos se deja la evolución observada del error y en línea continua la mejor curva de la forma $C \cdot N^{a}$, donde $a$ es el exponente que se deja en la leyenda.}
+    \label{fig:ErrorSIR}
+\end{figure}
+Se observa nuevamente que la discrepancia entre las trayectorias en efecto anda del orden de la cota expuesta en este capítulo, incluso con decaimientos aún más rápidos.\\
 Con ello, de manera sencilla puede incluirse un factor de pérdida de inmunidad, lo que viene dado por las ecuaciones
 \begin{equation}
     \begin{aligned}
