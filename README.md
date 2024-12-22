@@ -19,6 +19,11 @@
 
 Este repositorio contiene el código y los notebooks utilizados en esta tesis. A continuación, se describen los diferentes archivos y notebooks, así como las dependencias necesarias para ejecutar el proyecto.
 
+## Capítulos
+
+* Capítulo 1: Introducción.
+* Capítulo 2: Preliminares [**Notebook**](a).
+
 ## Dependencias
 
 Para ejecutar el código de este repositorio, necesitas tener instaladas las siguientes bibliotecas de Python:
