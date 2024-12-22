@@ -12,6 +12,7 @@
 **Profesor co-guía: Axel Osses.**
 
 **Comisión:**
+
     - **Integrante 1 (presidente).**
     - **Integrante 2.**
     - **Integrante 3.**
