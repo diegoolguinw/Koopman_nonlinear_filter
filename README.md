@@ -6,8 +6,11 @@
 ### Memoria para optar al título de Ingeniero Civil Matemático.
 
 **Autor: Diego Olguín Wende.**
+
 **Profesor guía: Héctor Ramírez.**
+
 **Profesor co-guía: Axel Osses.**
+
 **Comisión:**
     - **Integrante 1 (presidente).**
     - **Integrante 2.**
