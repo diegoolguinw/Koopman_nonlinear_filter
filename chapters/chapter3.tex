@@ -8,386 +8,466 @@ Es decir, en comparación al problema original, no se considerará ni el tiempo 
     \mathbf{x}_{k+1}^{n+1} = \mathbf{x}_{k}^{n+1} + \Delta t_k
 \end{equation*}
 donde $\Delta t_k$ es el paso de tiempo en el instante $k$, que en muchas aplicaciones es fijo. Para el \textit{input}, dado que no se está considerando como una variable de decisión, se considerará conocido o al menos que se tiene la capacidad de entregarse al sistema de manera indefinida, esto es, $\{ \mathbf{u}_k \}_{k \geq 0}$, es accesible y por tanto bastaría agregarlo también como una coordenada del estado: $\mathbf{x}_{k}^{n+1} = \mathbf{u}_k$.
-\section{Kernel Extended Dynamic Mode Decomposition}
+\section{Operadores de Koopman en RKHS}
 
-Denotemos por $\B_\X$ la $\sigma$-álgebra Boreliana de $\X$ y $\B_\Y$ a la de $\R^p$.
-Se definen las medidas de probabilidad
-\begin{equation*}
-	\begin{aligned}
-		\rho_f: \X \times \B_\X \to [0, 1], & \quad \rho_f (\mathbf{x}, A) = \P (\mathbf{f}(\mathbf{x}, \cdot ) \in A ) \\
-		\rho_f: \X \times \B_\Y \to [0, 1], & \quad \rho_g(\mathbf{x}, A) = \P (\mathbf{g}(\mathbf{x}, \cdot ) \in A)
-	\end{aligned}
-\end{equation*}
-Es decir, $\rho_f$ es la medida inducida por la dinámica y $\rho_g$ es la medida inducida por la observación.
-\\
-Supondremos que el espacio de estados $\X$ es compacto y que existe un conjunto compacto $\Y \subseteq \R^p$ tal que
-\begin{equation*}
-	\rho_f (\mathbf{x}, \X) = 1, \quad \rho_g (\mathbf{x}, \Y) = 1, \quad \forall \mathbf{x} \in \X
-\end{equation*}
-Adoptaremos la notación
-\begin{equation*}
-	\rho_f (\mathbf{x}, dx) = d \rho_f (\mathbf{x}, \cdot)(x), \quad \rho_g (\mathbf{x}, dy) = d \rho_f (\mathbf{x}, \cdot)(y)
-\end{equation*}
-Supondremos además que, para $\mu_\X$ medida sobre $\X$ y $\mu_\Y$ medida sobre $\Y$, existen \begin{equation*}
-	p_f : \X \times \X \to \R_+, \quad p_g : \X \times \Y \to \R_+
-\end{equation*}
-tales que
-\begin{equation*}
-	\rho_f (\mathbf{x}, A) = \int_A p_f (\mathbf{x}, y) d \mu_\X (y), \quad \rho_g (\mathbf{x}, A) = \int_A p_g (\mathbf{x}, y) d \mu_\Y (y)
-\end{equation*}
-Llamaremos:
+Sea $\B_\X$ la $\sigma$-álgebra de Borel definida sobre $\X$ y $\B_{\R^p}$ la correspondiente a $\R^p$. Se introducen las siguientes medidas de probabilidad:  
+\[
+\begin{aligned}
+    \rho_f: \X \times \B_\X \to [0, 1], & \quad \rho_f (\mathbf{x}, A) = \P (\mathbf{f}(\mathbf{x}, \cdot ) \in A ), \\
+    \rho_g: \X \times \B_\Y \to [0, 1], & \quad \rho_g(\mathbf{x}, A) = \P (\mathbf{g}(\mathbf{x}, \cdot ) \in A).
+\end{aligned}
+\]
+En este contexto, $\rho_f$ representa la medida inducida por la dinámica del sistema, mientras que $\rho_g$ corresponde a la medida inducida por las observaciones.  
+Se asume que el espacio de estados $\X$ es compacto y que existe un conjunto compacto $\Y \subseteq \R^p$ tal que:  
+\[
+\rho_f (\mathbf{x}, \X) = 1, \quad \rho_g (\mathbf{x}, \Y) = 1, \quad \forall \mathbf{x} \in \X.
+\]
+Sea entonces $\B_\Y$ la $\sigma$-álgebra $\B_{\R^p}$ trazada en $\Y$. Se emplea la siguiente notación diferencial:
+\[
+\rho_f (\mathbf{x}, dx) = d \rho_f (\mathbf{x}, \cdot)(x), \quad \rho_g (\mathbf{x}, dy) = d \rho_g (\mathbf{x}, \cdot)(y).
+\]
+Adicionalmente, se considera que existen funciones  
+\[
+p_f : \X \times \X \to \R_+, \quad p_g : \X \times \Y \to \R_+,
+\]
+tales que, para $\mu_\X$ medida sobre $\X$ y $\mu_\Y$ medida sobre $\Y$, se cumple:
+\[
+\rho_f (\mathbf{x}, A) = \int_A p_f (\mathbf{x}, y) \, d \mu_\X (y), \quad \rho_g (\mathbf{x}, A) = \int_A p_g (\mathbf{x}, y) \, d \mu_\Y (y).
+\]
+En este marco, se adoptan las siguientes denominaciones:
 \begin{itemize}
-	\item $X$ la variable aleatoria asociada a $\mu_\X$.
-	\item $X^+ | \textbf{x}$ la variable aleatoria asociada a $\rho_\X$, es decir, la variable aleatoria asociada a avanzar un paso, dado $\textbf{x}$.
-	\item $Y  | \textbf{x}$ la variable aleatorias asociada a $\rho_\Y$, es decir, la variable aleatoria asociada a la observación, dado $\textbf{x}$.
+    \item La variable aleatoria asociada a $\mu_\X$ se denota por $X$.  
+    \item La variable aleatoria asociada a $\rho_f$, es decir, aquella que describe la evolución de un estado $\mathbf{x}$ tras un paso de la dinámica, se denota por $X^+ \mid \mathbf{x}$.  
+    \item La variable aleatoria asociada a $\rho_g$, que describe las observaciones condicionadas a un estado $\mathbf{x}$, se denota por $Y \mid \mathbf{x}$.  
 \end{itemize}
-Por ejemplo, si la función de dinámica es de la forma
-$$\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k) = \Tilde{\mathbf{f}}(\mathbf{x}_k) + \mathbf{w}_k$$ 
-con $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{Q}_k)$, siendo $\mathbf{Q}_k$ definida positiva y $\mu_\X$ la medida de Lebesgue sobre $\X$, se tiene que 
-\begin{equation*}
-	\rho_f (\mathbf{x}_k, \cdot) \sim \mathcal{N}(\tilde{\mathbf{f}}(\mathbf{x}_k), \mathbf{Q}_k)
-\end{equation*}
-con lo que $p_f$ es
-\begin{equation*}
-	p_f(x, y) = (2 \pi \text{det} \, \mathbf{Q}_k )^{-1} \text{exp} \left ( -(\tilde{\mathbf{f}}(x) - y)^\top \mathbf{Q}_k^{-1} (\tilde{\mathbf{f}}(x) - y) \right ) 
-\end{equation*}
-que cumple ser acotada, incluso si $\Tilde{\mathbf{f}}$ no lo es.\\
-Similar a \cite{Philipp2024ErrorOperator} se asume lo siguiente
+\begin{obs}
+Un ejemplo de la existencia de todo lo anterior es el siguiente, considérese el caso en que la función de dinámica se describe mediante:  
+    \[
+    \mathbf{f}(\mathbf{x}_k, \mathbf{w}_k) = \Tilde{\mathbf{f}}(\mathbf{x}_k) + \mathbf{w}_k,
+    \]
+donde $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{Q}_k)$, con $\mathbf{Q}_k$ definida positiva, y $\mu_\X$ representa la medida de Lebesgue en $\X$. Bajo estas condiciones, la medida $\rho_f (\mathbf{x}_k, \cdot)$ sigue una distribución normal:  
+    \[
+    \rho_f (\mathbf{x}_k, \cdot) \sim \mathcal{N}(\Tilde{\mathbf{f}}(\mathbf{x}_k), \mathbf{Q}_k).
+    \]
+En consecuencia, la función $p_f$ asociada toma la forma:  
+    \[
+    p_f(x, y) = (2 \pi \det \mathbf{Q}_k )^{-1/2} \exp \left( -\frac{1}{2} (\Tilde{\mathbf{f}}(x) - y)^\top \mathbf{Q}_k^{-1} (\Tilde{\mathbf{f}}(x) - y) \right),
+    \]
+la cual es acotada, incluso en el caso en que $\Tilde{\mathbf{f}}$ no lo sea.  
+\end{obs}
+Durante este trabajo se supondrán las siguientes hipótesis de compatibilidad, las que son necesarias para que los resultados en \cite{Philipp2024ErrorOperator} tengan validez.
 \begin{enumerate}
-    \item[a)] $k_\X:\X \times \X \to \R$, $k_\Y: \Y \times \Y \to \R$ dos kernels simétricos, continuos, acotados y semi-definidos positivos. Se denotará por $\H_\X$, $\H_\Y$ a su RKHS asociados.
-    \item[b)] Si $\psi_\X \in L^2(\X)$, $\psi_\Y \in L^2(\Y)$ son tales que 
-    \begin{equation*}
-        \int_{\X \times \X} k_\X(x,y) \psi_\X (x) \psi_\X (y) d \mu_\X (x) d \mu_\X (y) = 0 
-    \end{equation*}
-      \begin{equation*}
-    	\int_{\Y \times \Y} k_\Y(x,y) \psi_\Y (x) \psi_\Y (y) d \mu_\Y (x) d \mu_\Y (y) = 0 
-    \end{equation*}
-    entonces $\psi_\X = 0$, $\psi_\Y = 0$ c.s.
-    \item[c)] Si $\psi_\X \in \H_\X$, $\psi_\Y \in \H_\Y$ son tales que $\psi_\X(x) = 0$, $\psi_\Y(y) = 0$ para todo $x \in \X$ $\mu_\X$-c.s., y para todo $y \in \Y$ $\mu_\Y$-c.s. entonces $\psi_\X \equiv 0$, $\psi_\Y \equiv 0$.
-    \item[d)] Se cumplen las siguientes relaciones de $\rho_\X$ y $\rho_\Y$ con respecto de $\mu_\X$ y $\mu_\Y$:
-    \begin{equation*}
-        \int_\X \rho_\X (x, A_\X) d\mu_\X (x) \leq L_\X \mu_\X (A_\X), \quad \forall A_\X \in \B_\X
-    \end{equation*}
-    \begin{equation*}
-    	\int_\X \rho_\Y (x, A_\Y) d\mu_\X (x) \leq L_\Y \mu_\Y (A_\Y), \quad  \forall A_\Y \in \B_\Y
-    \end{equation*}
+    \item[a)] Sean $k_\X:\X \times \X \to \R$ y $k_\Y: \Y \times \Y \to \R$ dos kernels simétricos, continuos, acotados y semi-definidos positivos. Se denotará por $\H_\X$ y $\H_\Y$ a los espacios de Hilbert con núcleo reproducible (RKHS) asociados a $k_\X$ y $k_\Y$, respectivamente.
+    \item[b)] Si $\psi_\X \in L^2(\X)$ y $\psi_\Y \in L^2(\Y)$ son tales que: 
+    \[
+        \int_{\X \times \X} k_\X(x,y) \psi_\X (x) \psi_\X (y) d \mu_\X (x) d \mu_\X (y) = 0, 
+    \]
+    \[
+        \int_{\Y \times \Y} k_\Y(x,y) \psi_\Y (x) \psi_\Y (y) d \mu_\Y (x) d \mu_\Y (y) = 0, 
+    \]
+    entonces $\psi_\X = 0$ y $\psi_\Y = 0$ casi seguro.
+    \item[c)] Si $\psi_\X \in \H_\X$ y $\psi_\Y \in \H_\Y$ son tales que $\psi_\X(x) = 0$ para todo $x \in \X$ $\mu_\X$-casi seguro, y $\psi_\Y(y) = 0$ para todo $y \in \Y$ $\mu_\Y$-casi seguro, entonces $\psi_\X \equiv 0$ y $\psi_\Y \equiv 0$.
+    \item[d)] Se asumen las siguientes relaciones de compatibilidad entre $\rho_\X$ y $\rho_\Y$ con respecto a $\mu_\X$ y $\mu_\Y$:
+    \[
+        \int_\X \rho_\X (x, A_\X) d\mu_\X (x) \leq L_\X \mu_\X (A_\X), \quad \forall A_\X \in \B_\X,
+    \]
+    \[
+        \int_\X \rho_\Y (x, A_\Y) d\mu_\X (x) \leq L_\Y \mu_\Y (A_\Y), \quad \forall A_\Y \in \B_\Y.
+    \]
 \end{enumerate}
-Un ejemplo de kernel que cumple a) y b) es Matérn, siendo el punto a) expuesto en la sección anterior y b) debido a la universalidad en $L^2$. La suposición c) se cumple si $\mu$ tiene densidad con respecto a Lebesgue, mientras que d) se cumple en el caso estocástico cuando existen las funciones $p_f$ y $p_g$ y estas son acotadas, mientras que en el caso determinista se necesita que las funciones asociadas sean difeomorfismos.
+
+Un ejemplo de un kernel que satisface las hipótesis a) y b) es el kernel de Matérn. La propiedad a) es garantizada por los resultados presentados en la sección anterior, mientras que la propiedad b) se deriva de la universalidad del kernel en $L^2$. 
+La hipótesis c) se satisface si $\mu_\X$ y $\mu_\Y$ tienen densidad respecto a la medida de Lebesgue, y la hipótesis d) se cumple en el caso estocástico cuando las funciones $p_f$ y $p_g$ son acotadas. En el caso determinista, se requiere que las funciones asociadas sean difeomorfismos.
 
 \begin{prop}
-    Si $p_f \in L^{\infty} (\X \times \X)$, $p_g \in L^{\infty} (\X \times \Y)$ entonces 
-    \begin{equation*}
-        \int_\X \rho_\X (x, A) d\mu_\X (x) \leq L_\X \mu_\X (A), \quad \int_\X \rho_\Y (x, A) d\mu_\X (x) \leq L_\Y \mu_\Y (A)
-    \end{equation*}
-    con 
-    \begin{equation*}
-        L_\X = \mu_\X (\X) || p_f ||_\infty, \quad L_\Y = \mu_\X (\X) || p_g ||_\infty
-    \end{equation*}
+    Si $p_f \in L^{\infty} (\X \times \X)$ y $p_g \in L^{\infty} (\X \times \Y)$, entonces:
+    \[
+        \int_\X \rho_\X (x, A) d\mu_\X (x) \leq L_\X \mu_\X (A), \quad \int_\X \rho_\Y (x, A) d\mu_\X (x) \leq L_\Y \mu_\Y (A),
+    \]
+    donde:
+    \[
+        L_\X = \mu_\X (\X) \| p_f \|_\infty, \quad L_\Y = \mu_\X (\X) \| p_g \|_\infty.
+    \]
 \end{prop}
 
 \begin{proof}
-	Para $\rho_\X$ se tiene que
-    \begin{equation*}
+    Para $\rho_\X$, se tiene que:
+    \[
         \begin{aligned}
-            \int_\X \rho_\X (x, A) d\mu_\X (x) &= \int_\X \int_A d \rho (x, \cdot) (y) d \mu (x) \\
-            &= \int_\X \int_A p_\mathbf{f} (x, y) d \mu_\X (y) d \mu_\X (x) \\
-            &\leq || p_f ||_\infty \int_\X \int_A d \mu_\X (y) d \mu_\X (x) \\ 
-            &= || p_f ||_\infty \mu_\X (\X) \mu_\X (A) \\
-            &= L_\X \mu_\X (A)
+            \int_\X \rho_\X (x, A) d\mu_\X (x) &= \int_\X \int_A d \rho_f (x, \cdot) (y) d \mu_\X (x) \\
+            &= \int_\X \int_A p_f (x, y) d \mu_\X (y) d \mu_\X (x) \\
+            &\leq \| p_f \|_\infty \int_\X \int_A d \mu_\X (y) d \mu_\X (x) \\ 
+            &= \| p_f \|_\infty \mu_\X (\X) \mu_\X (A) \\
+            &= L_\X \mu_\X (A).
         \end{aligned}
-    \end{equation*}
-    Mientras que para $\rho_\Y$ se tiene que
-     \begin{equation*}
-    	\begin{aligned}
-    		\int_\X \rho_\Y (x, A) d\mu (x) & = \int_\X \int_A d \rho_\Y (x, \cdot) (y) d \mu_\X (x) \\
-    		&= \int_\X \int_A p_g(x, y) d \mu_\Y (y) d \mu_\X (x) \\
-    		&\leq || p_g ||_\infty \int_\X \int_A d \mu_\Y (y) d \mu_\X (x) \\ 
-    		&= || p_g ||_\infty \mu_\X (\X) \mu_\Y (A) \\
-    		&= L_\Y \mu_\Y (A)
-    	\end{aligned}
-    \end{equation*}
+    \]
+
+    Para $\rho_\Y$, de manera similar, se tiene que:
+    \[
+        \begin{aligned}
+            \int_\X \rho_\Y (x, A) d\mu_\X (x) &= \int_\X \int_A d \rho_g (x, \cdot) (y) d \mu_\X (x) \\
+            &= \int_\X \int_A p_g (x, y) d \mu_\Y (y) d \mu_\X (x) \\
+            &\leq \| p_g \|_\infty \int_\X \int_A d \mu_\Y (y) d \mu_\X (x) \\ 
+            &= \| p_g \|_\infty \mu_\X (\X) \mu_\Y (A) \\
+            &= L_\Y \mu_\Y (A).
+        \end{aligned}
+    \]
 \end{proof}
-En el caso en que la dinámica o la observación sean deterministas, que es equivalente a que $\mathbf{f}(\mathbf{x}, \mathbf{w}) = \Tilde{\mathbf{f}}(\mathbf{x})$ o $\mathbf{g}(\mathbf{x}, \mathbf{v}) = \Tilde{\mathbf{g}}(\mathbf{x})$, con lo que $\rho (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ o $\xi (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$, entonces se necesita mayor regularidad sobre las funciones.
+En el caso en que la dinámica o la observación sean deterministas, esto es equivalente a que $\mathbf{f}(\mathbf{x}, \mathbf{w}) = \Tilde{\mathbf{f}}(\mathbf{x})$ o $\mathbf{g}(\mathbf{x}, \mathbf{v}) = \Tilde{\mathbf{g}}(\mathbf{x})$, con lo que $\rho (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ o $\xi (x, \cdot) = \delta_{\Tilde{\mathbf{g}}(x)}(\cdot)$. En este caso, es necesario asumir mayor regularidad sobre las funciones involucradas.
 \begin{prop}
-    Si $\rho (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ o $\xi (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ y $\tilde{\mathbf{f}}$ o $\tilde{\mathbf{g}}$, según corresponda, son difeomorfismos $C^1$ tal que
+    Si $\rho (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ o $\xi (x, \cdot) = \delta_{\Tilde{\mathbf{g}}(x)}(\cdot)$, y $\tilde{\mathbf{f}}$ o $\tilde{\mathbf{g}}$, según corresponda, son difeomorfismos de clase $C^1$ tales que:
     \begin{equation*}
-        \inf_{x \in \X} | \text{det} \,  D \tilde{\mathbf{f}} (x) | > 0, \quad \inf_{x \in \X} | \text{det} \,  D \tilde{\mathbf{g}} (x) | > 0
+        \inf_{x \in \X} \left | \det ( D \tilde{\mathbf{f}} (x) ) \right | > 0, \quad \inf_{x \in \X} \left | \det ( D \tilde{\mathbf{g}} (x) ) \right | > 0,
     \end{equation*}
-    entonces
+    entonces:
     \begin{equation*}
-        \int_\X \rho (x, A) d\mu (x) \leq L_\rho \mu (A), \quad \int_\X \xi (x, A) d\mu (x) \leq L_\xi \mu (A)
+        \int_\X \rho (x, A) d\mu (x) \leq L_\rho \mu (A), \quad \int_\X \xi (x, A) d\mu (x) \leq L_\xi \mu (A),
     \end{equation*}
-    con 
+    con:
     \begin{equation*}
-        L_\rho = || \text{det} \, D \tilde{\mathbf{f}}^{-1} ||_\infty, \quad L_\xi = || \text{det} \, D \tilde{\mathbf{g}}^{-1} ||_\infty
+        L_\rho = \left \| \det ( D \tilde{\mathbf{f}}^{-1} ) \right \|_\infty, \quad L_\xi = \left \| \det ( D \tilde{\mathbf{g}}^{-1} ) \right \|_\infty.
     \end{equation*}
 \end{prop}
-
 \begin{proof}
-    La demostración se hace similar a \cite{Kohne2024L-errorDecomposition}. Notar que para $A \in \B$, se tiene que $\rho (x, A) = \delta_{\Tilde{\mathbf{f}}(x)}(A) = \mathds{1}_A (\Tilde{\mathbf{f}}(x))$, con ello
+La demostración sigue un razonamiento similar al expuesto en \cite{Kohne2024L-errorDecomposition}. Para un conjunto $A \in \B$, se observa que $\rho (x, A) = \delta_{\Tilde{\mathbf{f}}(x)}(A) = \mathds{1}_A (\Tilde{\mathbf{f}}(x))$. Por lo tanto:
     \begin{equation*}
         \begin{aligned}
-            \int_\X \rho (x, A) d\mu (x) &= \int_\X \mathds{1}_A (\mathbf{f}(x)) d \mu (x) \\
-            &= \int_\X \mathds{1}_A (x) | \text{det} \, D \mathbf{f}^{-1}(x) | d \mu (x) \\
-            &\leq || \text{det} \, D \mathbf{f}^{-1} ||_{\infty}  \int_\X \mathds{1}_A (x)  d\mu (x) \\
-            &\leq || \text{det} \, D \mathbf{f}^{-1} ||_{\infty}  \mu (A) \\
-            &= L_\rho \mu (A)
+            \int_\X \rho (x, A) d\mu (x) &= \int_\X \mathds{1}_A (\Tilde{\mathbf{f}}(x)) d \mu (x) \\
+            &= \int_\X \mathds{1}_A (x) \left | \det ( D \Tilde{\mathbf{f}}^{-1}(x) ) \right | d \mu (x) \\
+            &\leq \left \| \det ( D \Tilde{\mathbf{f}}^{-1} ) \right \|_\infty \int_\X \mathds{1}_A (x) d\mu (x) \\
+            &= \left \| \det ( D \Tilde{\mathbf{f}}^{-1} ) \right \|_\infty \mu (A) \\
+            &= L_\rho \mu (A).
         \end{aligned}
     \end{equation*}
-    Y para $\xi$ es análogo.
+    El caso de $\xi$ se demuestra de manera análoga.
 \end{proof}
-Ahora se definen los operadores de Koopman estocásticos para la dinámica y la observación, adaptados en el caso en que se tienen las funciones $p_f$ y $p_g$ como densidades.
+A continuación, se presentan las definiciones de los operadores de Koopman estocásticos para la dinámica y la observación, adaptados al caso en que se disponen de las funciones $p_f$ y $p_g$ como densidades.
 \begin{defn}[Operador de Koopman estocástico para la dinámica]
-	Se define el operador asociado a $\mathbf{f}$ como $\U : L^2(\X) \to L^2(\X)$
+	Se define el operador asociado a $\mathbf{f}$ como $\U : L^2(\X) \to L^2(\X)$, dado por:
 	\begin{equation*}
-		[\U h](x) = \E [h (\mathbf{f} (x, \cdot) )]  = \int_\X h(y) d \rho_\X (x, \cdot) (y) = \int_\X h(y) p_f (x, y) d \mu_\X (y)
+		[\U h](x) = \E [h (\mathbf{f} (x, \cdot) )]  = \int_\X h(y) d \rho_\X (x, \cdot) (y) = \int_\X h(y) p_f (x, y) d \mu_\X (y).
 	\end{equation*}
 \end{defn}
+
 \begin{defn}[Operador de Koopman estocástico para la observación]
-	Se define el operador asociado a $\mathbf{g}$ como $\G : L^2(\Y) \to L^2(\X)$
+	Se define el operador asociado a $\mathbf{g}$ como $\G : L^2(\Y) \to L^2(\X)$, dado por:
 	\begin{equation*}
-		[\G h](x) = \E [h (\mathbf{g} (x, \cdot) )]  = \int_\Y h(y) d \rho_\Y (x, \cdot) (y) = \int_\Y h(y) p_g (x, y) d \mu_\Y (y)
+		[\G h](x) = \E [h (\mathbf{g} (x, \cdot) )]  = \int_\Y h(y) d \rho_\Y (x, \cdot) (y) = \int_\Y h(y) p_g (x, y) d \mu_\Y (y).
 	\end{equation*}
 \end{defn}
-Un objeto que tendrá interés pronto será el operador de Perron-Frobenius
+Un objeto de interés que será estudiado próximamente es el operador de Perron-Frobenius. A continuación, se presentan sus definiciones en el contexto estocástico para la dinámica y la observación.
 \begin{defn}[Operador de Perron-Frobenius estocástico para la dinámica]
-	Se define el operador asociado a $\mathbf{f}$ como $\mathcal{P}_\mathbf{f} : L^2(\X) \to L^2(\X)$
+	Se define el operador asociado a $\mathbf{f}$ como $\mathcal{P}_\mathbf{f} : L^2(\X) \to L^2(\X)$, dado por:
 	\begin{equation*}
-		[\mathcal{P}_\mathbf{f} h](x) = \int_\X h(y) p_\mathbf{f} (y, x) d \mu_\X (y)
+		[\mathcal{P}_\mathbf{f} h](x) = \int_\X h(y) p_\mathbf{f} (y, x) d \mu_\X (y).
 	\end{equation*}
 \end{defn}
 \begin{defn}[Operador de Perron-Frobenius estocástico para la observación]
-	Se define el operador asociado a $\mathbf{g}$ como $\mathcal{P}_\mathbf{g} : L^2(\X) \to L^2(\Y)$
+	Se define el operador asociado a $\mathbf{g}$ como $\mathcal{P}_\mathbf{g} : L^2(\X) \to L^2(\Y)$, dado por:
 	\begin{equation*}
-		[\mathcal{P}_\mathbf{g} h](x) =  \int_\X h(y) p_\mathbf{g} (y, x) d \mu_\X (y)
+		[\mathcal{P}_\mathbf{g} h](x) = \int_\X h(y) p_\mathbf{g} (y, x) d \mu_\X (y).
 	\end{equation*}
 \end{defn}
-Entonces notar que, gracias a la representación de los operadores a través de $p_\mathbf{f}$ y $p_\mathbf{g}$ se tiene que
+Dado que los operadores $\mathcal{P}_\mathbf{f}$ y $\mathcal{P}_\mathbf{g}$ están definidos en términos de las funciones de densidad $p_\mathbf{f}$ y $p_\mathbf{g}$, se cumple que:
 \begin{equation*}
-	\U^* = \mathcal{P}_\mathbf{f}, \quad \G^* = \mathcal{P}_\mathbf{g}
+	\U^* = \mathcal{P}_\mathbf{f}, \quad \G^* = \mathcal{P}_\mathbf{g},
 \end{equation*}
+donde $\U^*$ y $\G^*$ denotan los operadores adjuntos de $\U$ y $\G$, respectivamente.
+En lo que sigue, se retomarán las definiciones de la sección anterior, pero específicas en este contexto.
 
-\begin{defn}[Feature map]
-	Se definen $\Phi_\X : \X \to \H_X$, $\Phi_\Y : \Y \to \H_\Y$ los \textit{feature maps} de ambos \textit{kernels} como
+\begin{defn}[Feature map canónico]
+	Se definen los \textit{feature maps} de los \textit{kernels} $\Phi_\X : \X \to \H_\X$ y $\Phi_\Y : \Y \to \H_\Y$ como:
 	\begin{equation*}
-		\Phi_\X (x) = k_\X (x, \cdot), \quad \Phi_\Y (y) = k_\Y (y, \cdot)
+		\Phi_\X (x) = k_\X (x, \cdot), \quad \Phi_\Y (y) = k_\Y (y, \cdot).
 	\end{equation*}
 \end{defn}
 
 \begin{defn}
-    Se definen, para $x_1, x_2 \in \X$, $y_1, y_2 \in \Y$ los operadores de rango 1 $C_{x_1,x_2}: \H_\X \to \H_\X$, $C_{y_1,y_2}: \H_\Y \to \H_\Y$ y $C_{y_1,x_1}: \H_\X \to \H_\Y$ respectivamente, como
-     \begin{equation*}
-    	C_{x_1, x_2} \psi = [\Phi_\X (x_1) \otimes \Phi_\X (x_2)] \psi = \langle \psi, \Phi_\X (x_2) \rangle \Phi_\X (x_1) = \psi (x_2) \Phi_\X (x_1)
-    \end{equation*}
-    \begin{equation*}
-    	C_{y_1, y_2} \psi = [\Phi_\Y (y_1) \otimes \Phi_\Y (y_2)] \psi = \langle \psi, \Phi_\Y (y_2) \rangle \Phi_\Y (y_1) = \psi (y_2) \Phi_\Y (y_1)
-    \end{equation*}
-    \begin{equation*}
-    	C_{y_1, x_1} \psi = [\Phi_\Y (y_1) \otimes \Phi_\X (x_1)] \psi = \langle \psi, \Phi_\X (x_1) \rangle \Phi_\Y (y_1) = \psi (x_1) \Phi_\Y (y_1)
-    \end{equation*}
+	Para $x_1, x_2 \in \X$ y $y_1, y_2 \in \Y$, se definen los operadores de rango 1 $C_{x_1,x_2} : \H_\X \to \H_\X$, $C_{y_1,y_2} : \H_\Y \to \H_\Y$ y $C_{y_1,x_1} : \H_\X \to \H_\Y$ como:
+	\begin{equation*}
+		C_{x_1, x_2} \psi = \langle \psi, \Phi_\X (x_2) \rangle \Phi_\X (x_1) = \psi (x_2) \Phi_\X (x_1),
+	\end{equation*}
+	\begin{equation*}
+		C_{y_1, y_2} \psi = \langle \psi, \Phi_\Y (y_2) \rangle \Phi_\Y (y_1) = \psi (y_2) \Phi_\Y (y_1),
+	\end{equation*}
+	\begin{equation*}
+		C_{y_1, x_1} \psi = \langle \psi, \Phi_\X (x_1) \rangle \Phi_\Y (y_1) = \psi (x_1) \Phi_\Y (y_1).
+	\end{equation*}
 \end{defn}
 
-\begin{defn}
-    Se definen los operadores de covarianza $C_\X : \H_\X \to \H_\X$, $C_\Y : \H_\Y \to \H_\Y$ como
-        \begin{equation*}
-        C_\X \psi = \int_\X C_{x, x} \psi d \mu_\X (x) = \int_\X [\Phi_\X (x) \otimes \Phi_\X (x)] \psi d \mu_\X (x)
-    \end{equation*}
-     \begin{equation*}
-    	C_\Y \psi = \int_\Y C_{y,y} \psi d \mu_\X (y) =  \int_\Y [\Phi_\Y (y) \otimes \Phi_\Y (y)] \psi d \mu_\Y (y)
-    \end{equation*}
-\end{defn}
-\begin{defn}
-    Se define el operador de covarianza cruzada asociada a la dinámica como el operador $C_{\X \X^+} : \H_\X \to \H_\X$ dado por 
+\begin{defn}[Operadores de covarianza]
+	Se definen los operadores de covarianza 
     \begin{equation*}
-        C_{\X \X^+} \psi = \int_\X \int_\X C_{x, y} \psi d\rho_\X (x, \cdot)(y) d \mu_\X (x)= \int_\X \int_\X [\Phi_\X (x) \otimes \Phi_\X (y)] d\rho_\X (x, \cdot)(y) d \mu_\X (x) 
-    \end{equation*}
-    Y el operador de covarianza cruzada asociada a la observación como $C_{\Y \X} : \H_\X \to \H_\Y$ dado por
-    \begin{equation*}
-        C_{\Y \X} \psi = \int_\X \int_\Y C_{y,x} \psi d\rho_\Y (x, \cdot) (y) d \mu_\X (x) = \int_\X \int_\Y [\Phi_\Y (y) \otimes \Phi_\X (x)] \psi d\rho_\Y (x, \cdot) (y) d \mu_\X (x)
-    \end{equation*}
-\end{defn}
-\begin{defn}[Operadores de embedding condicional \cite{Song2009HilbertSystems}]   
-	Se definen los operadores de embedding condicional como $C_{\X^+ | \X} : \H_\X \to \H_\X$, $C_{\Y | \X} : \H_\X \to \H_\Y$
+        C_X : \H_\X \to \H_\X, \quad C_Y : \H_\Y \to \H_\Y
+    \end{equation*} 
+    como:
 	\begin{equation*}
-		C_{\X^+ | \X} = C_{\X^+ \X} C_{\X}^{-1}
+		C_X \psi = \int_\X \langle \psi, \Phi_\X (x) \rangle \Phi_\X (x) d \mu_\X (x) = \int_\X [\Phi_\X (x) \otimes \Phi_\X (x)] \psi d \mu_\X (x),
 	\end{equation*}
 	\begin{equation*}
-		C_{\Y | \X} = C_{\Y \X} C_{\X}^{-1}
+		C_Y \psi = \int_\Y \langle \psi, \Phi_\Y (y) \rangle \Phi_\Y (y) d \mu_\Y (y) = \int_\Y [\Phi_\Y (y) \otimes \Phi_\Y (y)] \psi d \mu_\Y (y).
 	\end{equation*}
 \end{defn}
-Asumiremos ahora que $\U \H_\X \subset \H_\X$ y $\G \H_\Y \subset \H_\X$, para ello primero asumiremos que $\H_\X$ y $H_\Y$ son espacios de Sobolev (pensar en Matérn) y ahora la siguiente proposición.
+
+\begin{defn}[Operadores de covarianza cruzada]
+	El operador de covarianza cruzada asociado a la dinámica es $C_{X X^+} : \H_\X \to \H_\X$, dado por:
+	\begin{equation*}
+		C_{X X^+} \psi = \int_\X \int_\X \langle \psi, \Phi_\X (y) \rangle \Phi_\X (x) d\rho_\X (x, \cdot)(y) d \mu_\X (x).
+	\end{equation*}
+	El operador de covarianza cruzada asociado a la observación es $C_{\Y \X} : \H_\X \to \H_\Y$, dado por:
+	\begin{equation*}
+		C_{Y X} \psi = \int_\X \int_\Y \langle \psi, \Phi_\X (x) \rangle \Phi_\Y (y) d\rho_\Y (x, \cdot)(y) d \mu_\X (x).
+	\end{equation*}
+\end{defn}
+
+\begin{defn}[Operadores de embedding condicional]   
+	Se definen los operadores de embedding condicional $C_{X^+ | X} : \H_\X \to \H_\X$ y $C_{Y | X} : \H_\X \to \H_\Y$ como:
+	\begin{equation*}
+		C_{X^+ | X} = C_{X X^+} C_X^{-1}, \quad C_{Y | X} = C_{Y X} C_X^{-1}.
+	\end{equation*}
+\end{defn}
+
+Finalmente, será necesario asumir que $\U \H_\X \subset \H_\X$ y $\G \H_\Y \subset \H_\X$. Esto se cumple, por ejemplo, si $\H_\X$ es un espacio de Sobolev, como en el caso de que $k_\X$ sea un kernel de Matérn. En este contexto, se tiene la siguiente proposición:
+
 \begin{prop}[Invarianza Sobolev para Koopman]
-	Si $p_\mathbf{f} \in C^{k,k} (\X \times \X)$ y $p_\mathbf{g} \in C^{k,k} (\X \times \Y)$, entonces 
+	Si $p_\mathbf{f} \in C^{k,k} (\X \times \X)$ y $p_\mathbf{g} \in C^{k,k} (\X \times \Y)$, entonces:
 	\begin{equation*}
-		\U \H^k (\X) \subset \H^k (\X), \quad \G \H^k (\Y) \subset \H^k (\X)
+		\U \H^k (\X) \subset \H^k (\X), \quad \G \H^k (\Y) \subset \H^k (\X).
 	\end{equation*}
 \end{prop}
+
 \begin{proof}
-	Basta tomar primero $m \in \N$, $m \leq k$ y $| \alpha | = m$ un multiíndice, luego, por teorema de la convergencia dominada, para $h \in \H^k (\X)$
+	Sea $m \in \N$, $m \leq k$ y $|\alpha| = m$ un multiíndice. Para $h \in \H^k (\X)$, por el teorema de la convergencia dominada:
 	\begin{equation*}
-		\partial^\alpha_x (\U h)(x) = \int_\X h(y) \partial^\alpha_x p_{\mathbf{f}} (x, y) d \mu_\X (y)
+		\partial^\alpha_x (\U h)(x) = \int_\X h(y) \partial^\alpha_x p_{\mathbf{f}} (x, y) d \mu_\X (y).
 	\end{equation*}
-	Así
+	Por lo tanto:
 	\begin{equation*}
 		\begin{aligned}
 			\| \partial^\alpha_x (\U h) \|_{L^2}^2 & \leq \int_\X \int_\X h(y)^2 \partial^\alpha_x p_{\mathbf{f}} (x, y)^2 d \mu_\X (y) d \mu_\X (x) \\
-			& \leq \| \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} \mu (\X) \int_\X h(y)^2 d \mu_\X (y) \\
-			& \leq \| \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} \mu_\X (\X) \| h \|_{H^k (\X)} 
+			& \leq \| \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} \mu_\X (\X) \int_\X h(y)^2 d \mu_\X (y) \\
+			& \leq \| \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} \mu_\X (\X) \| h \|_{\H^k (\X)}^2.
 		\end{aligned}
 	\end{equation*}
-	Con lo que 
+	Así, se concluye que $\U h \in \H^k (\X)$ y:
 	\begin{equation*}
-		\| \U h \|_{H^k} \leq \left ( \mu_\X (\X) \sum_{|\alpha| \leq k} \|  \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} \right ) \| h \|_{H^k} 
+		\| \U \|_{\H^k \to \H^k} \leq \mu_\X (\X) \sum_{|\alpha| \leq k} \| \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}}.
 	\end{equation*}
-	Y se concluye que $\U h \in H^k$, y de hecho
-	\begin{equation*}
-		\| \U \|_{H^k \to H^k} \leq  \mu_\X (\X) \sum_{|\alpha| \leq k} \|  \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}} 
-	\end{equation*}
-	Análogamente, para $h \in H^k(\Y)$
-	\begin{equation*}
-		\| \G h \|_{H^k (\X)} \leq \left ( \mu_\X (\X) \sum_{|\alpha| \leq k} \|  \partial^\alpha_x p_{\mathbf{g}} \|_{C^{k,k}} \right ) \| h \|_{H^k (\Y)} 
-	\end{equation*}
+	El caso de $\G$ se demuestra de manera análoga.
 \end{proof}
-\noindent Suponiendo la invarianza de los operadores de Koopman a través del RKHS, se tiene lo siguiente
+\begin{teo}
+    Si 
+    \begin{equation*}
+        \U \H^k (\X) \subset \H^k (\X), \quad \G \H^k (\Y) \subset \H^k (\X),
+    \end{equation*}
+    entonces se cumple que
+    \begin{equation*}
+        C_{\X^+ \X} C_\X^{-1} = C_{\X^+ | \X} = \U^* = \mathcal{P}_\mathbf{f}, \quad C_{\Y | \X} = \G^* = \mathcal{P}_\mathbf{g}.
+    \end{equation*}
+    \label{teo:cov_koop_equiv}
+\end{teo}
+
+\begin{proof}
+Primero, un manejo algebraico permite establecer la siguiente relación:
 \begin{equation*}
-	\begin{aligned}
-		C_{\X \X} \psi & = \int_\X \int_\X [\Phi_\X (x) \otimes \Phi_\X (y)] \psi d\rho_\X (x, \cdot) (y) d \mu_\X (x)  \\
-		& =  \int_\X \int_\Y \psi(y) \Phi_\X (x) d\rho_\X (x, \cdot) (y) d \mu_\X (x) \\
-		& = \int_\X (\U \psi) (x) \Phi_\X (x) d \mu_\X (x) \\
-		& = \int_\X [\Phi_\X (x) \otimes \Phi_\X (x) ] (\U \psi) d \mu_\X (x) \\
-		& = C_\X  \U  \psi \\
-	\end{aligned}
+    \begin{aligned}
+        C_{\X \X} \psi &= \int_\X \int_\X [\Phi_\X (x) \otimes \Phi_\X (y)] \psi \, d\rho_\X (x, \cdot) (y) \, d\mu_\X (x) \\
+        &= \int_\X \int_\Y \psi(y) \Phi_\X (x) \, d\rho_\X (x, \cdot) (y) \, d\mu_\X (x) \\
+        &= \int_\X (\U \psi)(x) \Phi_\X (x) \, d\mu_\X (x) \\
+    \end{aligned}
 \end{equation*}
-Por tanto se tiene que $C_{\X \X} = C_{\X} \U  $. Notando que
+En la última relación obtenida se obtiene el operador de rango 1 que representa al producto de Kronecker, visto en la definición \ref{def:kronecker}
 \begin{equation*}
-    	C_{\X} = \E[\Phi_\X (\X) \otimes \Phi_\X (\X)], \quad	C_{\X \X^+} = \E[\Phi_\X (\X) \otimes \Phi_\X (\X^+)]
+    \begin{aligned}
+        C_{\X \X} \psi &= \int_\X [\Phi_\X (x) \otimes \Phi_\X (x)] (\U \psi) \, d\mu_\X (x) \\
+        &= C_\X \U \psi.
+    \end{aligned}
+\end{equation*}
+Por tanto, se tiene que 
+\begin{equation*}
+    C_{\X \X} = C_\X \U.
+\end{equation*}
+Notando que
+\begin{equation*}
+    C_\X = \mathbb{E}[\Phi_\X (\X) \otimes \Phi_\X (\X)], \quad
+    C_{\X \X^+} = \mathbb{E}[\Phi_\X (\X) \otimes \Phi_\X (\X^+)]
 \end{equation*}
 y que 
 \begin{equation*}
-	(\Phi_\X (\X) \otimes \Phi_\X (\Y))^* = \Phi_\X (\Y) \otimes \Phi_\X (\X)
+    (\Phi_\X (\X) \otimes \Phi_\X (\Y))^* = \Phi_\X (\Y) \otimes \Phi_\X (\X),
 \end{equation*}
-se tiene $C_{\X}* = C_{\X}$ y $C_{\X \X^+}^* = C_{\X^+ \X}$
+se deduce que 
 \begin{equation*}
-	C_{\X^+ \X} C_\X^{-1} =  \U^* 
+    C_\X^* = C_\X \quad \text{y} \quad C_{\X \X^+}^* = C_{\X^+ \X}.
 \end{equation*}
-con lo que $C_{\X^+ \X} C_\X^{-1} = C_{\X^+ | \X} = \U^* = \mathcal{P}_\mathbf{f}$ y análogamente $C_{\Y | \X} = \G^* = \mathcal{P}_\mathbf{g}$. Esto debe entenderse de manera cuidadosa y está bien definido si es que $C_{\X \X}$ es inyectivo \cite{Fukumizu2013KernelKernels}.
+Así, resulta que 
+\begin{equation*}
+    C_{\X^+ \X} C_\X^{-1} = \U^*,
+\end{equation*}
+con lo cual se concluye que
+\begin{equation*}
+    C_{\X^+ \X} C_\X^{-1} = C_{\X^+ | \X} = \U^* = \mathcal{P}_\mathbf{f}.
+\end{equation*}
+De forma análoga, se demuestra que
+\begin{equation*}
+    C_{\Y | \X} = \G^* = \mathcal{P}_\mathbf{g}.
+\end{equation*}
+Estas igualdades deben entenderse cuidadosamente y están bien definidas bajo la condición de que $C_\X$ sea inyectivo \cite{Fukumizu2013KernelKernels}, lo que ya se discutió en la sección anterior.
+\end{proof}
+Notar que, una vez realizado el \textit{embedding} a dimensión infinita de las distribuciones de probabilidad del problema, es necesario regresar al espacio de dimensión original. Por ello, se introduce un nuevo operador de Koopman que actuará como un operador de \textit{lifting back}.\\
+Sea $\Tilde{k}_\X: \X \times \X \to \R$ el \textit{kernel} definido a partir del producto interno, con lo cual su \textit{feature map} canónico $\phi : \X \to \R^n$ está dado por la función identidad. Esto es:
+\begin{equation*}
+    \Tilde{k}_\X (x, y) = x^\top y, \quad \phi (x) = x.
+\end{equation*}
+Entonces, el operador de covarianza cruzada asociado a $X$ y a los \textit{embeddings} entre $\H_\X$ y $\R^n$, este último considerado como el RKHS asociado a $\Tilde{k}_\X$, $C_{X|X} : \H_\X \to \R^n$, debe satisfacer
+\begin{equation*}
+    C_{X|X} \Phi_\X (\mathbf{x}) = \mathbb{E} [\phi (X) | X = \mathbf{x}] = \mathbb{E}[ X | X = \mathbf{x}] = \mathbf{x}.
+\end{equation*}
+De este modo, en virtud del teorema \ref{teo:cov_koop_equiv}, se concluye que existe un operador de Koopman $\B : \R^n \to \H_\X$ tal que $C_{X|X} = \B^*$, al cual denominaremos operador de \textit{lifting back}. Este operador permitirá regresar al espacio original desde un espacio de dimensión mayor.
 
-	Ahora veremos cómo aproximar los tres operadores (Koopman de dinámica, observación y reconstrucción). Para ello sean $N$ puntos (este será nuestro parámetro de precisión de la aproximación), digamos $\{ x_i \}_{i=1}^N \sim \mu_\X^N$ y puntos $\{ x^+_i \}_{i=1}^N$, $\{ y_i \}_{i=1}^N$ sampleados tal que
-	\begin{equation*}
-		x^+_i \sim \rho_f (x_i, \cdot), \quad y_i \sim \rho_g (x_i, \cdot), \quad i = 1, \dots, N
-	\end{equation*}
-	Llamaremos al espacio
-	\begin{equation*}
-		\H_{\X, N} = \text{span} \{\Phi_\X (x_i) : i = 1, \dots, N \}
-	\end{equation*}
-	cuya base canónica es $\{\Phi_\X (x_i) : i = 1, \dots, N \}$.
-	Llamamos a las matrices
-	\begin{equation*}
-		X = (x_{1} | \dots | x_N), \quad Y = (y_1 | \dots | y_N)
-	\end{equation*}
-	\begin{equation*}
-		\Phi_N (X) = (k(x_i, x_j))_{i,j = 1}^N
-	\end{equation*}
-	\begin{equation*}
-		\Phi_N (X^+) = (k(x_i, x^+_j))_{i,j = 1}^N
-	\end{equation*}
+\section{Aproximación de operadores de Koopman}
 
-	Se definen los operadores
-	\begin{equation*}
-		C_{X}^N : \H_{\X, N} \to \H_{\X, N}, \quad C_{XX^+}^N : \H_{\X, N} \to \H_{\X, N}
-	\end{equation*}
-	\begin{equation*}
-		C_{XY}^N : \R^p \to \H_{\X, N}, \quad C_{XZ}^N : \R^n \to \H_{\X, N}
-	\end{equation*}
-	\begin{equation*}
-		C_{X}^N \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N [\Phi_\X (x_j) \otimes \Phi_\X (x_j)] \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N k_\X(x_i, x_j) \Phi_\X (x_j)
-	\end{equation*}
-	\begin{equation*}
-		C_{XX^+}^N \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N [\Phi_\X (x_j) \otimes \Phi_\X (x_j)] \Phi_\X (x_i^+) = \frac{1}{N} \sum_{j = 1}^N k_\X(x_i^+, x_j) \Phi_\X (x_j)
-	\end{equation*}
-	\begin{equation*}
-		C_{XY}^N \Phi_\Y (y_i) = \frac{1}{N} \sum_{j = 1}^N [\Phi_\X (x_j) \otimes \Phi_\Y (y_j)] \Phi_\Y (y_i) = \frac{1}{N} \sum_{j = 1}^N k_\Y (y_i, y_j) \Phi_\X (x_j)
-	\end{equation*}
-	\begin{equation*}
-		C_{XZ}^N \phi (x_i) = \frac{1}{N} \sum_{j = 1}^N [\Phi_\X (x_j) \otimes \phi (x_j)] \phi (x_i) = \frac{1}{N} \sum_{j = 1}^N \langle x_i, x_j \rangle \Phi_\X (x_j)
-	\end{equation*}
-	Que vienen representados por $\Phi_N (X)$, $\Phi_N (X^+)$, $Y$, $X$, respectivamente, con respecto a su base canónica.
+	En esta sección se describe el proceso de aproximación de los operadores de Koopman relacionados con la dinámica, observación y reconstrucción. Para ello, se consideran \( N \) puntos, representados como \( \{ x_i \}_{i=1}^N \sim \mu_\X^N \), y conjuntos de puntos adicionales \( \{ x^+_i \}_{i=1}^N \) y \( \{ y_i \}_{i=1}^N \), generados bajo las siguientes distribuciones:
+\begin{equation*}
+    x^+_i \sim \rho_f (x_i, \cdot), \quad y_i \sim \rho_g (x_i, \cdot), \quad i = 1, \dots, N.
+\end{equation*}
+Se define el espacio:
+\begin{equation*}
+    \H_{\X, N} = \text{span} \{\Phi_\X (x_i) : i = 1, \dots, N \},
+\end{equation*}
+cuya base canónica está dada por \( \{\Phi_\X (x_i) : i = 1, \dots, N \} \). 
+Asimismo, se introducen las siguientes matrices:
+\begin{equation*}
+    X = (x_{1} | \dots | x_N), \quad Y = (y_1 | \dots | y_N),
+\end{equation*}
+\begin{equation*}
+    \Phi_N (X) = (k(x_i, x_j))_{i,j = 1}^N, \quad \Phi_N (X^+) = (k(x_i, x^+_j))_{i,j = 1}^N.
+\end{equation*}
+Con base en estas definiciones, se introducen los operadores:
+\begin{equation*}
+    C_{X}^N : \H_{\X, N} \to \H_{\X, N}, \quad C_{XX^+}^N : \H_{\X, N} \to \H_{\X, N},
+\end{equation*}
+\begin{equation*}
+    C_{XY}^N : \R^p \to \H_{\X, N}, \quad C_{XX}^N : \R^n \to \H_{\X, N}.
+\end{equation*}
+Las acciones de estos operadores se definen como:
+\begin{equation*}
+    C_{X}^N \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N k_\X(x_i, x_j) \Phi_\X (x_j),
+\end{equation*}
+\begin{equation*}
+    C_{XX^+}^N \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N k_\X(x_i^+, x_j) \Phi_\X (x_j),
+\end{equation*}
+\begin{equation*}
+    C_{XY}^N \Phi_\Y (y_i) = \frac{1}{N} \sum_{j = 1}^N k_\Y (y_i, y_j) \Phi_\X (x_j),
+\end{equation*}
+\begin{equation*}
+    C_{XX}^N \phi (x_i) = \frac{1}{N} \sum_{j = 1}^N \langle x_i, x_j \rangle \Phi_\X (x_j).
+\end{equation*}
+Estos operadores están representados mediante las matrices \( \Phi_N (X) \), \( \Phi_N (X^+) \), \( Y \) y \( X \), respectivamente. A continuación, se definen los operadores:
+\begin{equation*}
+    \U_N : \H_{\X, N} \to \H_{\X, N}, \quad \G_N : \R^p \to \H_{\X, N}, \quad \B_N : \R^n \to \H_{\X, N},
+\end{equation*}
+los cuales están representados por las siguientes matrices:
+\begin{equation*}
+    \mathbf{U}_N = (\Phi_N (X))^{-1} \Phi_N (X^+)^\top,
+\end{equation*}
+\begin{equation*}
+    \mathbf{G}_N = (\Phi_N (X))^{-1} Y^\top,
+\end{equation*}
+\begin{equation*}
+    \mathbf{B}_N = (\Phi_N (X))^{-1} X^\top.
+\end{equation*}
+Por otra parte, se definen las siguientes normas asociadas al núcleo \( k_\X \):
+\begin{equation*}
+    \| k_\X \|_1 = \int_\X k_\X (x,x) d \mu_\X (x), \quad \| k_\X \|_\infty = \sup_{x \in \X} k_\X (x,x),
+\end{equation*}
+las cuales son finitas en el caso del \textit{kernel} de Matérn.
+El siguiente resultado, presentado por Philipp et al. \cite{Philipp2024ErrorOperator}, es fundamental para analizar el error asociado a estas aproximaciones.
+\begin{teo}[Philipp et al. \cite{Philipp2024ErrorOperator}]
+    Sea un \( N \in \mathbb{N} \) arbitrario. Se supone que los primeros \( N + 1 \) valores propios \( \lambda_j \) de \( C_X \) son simples, es decir, \( \lambda_{j+1} < \lambda_j \) para todo \( j = 1, \ldots, N \). Se definen:
+    \[
+    \delta_N = \min_{j=1, \ldots, N} \frac{\lambda_j - \lambda_{j+1}}{2}, \quad c_N = \frac{1}{\sqrt{\lambda_N}} + \frac{N + 1}{\delta_N \lambda_N} (1 + \|k_\X\|_{1}) \|k_\X \|^{1/2}_{1}.
+    \]
+    Sea además \( \varepsilon \in (0, \delta_N) \) y \( \delta \in (0, 1) \) arbitrarios, y \( N \geq  \frac{8\|k\|^2_\infty \ln(4/\delta)}{\varepsilon^2} \). Si 
+    \begin{equation*}
+        \U \H_\X \subset \H_\X, \, \G \H_\Y \subset \H_\X, \, \B \R^n \subset \H_\X
+    \end{equation*}
+    entonces, con probabilidad al menos \( 1 - \delta \), se cumple que:
+    \[
+    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq \sqrt{\lambda_{N+1}} \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_N \varepsilon
+    \]
+    \[
+    \|\G - \G_N \|_{\R^p \to L^2(\X; \mu_\X)} \leq \sqrt{\lambda_{N+1}} \|\G \|_{\R^p \to \mathcal{H_\X}} + c_N \varepsilon
+    \]
+    \[
+    \|\B - \B_N \|_{\R^n \to L^2(\X; \mu_\X)} \leq \sqrt{\lambda_{N+1}} \|\B \|_{\R^n \to \mathcal{H_\X}} + c_N \varepsilon.
+    \]
+    \label{teo:error_koop}
+\end{teo}
 
-	Entonces se definen los operadores 
-	\begin{equation*}
-		\U_N : \H_{\X, N} \to \H_{\X, N}, \quad \G_N : \R^p \to \H_{\X, N}, \quad \B_N : \R^n \to \H_{\X, N}
-	\end{equation*}
-	que vienen representación por las matrices
-	\begin{equation*}
-		U_N = (\Phi_N (X))^{-1} \Phi_N (X^+)^\top
-	\end{equation*}
-	\begin{equation*}
-		G_N = (\Phi_N (X))^{-1} Y^\top
-	\end{equation*}
-	\begin{equation*}
-		B_N = (\Phi_N (X))^{-1} X^\top
-	\end{equation*}
-	Definiremos además
-	\begin{equation*}
-		\| k_\X \|_1 = \int_\X k_\X (x,x) d \mu_\X (x), \quad \| k_\X \|_\infty = \sup_{x \in \X} k_\X (x,x)
-	\end{equation*}
-	que para el caso de Matérn son ambas finitas.
-
-	Una vez definido todo lo anterior, utilizaremos el resultado de Philipp et al. \cite{Philipp2024ErrorOperator}.
-	\begin{teo}
-		Sea un \( r \in \mathbb{N} \) arbitrario, se supone que los primeros \( r + 1 \) valores propios \( \lambda_j \) de \( C_X \) son simples, es decir, \( \lambda_{j+1} < \lambda_j \) para todo \( j = 1, \ldots, r \). Se define
-		
-		\[
-		\delta_r = \min_{j=1, \ldots, r} \frac{\lambda_j - \lambda_{j+1}}{2}, \quad c_r = \frac{1}{\sqrt{\lambda_r}} + \frac{r + 1}{\delta_r \lambda_r} (1 + \|k_\X\|_{1}) \|k_\X \|^{1/2}_{1}
-		\]
-		Además, sea \( \varepsilon \in (0, \delta_r) \) y \( \delta \in (0, 1) \) arbitrarios, y \( N \geq \max\{r, \frac{8\|k\|^2_\infty \ln(4/\delta)}{\varepsilon^2}\} \). Si $\U \H_\X \subset \H_\X$, entonces, con probabilidad al menos \( 1 - \delta \), se cumple que
-		
-		\[
-		\|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq \sqrt{\lambda_{r+1}} \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_r \varepsilon
-		\]
-		\label{teo:error_koop}
-	\end{teo}
-	La misma cota es válida para $\G_N$ y $\B_N$. El siguiente teorema culmina esta sección y será la síntesis de la cota necesaria para la sección siguiente.
+Por último, se presenta un resultado complementario que proporciona una cota necesaria para las secciones posteriores.
 \begin{teo}
-    Si $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$, entonces 
+    Bajo la misma hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$,  si $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$, entonces con probabilidad al menos $1 - \delta$ se tiene que:
     \begin{equation}
-        \| \U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2}  
+        \| \U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2}.
         \label{eq:kEDMD_bound}
     \end{equation}
-	\label{teo:error_koop_sqrt_N}
-    \end{teo}
-Antes de su demostración, un lema para el orden de los valores propios de la matriz de covarianza.
-	\begin{teo}[Santin et al. \cite{Santin2016ApproximationSpaces}]
-		Si $\H_\X$ es equivalente en norma a un espacio de Sobolev $H^{\nu + n/2}$ y $\lambda_j$ son los valores propios de $C_X$ en orden descendente, luego
-	\begin{equation*}
-		\sqrt{\lambda_{N+1}} \leq c_1 N^{-(\nu + n)/(2n)}
-	\end{equation*}
-	con $c_1$ alguna constante que no depende de $N$.
-	\label{lema:eig_val_decay}
-	\end{teo}
-	\begin{proof}
-		Gracias a la arbitrariedad de $\varepsilon$ en el teorema \ref{teo:error_koop} se tiene que
-		\[
-		\|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq c\sqrt{\lambda_{r+1}} 
-		\]
-		y por el lema \ref{lema:eig_val_decay} se tiene que existe una constante $C$ tal que
-		\begin{equation*}
-			\|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq c_1 N^{-(\nu + n)/(2n)}
-		\end{equation*}
-		como $\nu > 0$ se concluye que
-		\begin{equation*}
-			\|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq c_1 N^{-1/2}\\
-		\end{equation*}
-	\end{proof}
-	En principio $N^{-1/2}$ es una cota menos ajustada que la mostrada en \cite{Philipp2024ErrorOperator}, pero esta corresponde al orden de error de otras aproximaciones que aparecerán en la sección siguiente.
+    \begin{equation*}
+    \| \G - \G_N \|_{\R^p \to L^2(\X; \mu_\X)} \leq C N^{-1/2}
+    \end{equation*}
+    \begin{equation*}
+    \| \B - \B_N \|_{\R^n \to L^2(\X; \mu_\X)} \leq C N^{-1/2}
+    \end{equation*}
+    \label{teo:error_koop_sqrt_N}
+\end{teo}
+Para la demostración es necesario un teorema de Santin et al. que cuantifica el orden de decaimiento de los valores propios del operador $C_X$, que será clave para el teorema final de esta sección.
+\begin{teo}[Santin et al. \cite{Santin2016ApproximationSpaces}]
+    Si $\H_\X$ es equivalente en norma a un espacio de Sobolev $H^{\nu + n/2}$ y $\lambda_j$ son los valores propios de $C_X$ en orden descendente, luego
+    \begin{equation*}
+        \sqrt{\lambda_{N+1}} \leq c_1 N^{-(\nu + n)/(2n)}
+    \end{equation*}
+    con $c_1$ alguna constante que no depende de $N$.
+    \label{teo:eig_val_decay}
+\end{teo}
+\begin{proof}
+    Se verá la demostración solo para $\U$, ya que para $\G$ y $\B$ es análogo. Del teorema \ref{teo:error_koop}, bajo las hipótesis mencionadas, para $\delta \in (0, 1)$ se tiene que con probabilidad al menos $1-\delta$
+    \[
+    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq \sqrt{\lambda_{N+1}} \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_N \varepsilon
+    \]
+    con $c_N$ definido en el enunciado del teorema $\ref{teo:error_koop}$ y con 
+    \begin{equation*}
+        N \geq \frac{8\|k\|^2_\infty \ln(4/\delta)}{\varepsilon^2}.
+    \end{equation*}
+    Es de esto último que se desprende que existe una constante $c_2$, dependiente de $\delta$, tal que tomando $\varepsilon$ suficientemente pequeño se obtiene
+    \begin{equation*}
+        \varepsilon \leq c_2 N^{-1/2}.
+    \end{equation*}
+    Con esto
+    \[
+    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq \sqrt{\lambda_{N+1}} \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_2 N^{-1/2}.
+    \]
+    Notando que dado que $\nu > 0$, se tiene que 
+    \begin{equation*}
+        N^{-(\nu + n)/(2n)} \leq N^{-n/(2n)} = N^{-1/2}
+    \end{equation*}
+    se puede utilizar entonces el teorema \ref{teo:eig_val_decay}, con lo que se tiene que existe una constante $c_1$ tal que
+    \[
+    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq c_1 \|\U \|_{\H_{X} \to \mathcal{H_\X}} N^{-1/2} + c_2 N^{-1/2} = (c_1 \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_2) N^{-1/2}.
+    \]
+    Denotando $C = c_1 \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_2$ se concluye que
+    \[
+    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2}.
+    \]
+\end{proof}
 
+Cabe mencionar que \( N^{-1/2} \) representa una cota menos ajustada en comparación con la proporcionada por \cite{Philipp2024ErrorOperator}, aunque corresponde al orden de error característico de otras aproximaciones analizadas en la siguiente sección.
 
-\subsection{Resultados numéricos}
+\section{Resultados numéricos}
 
 A pesar de que las cotas de error del kernel Extended Dynamic Mode Decomposition serán útiles para la construcción de la cota de error para el filtro, también son interesantes por sí solas y se puede visualizar al aproximar distintos sistemas dinámicos y operadores de manera empírica.\\
 Será de interés en esta sección no solo explorar cómo un sistema lineal puede aproximar otro sistema de interés mediante el \textit{sampleo} de datos.
 
-\subsubsection{kEDMD para el caso lineal}
+\subsection{kEDMD para el caso lineal}
 
 Un primer caso de interés es estudiar qué ocurre cuando se tiene un sistema lineal, esto es considerar un sistema de la forma
 \begin{equation*}
@@ -464,7 +544,7 @@ Mientras que en la figura \ref{fig:ErrorLin} se observa que en realidad el orden
     \caption{Ilustración de los tres casos de $\alpha$ elegidos para la evolución en función de $N$ de la diferencia en norma entre el sistema lineal original y el sistema linealizado por Koopman a $N$ puntos \textit{sampleados} de una variable aleatoria normal. En forma de puntos se deja la evolución observada del error y en línea continua la mejor curva de la forma $C \cdot N^{a}$, donde $a$ es el exponente que se deja en la leyenda.}
     \label{fig:ErrorLin}
 \end{figure}
-\subsubsection{kEDMD para modelos utilizados en epidemiología}
+\subsection{kEDMD para modelos utilizados en epidemiología}
 Para esta sección se ilustrarán los resultados de kEDMD para modelos epidemiológicos que no consideran nacimientos ni muertes, es decir, su población total se mantiene constante en el tiempo. Estos modelos reciben el nombre de compartimentales, ya que cada parte de la población se encuentra en un único compartimento y toda la población está en alguno de ellos. Para estos casos se supondrá que la población está normalizada, esto es, que cada compartimento está en $[0, 1]$.\\
 Esto último permite decir que el espacio de estados de este modelo es, sin considerar los eventuales factores estocásticos, un $(n-1)$-simplex, siendo $n$ la cantidad de compartimentos considerados, que se define como el conjunto
 \begin{equation*}
@@ -504,12 +584,30 @@ donde:
     \item \(\beta\) es la tasa de transmisión de la enfermedad,
     \item \(\gamma\) es la tasa de recuperación.
 \end{itemize}
-Se visualiza lo obtenido por kEDMD, utilizando \textit{kernel} de Matérn de parámetro $\nu=1/2$ y ancho de banda $\gamma=10^{-3}$. Se utiliza una distribución Dirichlet de parámetro $(1,1,1)$ como variable aleatoria asociada al espacio de estados y ruido aditivo centrado y Gaussiano de matriz de covarianza $10^{-7} I_{3 \times 3}$. Los resultados obtenidos se pueden ver en la imagen \ref{fig:SIR_kEDMD}. \\
-\begin{figure}[h]
+Se visualiza lo obtenido por kEDMD, utilizando \textit{kernel} de Matérn de parámetro $\nu=1/2$ y ancho de banda $\gamma=10^{-3}$. Se utiliza una distribución Dirichlet de parámetro $(1,1,1)$ como variable aleatoria asociada al espacio de estados y ruido aditivo centrado y Gaussiano de matriz de covarianza $10^{-7} I_{3 \times 3}$. Se toma como condición inicial $\mathbf{x}_0 = (0.9, 0.1, 0.0)$ y los resultados obtenidos se pueden ver en la imagen \ref{fig:SIR_kEDMD}. \\
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=\linewidth]{img/content/chapter3/SIR.pdf}
-    \caption{Comparación de kEDMD para modelo SIR, \textit{sampleando} 1000 puntos desde una distribución de Dirichlet. En forma de puntos se puede observar la trayectoria real y en línea continua la trayectoria generada por kEDMD.}
-    \label{fig:SIR_kEDMD}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR1.pdf}
+        \caption{$\alpha=-0.3$}
+        \label{fig:image1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR2.pdf}
+        \caption{$\alpha=-0.1$}
+        \label{fig:image2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR3.pdf}
+        \caption{$\alpha=0.05$}
+    \end{subfigure}
+    \caption{Ilustración de los tres casos de $\beta$ y $\gamma$ elegidos para la comparación entre el sistema no lineal original y el sistema linealizado por Koopman a 1000 puntos \textit{sampleados} de una variable aleatoria Dirichlet. En forma de puntos se dejan los valores reales que toma el sistema y en línea continua los valores entregados por el sistema linealizado, que se consideran como predicción.}
+    \label{fig:Comp_traj_SIR}
 \end{figure}
 Similar a lo hecho en el caso lineal, se compara la diferencia en norma entre la trayectoria original y la trayectoria linealizada, con la mejor curva de la forma $C \cdot N^{a}$, para observar si los errores andan en el orden de decaimiento en \eqref{eq:kEDMD_bound}.
 \begin{figure}[h]
@@ -544,4 +642,4 @@ Con ello, de manera sencilla puede incluirse un factor de pérdida de inmunidad,
     \end{aligned}
     \label{eq:SIR_rec}
 \end{equation}
-En donde el nuevo parámetro $\alpha$ es la tasa de pérdida de inmunidad después de haberse recuperado de la enfermedad.
+En donde el nuevo parámetro $\alpha$ es la tasa de pérdida de inmunidad después de haberse recuperado de la enfermedad y que no debe ser confundido con el parámetro de la variable aleatoria Dirichlet vista antes.
