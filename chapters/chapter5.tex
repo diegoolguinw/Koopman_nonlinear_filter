@@ -1,1 +1,23 @@
-Los resultados expuestos en las secciones anteriores se pueden generalizar a tiempo continuo, entendiendo al filtro de Kalman en tiempo continuo como límite de filtros de Kalman en tiempo discreto. Esto ya fue probado en dimensión finita por \cite{Lange2022DerivationCoefficients, Kelly2014Well-posednessTime, Shaid1999TheFilter}
+Los resultados expuestos en las secciones anteriores se pueden generalizar a tiempo continuo, entendiendo al filtro de Kalman en tiempo continuo como límite de filtros de Kalman en tiempo discreto. Esto ya fue probado en dimensión finita por \cite{Shaid1999TheFilter, Kelly2014Well-posednessTime, Lange2022DerivationCoefficients}.
+
+Se considera la dinámica a tiempo continuo en un horizonte finito de tiempo $t \in [0, T]$
+\begin{align*}
+    \mathbf{x}'(t) & = \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)) \\
+    \mathbf{y}(t) & = \mathbf{g}(\mathbf{x}(t), \mathbf{v}(t))
+\end{align*}
+en donde $\mathbf{w}: \R \to \R^{n_\mathbf{w}}$, $\mathbf{v}: \R \to \R^{n_\mathbf{v}}$ son variables aleatorias tales que $\E[\mathbf{w}(t)] = 0$, $\E[\mathbf{v}(t)] = 0$ y tienen segundo momento finito en el sentido de que
+\begin{equation*}
+    \E[ \mathbf{w}(t)^\top \mathbf{w}(t) ] = \mathbf{Q}(t), \quad \E[ \mathbf{v}(t)^\top \mathbf{v}(t) ] = \mathbf{R}(t)
+\end{equation*}
+para ciertas funciones a valores matriciales $\mathbf{Q}: \R \to \R^{n_\mathbf{w} \times n_\mathbf{w}}$, $\mathbf{R}: \R \to \R^{n_\mathbf{v} \times n_\mathbf{v}}$.
+
+Se consideran las siguientes dinámicas discretas, parametrizadas por el paso de tiempo $\Delta t$
+\begin{align*}
+    \mathbf{x}_{k+1} & = \mathbf{x}_k + \Delta t \cdot \mathbf{f}(\mathbf{x}_k, \mathbf{w}_k )\\
+    \mathbf{y}_k & = \mathbf{g}(\mathbf{x}_k, \mathbf{v}_k)
+\end{align*}
+en donde 
+\begin{equation*}
+    t_k = k\Delta t, \,  \mathbf{x}_k := \mathbf{x}(t_k), \,  \mathbf{y}_k := \mathbf{y}(t_k), \, \mathbf{w}_k := \mathbf{w}(t_k), \, \mathbf{v}_k := \mathbf{v}(t_k).
+\end{equation*}
+
