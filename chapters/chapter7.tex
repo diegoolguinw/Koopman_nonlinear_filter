@@ -1,23 +1,15 @@
-\section{Problema de optimización estocástica bi-nivel}
+% \section{Problema de optimización estocástica bi-nivel}
 
-Se formula el siguiente problema de optimización estocástica bi-nivel \cite{Zhang2024AnLearning}.
-\begin{equation*}
-	(P) \quad
-	\begin{cases}
-		\begin{aligned}
-			\text{mín} \quad & \quad \sum_{k=0}^N \E \left [ ||\mathbf{y}_k - \mathbf{g}(t_k, \hat{\mathbf{x}}_k, \mathbf{u}_k, \mathbf{w}_k) ||^2 \right] \\ 
-			\text{s.a} \quad & \quad \hat{\mathbf{x}}_k \in \text{argmin} \left ( \sum_{k=0}^N \E \left [ || \hat{\mathbf{x}}_{k|k} - \mathbf{x}_k ||^2 | \mathbf{y}_{0:k}, \, \mathbf{u}_{0:k}  \right] \right )
-			\\ & \quad \text{s.a} \quad \mathbf{x}_{k+1} = \mathbf{f}(t_k, \mathbf{x}_k, \mathbf{u}_k, \mathbf{w}_k) \\
-			\text{} \quad & \quad \quad \text{ } \quad \mathbf{y}_k = \mathbf{g}(t_k, \mathbf{x}_k, \mathbf{u}_k, \mathbf{v}_k) \\
-			\text{} \quad & \quad \quad \text{ } \quad \mathbf{x}_0 \sim X_0, \quad \hat{\mathbf{x}}_0 = \E [\mathbf{x_0}]
-		\end{aligned}
-	\end{cases}
-\end{equation*}
-
-
-
-\section{Observabilidad}
-
-\section{Algoritmo propuesto}
-
-\section{Resultado de convergencia}
+% Se formula el siguiente problema de optimización estocástica bi-nivel \cite{Zhang2024AnLearning}.
+% \begin{equation*}
+% 	(P) \quad
+% 	\begin{cases}
+% 		\begin{aligned}
+% 			\text{mín} \quad & \quad \sum_{k=0}^N \E \left [ ||\mathbf{y}_k - \mathbf{g}(t_k, \hat{\mathbf{x}}_k, \mathbf{u}_k, \mathbf{w}_k) ||^2 \right] \\ 
+% 			\text{s.a} \quad & \quad \hat{\mathbf{x}}_k \in \text{argmin} \left ( \sum_{k=0}^N \E \left [ || \hat{\mathbf{x}}_{k|k} - \mathbf{x}_k ||^2 | \mathbf{y}_{0:k}, \, \mathbf{u}_{0:k}  \right] \right )
+% 			\\ & \quad \text{s.a} \quad \mathbf{x}_{k+1} = \mathbf{f}(t_k, \mathbf{x}_k, \mathbf{u}_k, \mathbf{w}_k) \\
+% 			\text{} \quad & \quad \quad \text{ } \quad \mathbf{y}_k = \mathbf{g}(t_k, \mathbf{x}_k, \mathbf{u}_k, \mathbf{v}_k) \\
+% 			\text{} \quad & \quad \quad \text{ } \quad \mathbf{x}_0 \sim X_0, \quad \hat{\mathbf{x}}_0 = \E [\mathbf{x_0}]
+% 		\end{aligned}
+% 	\end{cases}
+% \end{equation*}

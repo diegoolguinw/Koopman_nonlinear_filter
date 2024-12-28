@@ -1,272 +1,364 @@
-\section{Filtro de Kalman a tiempo discreto en RKHS}
+El hecho de que sea posible construir un sistema lineal que se asemeje significativamente a otro sistema, eventualmente no lineal, sugiere la viabilidad de emplear dicho sistema linealizado para abordar problemas de filtraje no lineal mediante el uso del Filtro de Kalman. 
 
-El objetivo de esta sección es estudiar el error que se produce entre una regla de Kalman dada y otra, que posteriormente se utilizará para cuantificar el error que comete la regla de Kalman aproximante y la regla de Kalman exacta, ambas por introducirse también en la presente sección. \\
-Primero, se supone que existen dos sistemas dinámicos observados en un espacio de Hilbert, con espacio de estados $E_x$ y de observaciones $E_y$, de la forma
+En la literatura, ya existen diversas conexiones entre el Filtro de Kalman y el operador de Koopman. Por ejemplo, se ha explorado su utilización para la corrección de errores \cite{Jiang2022CorrectingFilters}, la estimación de modos de Koopman \cite{Liu2024EstimateFilter}, y la mejora de algoritmos como el Filtro de Kalman Extendido \cite{Ramadan2024ExtendedControl}. Además, algoritmos similares al que se propone en este capítulo han sido presentados y validados en diferentes aplicaciones, como se observa en \cite{Wang2022KoopmanSystem, Wang2023Innovation-saturatedOutliers, Netto2018RobustEstimation, Syed2021Koopman-basedXFEL, HuangData-DrivenFlight}. 
+
+Por otra parte, trabajos pioneros en la línea de observabilidad e identificación de sistemas, liderados por Surana y colaboradores, han proporcionado una base sólida en este campo, como se documenta en \cite{Surana2016KoopmanSystems, Surana2016LinearFramework}.
+
+Aunque el algoritmo propuesto en este capítulo no constituye una contribución original en términos de su estructura, sí lo es la justificación de su funcionamiento y convergencia bajo el supuesto de contar con un muestreo suficiente de puntos. En este contexto, se demuestra que el \textit{kernel Dynamic Mode Decomposition} converge al operador de Koopman en un espacio de dimensión infinita. 
+
+El objetivo principal de este capítulo es demostrar que, bajo ciertas hipótesis, la tasa de convergencia del algoritmo es del orden de $1/N^{-1/2}$, lo que lo posiciona como un competidor viable frente a otros algoritmos de filtraje presentes en la literatura, tales como los filtros de partículas, discutidos previamente en la sección de preliminares.
+
+Para ello, se propone primero descomponer el error del Filtro de Kalman aplicado a dos sistemas lineales, formulando este error en función de los datos provenientes de los sistemas. Este análisis, hasta la fecha de redacción de este trabajo, no se encuentra documentado en la literatura y, por lo tanto, constituye una contribución original de esta investigación.
+
+Posteriormente, se construye el filtro propuesto, denominado \textit{Kernel Koopman Kalman Filter} (KKKF), siguiendo una metodología análoga a la empleada en el Filtro de Kalman para sistemas lineales con mínimos cuadrados recursivos \cite{Kalman1960AProblems, Triantafyllopoulos2021BayesianBeyond}, y particularmente a como se formula en \cite{Gebhard2019} para la construcción de la denominada \textit{Kernel Bayes Rule}.
+
+Finalmente, utilizando los resultados obtenidos en el capítulo anterior junto con la descomposición del error, se demuestra la cota de error propuesta. El desempeño del filtro es evaluado en diferentes sistemas mediante una implementación en Python desarrollada específicamente para esta investigación \cite{Olguin2024KKKF:Filter}.
+
+\section{Descomposición de error de Kalman}
+
+El objetivo de esta sección es analizar el error que se genera entre dos reglas de Kalman, lo cual permitirá cuantificar la discrepancia entre una regla de Kalman aproximante y otra exacta, ambas definidas formalmente más adelante en esta misma sección. 
+
+Para este propósito, se consideran dos sistemas dinámicos observados en un espacio de Hilbert con espacios de estados $E_x$ y de observaciones $E_y$, descritos por las siguientes ecuaciones:  
 \begin{equation*}
 	\begin{aligned}
-		\mu_{i,k}  &= A_{i,k} \mu_{i,k-1} + \nu_{i,k} \\
-		y_{i,k} &= C_{i,k} \mu_{i,k} + \xi_{i, k}
+		\mu_{i,k}  &= A_{i,k} \mu_{i,k-1} + \nu_{i,k}, \\
+		y_{i,k} &= C_{i,k} \mu_{i,k} + \xi_{i,k},
 	\end{aligned}
 \end{equation*}
-Donde $A_{i,k} : E_x \to E_x$, $C_{i,k}: E_x \to E_y$ se supondrán lineales y $\nu_{i,k} \in E_x$, $\xi_{i,k} \in E_y$ son variables aleatorias con segundo momento finito y operadores de covarianza $\mathcal{Q}_{i,k}$, $\mathcal{R}_{i,k}$, respectivamente, todo esto para $i \in {1,2}$ y $k \geq 1$. \\
-Entonces, se tiene una regla de Kalman asociada a cada uno de los sistemas, que vienen dadas por
+donde $A_{i,k} : E_x \to E_x$ y $C_{i,k}: E_x \to E_y$ son operadores lineales; $\nu_{i,k} \in E_x$ y $\xi_{i,k} \in E_y$ representan variables aleatorias con segundo momento finito y operadores de covarianza $\mathcal{Q}_{i,k}$ y $\mathcal{R}_{i,k}$, respectivamente. Todo esto se considera para $i \in \{1,2\}$ y $k \geq 1$.
+
+Cada uno de estos sistemas tiene asociada una regla de Kalman, la cual está definida por las siguientes expresiones:  
 \begin{equation*}
 	\begin{aligned}
-		\mathcal{P}_{i,k}^- &= A_{i,k}^* \mathcal{P}_{i,k-1}^+ A_{i,k} + \mathcal{Q}_{i,k} \\
-		\S_{i,k} &= C_{i,k} \mathcal{P}_{i,k}^- C_{i,k}^* + \mathcal{R}_{i,k} \\
-		\K_{i,k} &= \mathcal{P}_{i,k}^- C_{i,k}\S_{i,k}^{-1} \\
-		\mathcal{P}_{i,k}^+  &= (I - \K_{i,k} C_{i,k}) \mathcal{P}_{i,k}^- \\
-		\hat{\mu}_{i,k} &= A_{i,k} \hat \mu_{i,k-1} + \K_{i,k} (y_{k} - C_{i,k} \hat\mu_{i,k-1}) 
+		\mathcal{P}_{i,k}^- &= A_{i,k}^* \mathcal{P}_{i,k-1}^+ A_{i,k} + \mathcal{Q}_{i,k}, \\
+		\S_{i,k} &= C_{i,k} \mathcal{P}_{i,k}^- C_{i,k}^* + \mathcal{R}_{i,k}, \\
+		\K_{i,k} &= \mathcal{P}_{i,k}^- C_{i,k} \S_{i,k}^{-1}, \\
+		\mathcal{P}_{i,k}^+ &= (I - \K_{i,k} C_{i,k}) \mathcal{P}_{i,k}^-, \\
+		\hat{\mu}_{i,k} &= A_{i,k} \hat{\mu}_{i,k-1} + \K_{i,k} (y_{i,k} - C_{i,k} \hat{\mu}_{i,k-1}),
 	\end{aligned}
 \end{equation*}
-con $i \in \{ 1,2 \}$, $k \geq 1$, $\mathcal{P}_{i,k}^-, \mathcal{P}_{i,k}^+ : E_x \to E_x$ los operadores de covarianza de error a priori y a posteriori, respectivamente y $\K_{i,k} : E_y \to E_x$ el operador de ganancia de Kalman. Estas reglas se inicializan como
+con $i \in \{1,2\}$ y $k \geq 1$. Aquí, $\mathcal{P}_{i,k}^-$ y $\mathcal{P}_{i,k}^+$ representan los operadores de covarianza del error a priori y a posteriori, respectivamente, mientras que $\K_{i,k}$ es el operador de ganancia de Kalman, todos ellos definidos en los espacios indicados.
+
+Estas reglas se inicializan como sigue:
 \begin{equation*}
-	\hat{\mu}_{i,0} = \E [\mu_{i,0}], \quad \mathcal{P}_{i,0} = \text{Cov} ( \mu_{i,0})
+	\hat{\mu}_{i,0} = \mathbb{E}[\mu_{i,0}], \quad \mathcal{P}_{i,0} = \text{Cov}(\mu_{i,0}).
 \end{equation*}
-Con esto se tiene el siguiente resultado que ilustra el hecho de que la discrepancia en norma entre las reglas de Kalman se puede descomponer en la discrepancia en norma de cada uno de los elementos asociados y de la iteración anterior.
+
+Con estas definiciones, se presenta un resultado clave que ilustra cómo la discrepancia en norma entre las reglas de Kalman puede descomponerse en función de las discrepancias en norma de los elementos asociados, junto con la influencia de las iteraciones previas.
+
 
 \begin{teo}[Descomposición de error de Kalman]
-	Sea $k \geq 1$, si los operadores $\S_{i,k}$ son invertibles entonces existen constantes $c_{k,j}^i$ con $j \in \{ 1, \dots, 7\}$, $i \in \{ 1, 2\}$ tales que
-	 \begin{equation*}
-	 	\begin{aligned}
-	 		\| \hat \mu_{1,k} - \hat \mu_{2,k}  \| \leq & \, c_{1,k}^1 \| A_{1, k} - A_{2, k} \| +  c_{2,k}^1 \| C_{1, k} - C_{2, k} \| \\ 
-	 		&+ c_{3,k}^1 \| \mathcal{Q}_{1, k} - \mathcal{Q}_{2, k} \| +c_{4,k}^1 \| \mathcal{R}_{1, k} - \mathcal{R}_{2, k} \| \\
-	 		& + c_{5,k}^1 \| y_{1,k} - y_{2,k} \| + c_{6,k}^1 \| \hat \mu_{1, k-1} - \hat \mu_{2, k-1} \| + c_{7,k}^1 \| \mathcal{P}_{1, k-1}^+ - \mathcal{P}_{2, k-1}^+ \|
-	 	\end{aligned}
-	 \end{equation*}
-	 \begin{equation*}
-	 	\begin{aligned}
-	 		\| \mathcal{P}_{1,k}^+ - \mathcal{P}_{2,k}^+  \| \leq & \, c_{1,k}^2 \| A_{1, k} - A_{2, k} \| +  c_{2,k}^2 \| C_{1, k} - C_{2, k} \| \\ 
-	 		&+ c_{3,k}^2 \| \mathcal{Q}_{1, k} - \mathcal{Q}_{2, k} \| + c_{4,k}^2 \| \mathcal{R}_{1, k} - \mathcal{R}_{2, k} \| \\
-	 		&+ c_{5,k}^2 \| y_{1,k} - y_{2,k} \|+ c_{6,k}^2 \| \hat \mu_{1, k-1} - \hat \mu_{2, k-1} \| + c_{7,k}^2 \| \mathcal{P}_{1, k-1}^+ - \mathcal{P}_{2, k-1}^+ \|
-	 	\end{aligned}
-	 \end{equation*}
-	 En donde las constante $c_{k,j}^i$ son positivas y dependen de $k$ solo a través de $\| A_{i,k} \| $, $\| C_{i,k}\| $, $\| \mathcal{Q}_{i,k} \| $, $\| \mathcal{R}_{i,k} \| $, $\| \S_{i,k}^{-1} \| $, $\| y_{i,k}\|$, $\| \mu_{i,k-1} \| $ y $\| \mathcal{P}_{i,k-1}^+ \| $.
-	 \label{teo:error_kalman}
+	Sea $k \geq 1$. Si los operadores $\S_{i,k}$ son invertibles, entonces existen constantes $c_{k,j}^i$ con $j \in \{1, \dots, 7\}$, $i \in \{1, 2\}$, tales que se cumplen las siguientes desigualdades:
+	\begin{equation*}
+		\begin{aligned}
+			\| \hat{\mu}_{1,k} - \hat{\mu}_{2,k} \| \leq & \, c_{1,k}^1 \| A_{1,k} - A_{2,k} \| + c_{2,k}^1 \| C_{1,k} - C_{2,k} \| \\ 
+			&+ c_{3,k}^1 \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k} \| + c_{4,k}^1 \| \mathcal{R}_{1,k} - \mathcal{R}_{2,k} \| \\
+			&+ c_{5,k}^1 \| y_{1,k} - y_{2,k} \| + c_{6,k}^1 \| \hat{\mu}_{1,k-1} - \hat{\mu}_{2,k-1} \| \\
+			&+ c_{7,k}^1 \| \mathcal{P}_{1,k-1}^+ - \mathcal{P}_{2,k-1}^+ \|,
+		\end{aligned}
+	\end{equation*}
+	y
+	\begin{equation*}
+		\begin{aligned}
+			\| \mathcal{P}_{1,k}^+ - \mathcal{P}_{2,k}^+ \| \leq & \, c_{1,k}^2 \| A_{1,k} - A_{2,k} \| + c_{2,k}^2 \| C_{1,k} - C_{2,k} \| \\ 
+			&+ c_{3,k}^2 \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k} \| + c_{4,k}^2 \| \mathcal{R}_{1,k} - \mathcal{R}_{2,k} \| \\
+			&+ c_{5,k}^2 \| y_{1,k} - y_{2,k} \| + c_{6,k}^2 \| \hat{\mu}_{1,k-1} - \hat{\mu}_{2,k-1} \| \\
+			&+ c_{7,k}^2 \| \mathcal{P}_{1,k-1}^+ - \mathcal{P}_{2,k-1}^+ \|.
+		\end{aligned}
+	\end{equation*}
+
+	Aquí, las constantes $c_{k,j}^i$ son positivas y dependen de $k$ únicamente a través de las normas $\| A_{i,k} \|$, $\| C_{i,k} \|$, $\| \mathcal{Q}_{i,k} \|$, $\| \mathcal{R}_{i,k} \|$, $\| \S_{i,k}^{-1} \|$, $\| y_{i,k} \|$, $\| \hat{\mu}_{i,k-1} \|$ y $\| \mathcal{P}_{i,k-1}^+ \|$.
+	\label{teo:error_kalman}
 \end{teo}
+
 \begin{proof}
-	Notar que
-	\begin{equation*}
-		\begin{aligned}
-			&	\| \hat \mu_{1,k} - \hat \mu_{2,k} \|_{E_x}  \\
-			\leq & \, \| A_{1,k} \mu_{1,k-1}  - A_{2,k} \mu_{2,k-1} \|  \\
-			& + \|  \K_{1,k} (y_{1,k} - C_{1,k} \hat\mu_{1,k-1}) -  \K_{2,k} (y_{2,k} - C_{2,k} \hat\mu_{2,k-1})  \|
-		\end{aligned}
-	\end{equation*}
-	El primero término, que se denotará error de predicción, entrega
-	\begin{equation*}
-		\begin{aligned}
-			& \| A_{1,k} \mu_{1,k-1}  - A_{2,k} \mu_{2,k-1} \|  \\
-			&\leq \| A_{1,k} \mu_{1,k-1}  - A_{1,k} \mu_{2,k-1} \| + \| A_{1,k} \mu_{2,k-1}  - A_{2,k} \mu_{2,k-1} \| \\
-			& \leq \| A_{1,k} \| \| \mu_{1,k-1}  - \mu_{2,k-1} \| +  \| \mu_{2,k-1} \| \| A_{1,k} - A_{2,k} \| 
-		\end{aligned}
-	\end{equation*}
-	Mientras que el segundo términos, que se denotará error de actualización, entrega
-	\begin{equation*}
-		\begin{aligned}
- 			& \|  \K_{1,k} (y_{1,k} - C_{1,k} \hat\mu_{1,k-1}) -  \K_{2,k} (y_{2,k} - C_{2,k} \hat\mu_{i,k-1})  \| \\
- 			& \leq  \| \K_{1,k} y_{1,k} -  \K_{2,k} y_{2,k}  \| + \| \K_{1,k} C_{1,k} \hat\mu_{1,k-1} - \K_{2,k} C_{2,k} \hat\mu_{2,k-1}  \| \\
- 			& \leq \| \K_{1,k} y_{1,k} -  \K_{1,k} y_{2,k}  \| + \| \K_{1,k} y_{2,k} -  \K_{2,k} y_{2,k}  \| \\
- 			& \quad + \| \K_{1,k} C_{1,k} \hat\mu_{1,k-1} - \K_{1,k} C_{2,k} \hat\mu_{2,k-1}  \| + \| \K_{1,k} C_{2,k} \hat\mu_{2,k-1} - \K_{2,k} C_{2,k} \hat\mu_{2,k-1}  \| \\
- 			& \leq \| \K_{1,k} \| \|  y_{1,k} - y_{2,k}  \| + \| y_{2,k} \| \| \K_{1,k}  -  \K_{2,k}  \| \\
- 			& \quad + \| \K_{1,k} \| \|  C_{1,k} \hat\mu_{1,k-1} - C_{2,k} \hat\mu_{2,k-1}  \| + \| C_{2,k} \hat\mu_{2,k-1} \| \| \K_{1,k}  - \K_{2,k} \| \\
- 			& \leq \| \K_{1,k} \| \|  y_{1,k} - y_{2,k}  \| + \| y_{2,k} \| \| \K_{1,k}  -  \K_{2,k}  \| \\
- 			& \quad + \| \K_{1,k} \| \left ( \|  C_{1,k} \hat\mu_{1,k-1} - C_{1,k} \hat\mu_{2,k-1}  \| + \|  C_{1,k} \hat\mu_{2,k-1} - C_{2,k} \hat\mu_{2,k-1}  \| \right ) \\
- 			& \quad + \| C_{2,k} \hat\mu_{2,k-1} \| \| \K_{1,k}  - \K_{2,k} \| \\
- 			& \leq \| \K_{1,k} \| \|  y_{1,k} - y_{2,k}  \| + \| y_{2,k} \| \| \K_{1,k}  -  \K_{2,k}  \| \\
- 			& \quad + \| \K_{1,k} \| \left ( \| C_{1,k}  \| \|  \hat\mu_{1,k-1} - \hat\mu_{2,k-1}  \| + \| \hat\mu_{2,k-1}  \| \| C_{1,k} - C_{2,k}  \| \right ) \\
- 			& \quad + \| C_{2,k} \hat\mu_{2,k-1} \| \| \K_{1,k}  - \K_{2,k} \| 
-		\end{aligned}		
-	\end{equation*}
-	En virtud de lo anterior, se debe ver la diferencia en norma de los operadores de ganancia
-	\begin{equation*}
-		\begin{aligned}
-			& \| \K_{1,k}  - \K_{2,k} \| \\
-			& \leq \| \mathcal{P}_{1,k}^- C_{1,k}\S_{1,k}^{-1} -  \mathcal{P}_{2,k}^- C_{2,k} \S_{2,k}^{-1} \| \\
-			& \leq \| \mathcal{P}_{1,k}^- C_{1,k}\S_{1,k}^{-1} - \mathcal{P}_{2,k}^- C_{1,k}\S_{1,k}^{-1} \| + \| \mathcal{P}_{2,k}^- C_{1,k}\S_{1,k}^{-1} - \mathcal{P}_{2,k}^- C_{2,k}\S_{2,k}^{-1} \| \\
-			& \leq \| C_{1,k}\S_{1,k}^{-1} \| \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| + \| \mathcal{P}_{2,k}^- \| \|  C_{1,k}\S_{1,k}^{-1} -  C_{2,k}\S_{2,k}^{-1}\| \\
-			& \leq \| C_{1,k}\S_{1,k}^{-1} \| \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| \\
-			& \quad + \| \mathcal{P}_{2,k}^- \| \|  C_{1,k}\S_{1,k}^{-1} -  C_{2,k}\S_{2,k}^{-1}\| \\
-			& \leq \| C_{1,k}\S_{1,k}^{-1} \| \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| \\
-			& \quad + \| \mathcal{P}_{2,k}^- \| ( \|  C_{1,k}\S_{1,k}^{-1} -  C_{1,k}\S_{2,k}^{-1}\| + \|  C_{1,k}\S_{2,k}^{-1} -  C_{2,k}\S_{2,k}^{-1}\|) \\
-			& \quad + \| \mathcal{P}_{2,k}^- \| ( \|  C_{1,k} \| \| \S_{1,k}^{-1} -  \S_{2,k}^{-1}\| + \| \S_{2,k}^{-1} \| \| C_{1,k} -  C_{2,k}\|) \\
-		\end{aligned}
-	\end{equation*}
-	En donde
-	\begin{equation*}
-		\begin{aligned}
-			\| \mathcal{P}_{i,k}^- \|  \leq \| A_{i,k} \|^2 \| \mathcal{P}_{i,k-1}^+\| + \| \mathcal{Q}_{i,k}\|, \quad i \in \{ 1, 2 \}
-		\end{aligned}
-	\end{equation*}
-	Primero para las diferencia en norma de los operadores de covarianza de error a priori se tiene
-	\begin{equation*}
-		\begin{aligned}
-			 & \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| \\
-			 & = \| A_{1,k}^* \mathcal{P}_{1,k-1}^+ A_{1,k} + \mathcal{Q}_{1,k} -A_{2,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} + \mathcal{Q}_{2,k}  \| \\
-			 & \leq \|A_{1,k}^* \mathcal{P}_{1,k-1}^+ A_{1,k} - A_{2,k}^* \mathcal{P}_{2,k}^+ A_{2,k} \| + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
-			 & \leq \|A_{1,k}^* \mathcal{P}_{1,k-1}^+ A_{1,k} - A_{1,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} \| +  \|A_{1,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} - A_{2,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} \| \\ 
-			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
-			 & \leq \|A_{1,k}^* \| \| \mathcal{P}_{1,k-1}^+ A_{1,k} - \mathcal{P}_{2,k-1}^+ A_{2,k} \| + \| \mathcal{P}_{2,k-1}^+ A_{2,k}  \| \|A_{1,k}^* - A_{2,k}^* \| \\ 
-			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
-			 & \leq \|A_{1,k} \| \| \mathcal{P}_{1,k-1}^+ A_{1,k} - \mathcal{P}_{2,k-1}^+ A_{2,k} \| + \| \mathcal{P}_{2,k-1}^+ A_{2,k}  \| \|A_{1,k} - A_{2,k} \| \\ 
-			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
-			 & \leq \|A_{1,k} \| (\| \mathcal{P}_{1,k}^+ A_{1,k} - \mathcal{P}_{1,k-1}^+ A_{2,k} \| + \| \mathcal{P}_{1,k-1}^+ A_{2,k} - \mathcal{P}_{2,k-1}^+ A_{2,k} \| ) \\
-			 & \quad + \| \mathcal{P}_{2,k-1}^+ \| \| A_{2,k}  \| \|A_{1,k} - A_{2,k} \| \\ 
-			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
-			 & \leq \|A_{1,k} \| ( \| \mathcal{P}_{1,k-1}^+ \| \|  A_{1,k} - A_{2,k} \| + \| A_{2,k} \| \| \mathcal{P}_{1,k-1}^+  - \mathcal{P}_{2,k-1}^+  \| ) \\
-			 & \quad + \| \mathcal{P}_{2,k-1}^+ \| \| A_{2,k}  \| \|A_{1,k} - A_{2,k} \| \\ 
-			 & \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \|
-		\end{aligned}
-	\end{equation*}
-	Por último queda ver el término $\| \S_{1,k}^{-1} -  \S_{2,k}^{-1}\|$, para ello notar que
-	\begin{equation*}
-		\S_{1,k}^{-1} -  \S_{2,k}^{-1} = \S_{2,k}^{-1} (\S_{2,k} - \S_{1,k}) \S_{1,k}^{-1}
-	\end{equation*}
-	Con lo que se tiene
-	\begin{equation*}
-		\begin{aligned}
-			& \| \S_{1,k}^{-1} -  \S_{2,k}^{-1} \| \\
-			& \leq  \| \S_{2,k}^{-1} (\S_{2,k} - \S_{1,k}) \S_{1,k}^{-1} \| \\
-			& \leq \| \S_{1,k}^{-1} \| \|  \S_{2,k}^{-1} \| \| \S_{2,k} - \S_{1,k}\| \\
-			& \leq  \| \S_{1,k}^{-1} \| \|  \S_{2,k}^{-1} \|  \| C_{1,k} \mathcal{P}_{1,k}^- C_{1,k}^* + \mathcal{R}_{1,k} - C_{2,k} \mathcal{P}_{2,k}^- C_{2,k}^* + \mathcal{R}_{2,k} \|
-		\end{aligned}
-	\end{equation*}
-	En donde, análogo a lo anterior, se obtiene
-	\begin{equation*}
-		\begin{aligned}
-			 & \| C_{1,k} \mathcal{P}_{1,k}^- C_{1,k}^* + \mathcal{R}_{1,k} - C_{2,k} \mathcal{P}_{2,k}^- C_{2,k}^* + \mathcal{R}_{2,k} \| \\
-			 & \leq \|C_{1,k-1} \| ( \| \mathcal{P}_{1,k-1}^+ \| \|  C_{1,k} - C_{2,k} \| + \| C_{2,k} \| \| \mathcal{P}_{1,k-1}^+  - \mathcal{P}_{2,k-1}^+  \| ) \\
-			 & \quad + \| \mathcal{P}_{2,k-1}^+ \| \| C_{2,k}  \| \|C_{1,k} - C_{2,k} \| \\ 
-			 & \quad + \| \mathcal{R}_{1,k} - \mathcal{R}_{2,k}  \|
-		\end{aligned}
-	\end{equation*}
-	Concluyendo que
-		 \begin{equation*}
-		\begin{aligned}
-			\| \hat \mu_{1,k} - \hat \mu_{2,k}  \| \leq & \, c_{1,k}^1 \| A_{1, k} - A_{2, k} \| +  c_{2,k}^1 \| C_{1, k} - C_{2, k} \| \\ 
-			&+ c_{3,k}^1 \| \mathcal{Q}_{1, k} - \mathcal{Q}_{2, k} \| +c_{4,k}^1 \| \mathcal{R}_{1, k} - \mathcal{R}_{2, k} \| \\
-			& + c_{5,k}^1 \| y_{1,k} - y_{2,k} \| + c_{6,k}^1 \| \hat \mu_{1, k-1} - \hat \mu_{2, k-1} \| + c_{7,k}^1 \| \mathcal{P}_{1, k-1}^+ - \mathcal{P}_{2, k-1}^+ \|
-		\end{aligned}
-	\end{equation*}
-	Para la diferencia de los errores de covarianza a posteriori basta notar que
-	\begin{equation*}
-		\begin{aligned}
-			& \| \mathcal{P}_{1,k}^+ - \mathcal{P}_{2,k}^+  \| \\
-			& \leq \| (I - \K_{1,k} C_{1,k}) \mathcal{P}_{1,k}^-  - (I - \K_{2,k} C_{2,k}) \mathcal{P}_{2,k}^- \| \\
-			& = \| \K_{1,k} C_{1,k} \mathcal{P}_{1,k}^-  -  \K_{2,k} C_{2,k} \mathcal{P}_{2,k}^- \| \\
-			&  \leq \| \K_{1,k} C_{1,k} \mathcal{P}_{1,k}^-  -  \K_{1,k} C_{2,k} \mathcal{P}_{2,k}^- \| +  \| \K_{1,k} C_{2,k} \mathcal{P}_{2,k}^-  -  \K_{2,k} C_{2,k} \mathcal{P}_{2,k}^- \| \\
-			& \leq \| \K_{1,k} \| \| C_{1,k} \mathcal{P}_{1,k}^-  -  C_{2,k} \mathcal{P}_{2,k}^- \| + \| C_{2,k} \mathcal{P}_{2,k}^- \|  \| \K_{1,k}   -  \K_{2,k}  \| \\
-			& \leq \| \K_{1,k} \| ( \| C_{1,k} \mathcal{P}_{1,k}^-  -  C_{1,k} \mathcal{P}_{2,k}^- \| + \| C_{1,k} \mathcal{P}_{2,k}^-  -  C_{2,k} \mathcal{P}_{2,k}^- \|) + \| C_{2,k} \mathcal{P}_{2,k}^- \|  \| \K_{1,k}   -  \K_{2,k}  \| \\
-			& \leq \| \K_{1,k} \| ( \| C_{1,k} \| \| \mathcal{P}_{1,k}^-  -  \mathcal{P}_{2,k}^- \| + \| \mathcal{P}_{2,k}^- \| \| C_{1,k}   -  C_{2,k} \|) + \| C_{2,k} \mathcal{P}_{2,k}^- \|  \| \K_{1,k}   -  \K_{2,k}  \| 
-		\end{aligned}
-	\end{equation*}
-	Observando que todos los términos ya se analizaron antes, se concluye que
-	\begin{equation*}
-		\begin{aligned}
-			\| \mathcal{P}_{1,k}^+ - \mathcal{P}_{2,k}^+  \| \leq & \, c_{1,k}^2 \| A_{1, k} - A_{2, k} \| +  c_{2,k}^2 \| C_{1, k} - C_{2, k} \| \\ 
-			&+ c_{3,k}^2 \| \mathcal{Q}_{1, k} - \mathcal{Q}_{2, k} \| + c_{4,k}^2 \| \mathcal{R}_{1, k} - \mathcal{R}_{2, k} \| \\
-			&+ c_{5,k}^2 \| y_{1,k} - y_{2,k} \|+ c_{6,k}^2 \| \hat \mu_{1, k-1} - \hat \mu_{2, k-1} \| + c_{7,k}^2 \| \mathcal{P}_{1, k-1}^+ - \mathcal{P}_{2, k-1}^+ \|
-		\end{aligned}
-	\end{equation*}
+Se observa que  
+\begin{equation*}
+	\begin{aligned}
+		&	\| \hat \mu_{1,k} - \hat \mu_{2,k} \|_{E_x}  \\
+		\leq & \, \| A_{1,k} \mu_{1,k-1}  - A_{2,k} \mu_{2,k-1} \|  \\
+		& + \|  \K_{1,k} (y_{1,k} - C_{1,k} \hat\mu_{1,k-1}) -  \K_{2,k} (y_{2,k} - C_{2,k} \hat\mu_{2,k-1})  \|.
+	\end{aligned}
+\end{equation*}
+
+El primer término, denominado \textit{error de predicción}, satisface la siguiente desigualdad:
+\begin{equation*}
+	\begin{aligned}
+		& \| A_{1,k} \mu_{1,k-1}  - A_{2,k} \mu_{2,k-1} \|  \\
+		& \leq \| A_{1,k} \mu_{1,k-1}  - A_{1,k} \mu_{2,k-1} \| + \| A_{1,k} \mu_{2,k-1}  - A_{2,k} \mu_{2,k-1} \| \\
+		& \leq \| A_{1,k} \| \| \mu_{1,k-1}  - \mu_{2,k-1} \| +  \| \mu_{2,k-1} \| \| A_{1,k} - A_{2,k} \|.
+	\end{aligned}
+\end{equation*}
+
+Por otro lado, el segundo término, denominado \textit{error de actualización}, cumple:
+\begin{equation*}
+	\begin{aligned}
+		& \|  \K_{1,k} (y_{1,k} - C_{1,k} \hat\mu_{1,k-1}) -  \K_{2,k} (y_{2,k} - C_{2,k} \hat\mu_{2,k-1})  \| \\
+		& \leq  \| \K_{1,k} y_{1,k} -  \K_{2,k} y_{2,k}  \| + \| \K_{1,k} C_{1,k} \hat\mu_{1,k-1} - \K_{2,k} C_{2,k} \hat\mu_{2,k-1}  \| \\
+		& \leq \| \K_{1,k} y_{1,k} -  \K_{1,k} y_{2,k}  \| + \| \K_{1,k} y_{2,k} -  \K_{2,k} y_{2,k}  \| \\
+		& \quad + \| \K_{1,k} C_{1,k} \hat\mu_{1,k-1} - \K_{1,k} C_{2,k} \hat\mu_{2,k-1}  \| + \| \K_{1,k} C_{2,k} \hat\mu_{2,k-1} - \K_{2,k} C_{2,k} \hat\mu_{2,k-1}  \| \\
+		& \leq \| \K_{1,k} \| \|  y_{1,k} - y_{2,k}  \| + \| y_{2,k} \| \| \K_{1,k}  -  \K_{2,k}  \| \\
+		& \quad + \| \K_{1,k} \| \|  C_{1,k} \hat\mu_{1,k-1} - C_{2,k} \hat\mu_{2,k-1}  \| + \| C_{2,k} \hat\mu_{2,k-1} \| \| \K_{1,k}  - \K_{2,k} \| \\
+		& \leq \| \K_{1,k} \| \|  y_{1,k} - y_{2,k}  \| + \| y_{2,k} \| \| \K_{1,k}  -  \K_{2,k}  \| \\
+		& \quad + \| \K_{1,k} \| \left ( \|  C_{1,k} \hat\mu_{1,k-1} - C_{1,k} \hat\mu_{2,k-1}  \| + \|  C_{1,k} \hat\mu_{2,k-1} - C_{2,k} \hat\mu_{2,k-1}  \| \right ) \\
+		& \quad + \| C_{2,k} \hat\mu_{2,k-1} \| \| \K_{1,k}  - \K_{2,k} \| \\
+		& \leq \| \K_{1,k} \| \|  y_{1,k} - y_{2,k}  \| + \| y_{2,k} \| \| \K_{1,k}  -  \K_{2,k}  \| \\
+		& \quad + \| \K_{1,k} \| \left ( \| C_{1,k}  \| \|  \hat\mu_{1,k-1} - \hat\mu_{2,k-1}  \| + \| \hat\mu_{2,k-1}  \| \| C_{1,k} - C_{2,k}  \| \right ) \\
+		& \quad + \| C_{2,k} \hat\mu_{2,k-1} \| \| \K_{1,k}  - \K_{2,k} \|.
+	\end{aligned}		
+\end{equation*}
+
+En virtud de lo anterior, se debe analizar la diferencia en norma de los operadores de ganancia:
+\begin{equation*}
+	\begin{aligned}
+		& \| \K_{1,k}  - \K_{2,k} \| \\
+		& \leq \| \mathcal{P}_{1,k}^- C_{1,k}\S_{1,k}^{-1} -  \mathcal{P}_{2,k}^- C_{2,k} \S_{2,k}^{-1} \| \\
+		& \leq \| \mathcal{P}_{1,k}^- C_{1,k}\S_{1,k}^{-1} - \mathcal{P}_{2,k}^- C_{1,k}\S_{1,k}^{-1} \| + \| \mathcal{P}_{2,k}^- C_{1,k}\S_{1,k}^{-1} - \mathcal{P}_{2,k}^- C_{2,k}\S_{2,k}^{-1} \| \\
+		& \leq \| C_{1,k}\S_{1,k}^{-1} \| \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| + \| \mathcal{P}_{2,k}^- \| \|  C_{1,k}\S_{1,k}^{-1} -  C_{2,k}\S_{2,k}^{-1}\| \\
+		& \leq \| C_{1,k}\S_{1,k}^{-1} \| \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| \\
+		& \quad + \| \mathcal{P}_{2,k}^- \| ( \|  C_{1,k}\S_{1,k}^{-1} -  C_{1,k}\S_{2,k}^{-1}\| + \|  C_{1,k}\S_{2,k}^{-1} -  C_{2,k}\S_{2,k}^{-1}\|) \\
+		& \quad + \| \mathcal{P}_{2,k}^- \| ( \|  C_{1,k} \| \| \S_{1,k}^{-1} -  \S_{2,k}^{-1}\| + \| \S_{2,k}^{-1} \| \| C_{1,k} -  C_{2,k}\|).
+	\end{aligned}
+\end{equation*}
+En donde
+\begin{equation*}
+	\| \mathcal{P}_{i,k}^- \|  \leq \| A_{i,k} \|^2 \| \mathcal{P}_{i,k-1}^+\| + \| \mathcal{Q}_{i,k}\|, \quad i \in \{ 1, 2 \}.
+\end{equation*}
+
+Primero, para las diferencias en norma de los operadores de covarianza de error a priori se tiene:
+\begin{equation*}
+	\begin{aligned}
+		& \| \mathcal{P}_{1,k}^- - \mathcal{P}_{2,k}^-\| \\
+		& = \| A_{1,k}^* \mathcal{P}_{1,k-1}^+ A_{1,k} + \mathcal{Q}_{1,k} - A_{2,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} + \mathcal{Q}_{2,k}  \| \\
+		& \leq \|A_{1,k}^* \mathcal{P}_{1,k-1}^+ A_{1,k} - A_{2,k}^* \mathcal{P}_{2,k}^+ A_{2,k} \| + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+		& \leq \|A_{1,k}^* \mathcal{P}_{1,k-1}^+ A_{1,k} - A_{1,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} \| +  \|A_{1,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} - A_{2,k}^* \mathcal{P}_{2,k-1}^+ A_{2,k} \| \\ 
+		& \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+		& \leq \|A_{1,k}^* \| \| \mathcal{P}_{1,k-1}^+ A_{1,k} - \mathcal{P}_{2,k-1}^+ A_{2,k} \| + \| \mathcal{P}_{2,k-1}^+ A_{2,k}  \| \|A_{1,k}^* - A_{2,k}^* \| \\ 
+		& \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+		& \leq \|A_{1,k} \| \| \mathcal{P}_{1,k-1}^+ A_{1,k} - \mathcal{P}_{2,k-1}^+ A_{2,k} \| + \| \mathcal{P}_{2,k-1}^+ A_{2,k}  \| \|A_{1,k} - A_{2,k} \| \\ 
+		& \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+		& \leq \|A_{1,k} \| (\| \mathcal{P}_{1,k}^+ A_{1,k} - \mathcal{P}_{1,k-1}^+ A_{2,k} \| + \| \mathcal{P}_{1,k-1}^+ A_{2,k} - \mathcal{P}_{2,k-1}^+ A_{2,k} \| ) \\
+		& \quad + \| \mathcal{P}_{2,k-1}^+ \| \| A_{2,k}  \| \|A_{1,k} - A_{2,k} \| \\ 
+		& \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \| \\
+		& \leq \|A_{1,k} \| ( \| \mathcal{P}_{1,k-1}^+ \| \|  A_{1,k} - A_{2,k} \| + \| A_{2,k} \| \| \mathcal{P}_{1,k-1}^+  - \mathcal{P}_{2,k-1}^+  \| ) \\
+		& \quad + \| \mathcal{P}_{2,k-1}^+ \| \| A_{2,k}  \| \|A_{1,k} - A_{2,k} \| \\ 
+		& \quad + \| \mathcal{Q}_{1,k} - \mathcal{Q}_{2,k}  \|.
+	\end{aligned}
+\end{equation*}
+
+Se analizará finalmente el término $\| \S_{1,k}^{-1} -  \S_{2,k}^{-1}\|$. Para ello, se observa que
+\begin{equation*}
+	\S_{1,k}^{-1} -  \S_{2,k}^{-1} = \S_{2,k}^{-1} (\S_{2,k} - \S_{1,k}) \S_{1,k}^{-1}.
+\end{equation*}
+A partir de esta expresión, se tiene que
+\begin{equation*}
+	\begin{aligned}
+		\| \S_{1,k}^{-1} -  \S_{2,k}^{-1} \| & \leq  \| \S_{2,k}^{-1} (\S_{2,k} - \S_{1,k}) \S_{1,k}^{-1} \| \\
+		& \leq \| \S_{1,k}^{-1} \| \|  \S_{2,k}^{-1} \| \| \S_{2,k} - \S_{1,k}\| \\
+		& \leq  \| \S_{1,k}^{-1} \| \|  \S_{2,k}^{-1} \|  \| C_{1,k} \mathcal{P}_{1,k}^- C_{1,k}^* + \mathcal{R}_{1,k} - C_{2,k} \mathcal{P}_{2,k}^- C_{2,k}^* + \mathcal{R}_{2,k} \|.
+	\end{aligned}
+\end{equation*}
+En este contexto, y de manera análoga a lo previamente demostrado, se obtiene la siguiente estimación para la expresión anterior:
+\begin{equation*}
+	\begin{aligned}
+		\| C_{1,k} \mathcal{P}_{1,k}^- C_{1,k}^* + \mathcal{R}_{1,k} - C_{2,k} \mathcal{P}_{2,k}^- C_{2,k}^* + \mathcal{R}_{2,k} \| \\
+		& \leq \|C_{1,k-1} \|  \| \mathcal{P}_{1,k-1}^+ \| \|  C_{1,k} - C_{2,k} \|  \\
+            & \quad + \|C_{1,k-1} \|  \| C_{2,k} \| \| \mathcal{P}_{1,k-1}^+  - \mathcal{P}_{2,k-1}^+  \| \\
+		& \quad + \| \mathcal{P}_{2,k-1}^+ \| \| C_{2,k}  \| \|C_{1,k} - C_{2,k} \| \\
+		& \quad+ \| \mathcal{R}_{1,k} - \mathcal{R}_{2,k}  \|.
+	\end{aligned}
+\end{equation*}
+
 \end{proof}
-Con esto se concluye que para una iteración $k$, el error depende del error en la condición tanto para la estimación del estado como para el operador de covarianza de error a posteriori.\\
-Notemos que
+
+Con lo anterior, se concluye que, para una iteración $k$, el error depende tanto del error en la condición para la estimación del estado como para el operador de covarianza del error a posteriori.
+
+\section{KKKF: Kernel Koopman Kalman Filter}
+
+En esta sección se presenta la deducción del algoritmo de filtraje solo utilizando la teoría de RKHS y de manera meticulosa. Primero notar que
 \begin{equation*}
 	\begin{aligned}
 		\Phi_\X (\mathbf{x_{k+1}}) &= \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) \\
-		&= \E[\Phi_\X (\mathbf{f}(\mathbf{x}_k, \cdot)] + \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) - \E[\Phi_\X (\mathbf{f}(\mathbf{x}_k, \cdot))] \\
+		&= \mathbb{E}[\Phi_\X (\mathbf{f}(\mathbf{x}_k, \cdot))] + \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) - \mathbb{E}[\Phi_\X (\mathbf{f}(\mathbf{x}_k, \cdot))] \\
 		&= (\U \Phi_\X) (\mathbf{x}_k) + \zeta_k
 	\end{aligned}
 \end{equation*}
-donde $\zeta_k$ es una variable aleatoria infinito dimensional, centrada y con operador de covarianza acotado, digamos $\mathcal{Q}_k$. Análogamente
+donde $\zeta_k$ representa una variable aleatoria infinito dimensional, centrada, cuyo operador de covarianza está acotado y se denota por $\mathcal{Q}_k$. De manera análoga, se tiene
 \begin{equation*}
 	\Phi_\Y (\mathbf{y}_k) = (\G \Phi_\Y) (\mathbf{x}_k) + \nu_k
 \end{equation*}
-donde $\nu_k$ es una variable aleatoria infinito dimensional, centrada y con operador de covarianza acotado, digamos $\mathcal{R}_k$. \\
-Haciendo algo similar a \cite{Gebhard2019}, se denota
+donde $\nu_k$ es una variable aleatoria infinito dimensional, centrada, y cuyo operador de covarianza está acotado, denotado por $\mathcal{R}_k$. \\
+Siguiendo un procedimiento similar al utilizado en \cite{Gebhard2019}, se define
 \begin{equation*}
-	\hat{\mu}_k = \E [\Phi_\X (\mathbf{x}_k) | \mathbf{y}_{1:k}], \quad \mathcal{P}_{k} = \text{Cov}(\Phi_\X(\mathbf{x}_k) - \hat{\mu}_k)  
+	\hat{\mu}_k = \mathbb{E} [\Phi_\X (\mathbf{x}_k) | \mathbf{y}_{1:k}], \quad \mathcal{P}_{k} = \text{Cov}(\Phi_\X(\mathbf{x}_k) - \hat{\mu}_k)
 \end{equation*}
-con 
+y, en particular,
 \begin{equation*}
-	\hat{\mu}_0 = \E [\Phi_\X (\mathbf{x}_0)], \quad \mathcal{P}_{0} = \text{Cov}(\Phi_\X (\mathbf{x}_0) - \hat{\mu}_0).
+	\hat{\mu}_0 = \hat{\mu}_0^- = \mathbb{E} [\Phi_\X (\mathbf{x}_0)], \quad \mathcal{P}_{0} = \text{Cov}(\Phi_\X (\mathbf{x}_0) - \hat{\mu}_0).
 \end{equation*}
-Y se define
+
+Se define
 \begin{equation*}
-	\hat{\mu}_{k+1}^- = \E [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}], \quad \mathcal{P}_{k+1}^- = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-) 
+	\hat{\mu}_{k+1}^- = \mathbb{E} [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}], \quad \mathcal{P}_{k+1}^- = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-)
 \end{equation*}
-Que por la Kernel Bayes Rule \cite{Fukumizu2013KernelKernels} cumple
+El cual, por la regla de Bayes para kernels \cite{Fukumizu2013KernelKernels}, satisface
 \begin{equation*}
-	\hat{\mu}_{k+1}^- = \E [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}] = C_{X^+|X} \E [\Phi_\X (\mathbf{x}_{k}) | \mathbf{y}_{1:k}] = C_{X^+|X} \hat{\mu}_k.
+	\hat{\mu}_{k+1}^- = \mathbb{E} [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}] = C_{X^+|X} \mathbb{E} [\Phi_\X (\mathbf{x}_{k}) | \mathbf{y}_{1:k}] = C_{X^+|X} \hat{\mu}_k.
 \end{equation*}
-Con ello, utilizando la independiencia de $\zeta_k$ con $\Phi_\X (\mathbf{x}_k)$
+A partir de esto, y utilizando la independencia de $\zeta_k$ con respecto a $\Phi_\X (\mathbf{x}_k)$, se obtiene
 \begin{equation*}
 	\begin{aligned}
 		\mathcal{P}_{k+1}^- &= \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-)  \\
 		&= \text{Cov}(C_{X^+|X}\Phi_\X (\mathbf{x}_{k}) + \zeta_{k+1} - C_{X^+|X}\hat{\mu}_{k}) \\
-		&= C_{X^+|X} \text{Cov} (\Phi_\X (\mathbf{x}_{k}) - \hat{\mu}_{k} )C_{X^+|X}^* + \text{Cov}(\zeta_{k+1}) \\
+		&= C_{X^+|X} \text{Cov} (\Phi_\X (\mathbf{x}_{k}) - \hat{\mu}_{k})C_{X^+|X}^* + \text{Cov}(\zeta_{k+1}) \\
 		&= C_{X^+|X} \mathcal{P}_k (C_{X^+|X})^* + \mathcal{Q}_{k+1}
 	\end{aligned}
 \end{equation*}
-Ahora, debemos proyectar sobre las observaciones para obtener la estimación a posteriori, es decir
+Posteriormente, se debe proyectar sobre las observaciones para obtener la estimación a posteriori, es decir,
 \begin{equation*}
-	\hat{\mu}_{k+1}^- = \E [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}] \to \hat{\mu}_{k+1} = \E [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k+1}]
+	\hat{\mu}_{k+1}^- = \mathbb{E} [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}] \quad \text{se actualiza a} \quad \hat{\mu}_{k+1} = \mathbb{E} [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k+1}].
 \end{equation*}
-Proponiendo que
+
+Se propone que
 \begin{equation*}
-	\hat{\mu}_{k+1} = \hat{\mu}_{k+1}^- + \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)
+	\hat{\mu}_{k+1} = \hat{\mu}_{k+1}^- + \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-),
 \end{equation*}
-Es decir, actualizar igual que en Kalman lineal, en donde ahora $\K_k : \R^p \to \H_\X$ es el operador de ganancia de Kalman, que cumple
+lo que implica una actualización similar a la del filtro de Kalman lineal, donde ahora $\K_k : \mathbb{R}^p \to \mathcal{H}_\X$ es el operador de ganancia de Kalman. 
+
+En Gebhardt et al. \cite{Gebhard2019} se deduce que $\hat{\mu}_k$ es un estimador insesgado de $\mu_k$, para todo $k$ y además una expresión para el operador de ganancia, que se deja a continuación por completitud de la deducción del filtro, en donde se ha ajustado la notación.
+
+\begin{prop}[Adaptación de Gebhardt et al. \cite{Gebhard2019}]
+    El estimador $\hat{\mu}_k$ es insesgado para $\mu_k$, para todo $k$ y el operador de ganancia de Kalman $\K_k: \R^p \to \H_\X$ viene dado por
+    \begin{equation*}
+        \mathcal{K}_k = \mathcal{P}^-_{k}C_{Y|X}^*(C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \mathcal{R}_k)^{-1}.
+    \end{equation*}
+    \label{prop:unbias_kalman_operator}
+\end{prop}
+
+\begin{proof}
+    Denotando $\varepsilon_k^- = \hat{\mu}_k^- - \mu_k \in \H_\X$ el error a priori y $\varepsilon_k^+ = \hat{\mu}_k - \mu_k \in \H_\X$ el error a posteriori, se tiene lo siguiente
+    \begin{align*}
+    \varepsilon_k^+ &= \hat{\mu}_k - \mu_k \\
+                &=\hat{\mu}_{k}^- + \K_{k} (\mathbf{y}_{k} - C_{Y|X} \hat{\mu}_{k}^-) - \mu_k \\
+                &= \varepsilon_k^- +  \K_{k} \mathbf{y}_{k} - \K_k C_{Y|X} \hat{\mu}_{k}^- \\
+                &= \varepsilon_k^- +  \K_{k} \mathbf{y}_{k} - \K_k C_{Y|X} \hat{\mu}_{k}^- + \K_k C_{Y|X} \mu_k - \K_k C_{Y|X} \mu_k\\
+                &= \varepsilon_k^- + \K_k C_{Y|X} (-\hat{\mu}_{k}^- + \mu_k) + \K_{k} \mathbf{y}_{k} - \K_k C_{Y|X} \mu_k\\
+                &= \varepsilon_k^- - \K_k C_{Y|X}  \varepsilon_k^- + \K_{k} \mathbf{y}_{k} - \K_k C_{Y|X} \mu_k\\
+                &= ( I - \K_k C_{Y|X} ) \varepsilon_k^- + \K_{k} (\mathbf{y}_{k} - C_{Y|X} \mu_k)\\
+                &= ( I - \K_k C_{Y|X} ) \varepsilon_k^- + \K_{k} \nu_k
+\end{align*}
+
+Primero se probará que $\E[\varepsilon_k^-] = 0$, esto por inducción. En primer lugar, para $k=0$ se tiene por construcción, con lo que el caso el caso base queda probado. Suponiendo que se cumple para $k \in \N$, se propone probarlo para $k+1$.
+
+Notando que 
 \begin{equation*}
-	\begin{aligned}
-		\K_{k+1} = \mathcal{P}_{k+1}^- (C_{Y|X})^*(C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1})^{-1}
-	\end{aligned}
+    \varepsilon_{k+1}^- = \hat{\mu}_{k+1}^- - \mu_{k+1} = C_{X^+|X} \hat{\mu}_k - C_{X^+|X} \mu_k - \zeta_k
 \end{equation*}
-y entonces el operador de covarianza de error a posteriori es
+se tiene que
 \begin{equation*}
-	\mathcal{P}_{k+1} = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}) 
+    \E[\varepsilon_{k+1}^-] = C_{X^+|X} \E [\hat{\mu}_k] - \E[\zeta_k] = C_{X^+|X} \E[\varepsilon^+_k]
 \end{equation*}
-    Desarrollando este término, y utilizando independencia
+ya que las variables aleatorias $\zeta_k$ son centradas. Con ello
+\begin{equation*}
+    \E[\varepsilon^+_k] = ( I - \K_k C_{Y|X} ) \E[\varepsilon_k^-] + \K_{k} \E[\nu_k] = 0
+\end{equation*}
+ya los $\nu_k$ son centrados y por la hipótesis de inducción $\E[\varepsilon_k^-] = 0$. Luego por principio de inducción queda probado que $\E[\varepsilon_k^-] = 0$, para todo $k$. 
+
+Haciendo la misma manipulación de antes, se prueba que $\E[\varepsilon^+_k] = 0$, para todo $k$, con lo que el estimado $\hat{\mu}_k$ es insesgado para $\mu_k$.
+
+Ahora para el operador de ganancia se debe recordar que en el problema de filtraje se busca minimizar la pérdida cuadrática esperada asociada a la estimación de la trayectoria, la que viene dada por
+\begin{equation*}
+    \E[(\hat{\mu}_{k} - \mu_{k})^* (\hat{\mu}_{k} - \mu_{k}) ] = \E [ (\varepsilon_k^+)^* \varepsilon_k^+ ]
+\end{equation*}
+
+Dado que el estimador es insesgado, esto se puede reformular como la minimización de la traza de la covarianza de error a posteriori $\mathcal{P}_k$, es decir
+\begin{align*}
+\min_{\K_k} \mathbb{E}[(\varepsilon_k^+)^* \varepsilon_k^+] &= \min_{\K_k} \text{Tr} \mathbb{E}[\varepsilon_k^+(\varepsilon_k^+)^*] \\
+&= \min_{\K_k} \text{Tr} \mathcal{P}_{k}.
+\end{align*}
+
+Sustituyendo la expresión para el error a posteriori se tiene que
+
+\begin{align*}
+\mathcal{P}_k &= \mathbb{E}[\varepsilon^+_k(\varepsilon^+_k)^*] \\
+&= \mathbb{E}[((I - \K_k C_{Y|X})\varepsilon^-_k - \K_k \nu_k)((I - \K_k C_{Y|X})\varepsilon^-_k - \K_k \nu_k)^*] \\
+&= (I - \K_k C_{Y|X})\mathbb{E}[\varepsilon^-_k(\varepsilon^-_k)^*](I - \K_k C_{Y|X})^* \\
+&\quad - \K_k\mathbb{E}[\nu_k(\varepsilon^-_k)^*](I - \K_k C_{Y|X})^* \\
+&\quad - (I - \K_k C_{Y|X})\mathbb{E}[\varepsilon^-_k\nu_k^*]\K_k^* \\
+&\quad + \K_k\mathbb{E}[\nu_k\nu_k^*]\K_k^*
+\end{align*}
+
+Dado que se asume que el ruido del operador de observación es independiente del error de estimación y dado que se asumió que la estimación a priori tiene media cero, se obtiene
+
+\begin{equation*}
+\mathbb{E}[\nu_k(\varepsilon^-_k)^*] = \mathbb{E}[\nu_k]\mathbb{E}[(\varepsilon^-_k)^*] = \mathbb{E}[(\varepsilon^-_k)^*]\mathbb{E}[\nu_k] = \mathbb{E}[\varepsilon^-_k\nu_k^*] = 0.
+\end{equation*}
+
+Con esta perspectiva, el operador de covarianza posterior puede reformularse como
+
+\begin{equation*}
+\mathcal{P}_k = (I - \K_k C_{Y|X})\mathcal{P}^-_{k}(I - \K_k C_{Y|X})^* + \K_k \mathcal{R}_k \K_k^*,
+\end{equation*}
+
+donde $\mathcal{R}_k = \mathbb{E}[\nu_k\nu_k^*]$ es la covarianza del ruido asociado a la observación. Tomando la derivada de la traza del operador de covarianza e igualándola a cero, lleva a la solución para el operador de ganancia de Kalman kernel como
+
+\begin{align*}
+0 &= 2(I - \K_k C_{Y|X})\mathcal{P}^-_{k}(-C_{Y|X}^*) + 2\K_k \mathcal{R}_k \\
+\K_k C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \K_k \mathcal{R}_k &= \K^-_{k}C_{Y|X}^* \\
+Q_k(C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \mathcal{R}_k) &= \mathcal{P}^-_{k}C_{Y|X}^* \\
+\K_k &= \mathcal{P}^-_{k}C_{Y|X}^*(C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \mathcal{R}_k)^{-1}.
+\end{align*}
+Con esto se obtiene la expresión requerida para el operador de ganancia de Kalman.
+\end{proof}
+
+Con lo que se obtiene una expresión cerrada para el operador de ganancia de Kalman. En consecuencia, el operador de covarianza del error a posteriori es
+\begin{equation*}
+	\mathcal{P}_{k+1} = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}).
+\end{equation*}
+
+Desarrollando este término y utilizando la independencia, se tiene:
 \begin{equation*}
 	\begin{aligned}
 		\mathcal{P}_{k+1} &= \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}) \\
-		& = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^- - \K_k (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)) \\
-		& = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-) + \text{Cov}( \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)) \\
-		& = \mathcal{P}_{k+1}^- + \K_{k+1} \text{Cov} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-) (\K_{k+1})^* \\
-		& =  \mathcal{P}_{k+1}^- + \K_{k+1} (C_{Y|X} \Phi_\X( \mathbf{x}_{k+1}) + \nu_k - C_{Y|X} \hat{\mu}_{k+1}^- ) (\K_{k+1})^* \\
-		& =  \mathcal{P}_{k+1}^- + \K_{k+1} (C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \text{Cov} (\nu_{k+1}))  (\K_{k+1})^* \\
-		& = \mathcal{P}_{k+1}^- + \K_{k+1} (C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1})  (\K_{k+1})^* \\
-		& = \mathcal{P}_{k+1}^- + \K_{k+1} C_{Y|X} \mathcal{P}_{k+1}^- \\
-		& = (I + \K_{k+1} C_{Y|X}) \mathcal{P}_{k+1}^- 
-	\end{aligned} 
+		&= \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^- - \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)) \\
+		&= \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-) - \text{Cov}(\K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)) \\
+		&= \mathcal{P}_{k+1}^- - \K_{k+1} \text{Cov} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-) (\K_{k+1})^* \\
+		&= \mathcal{P}_{k+1}^- - \K_{k+1} \left( C_{Y|X} \Phi_\X( \mathbf{x}_{k+1}) + \nu_k - C_{Y|X} \hat{\mu}_{k+1}^- \right) (\K_{k+1})^* \\
+		&= \mathcal{P}_{k+1}^- - \K_{k+1} \left( C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \text{Cov}(\nu_{k+1}) \right) (\K_{k+1})^* \\
+		&= \mathcal{P}_{k+1}^- - \K_{k+1} \left( C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1} \right) (\K_{k+1})^* \\
+		&= \mathcal{P}_{k+1}^- - \K_{k+1} C_{Y|X} \mathcal{P}_{k+1}^- \\
+		&= (I - \K_{k+1} C_{Y|X}) \mathcal{P}_{k+1}^-.
+	\end{aligned}
 \end{equation*}
 Donde se utilizó que
 \begin{equation*}
 	\begin{aligned}
-		(\K_{k+1})^* = (C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1})^{-1}   C_{Y|X}(\mathcal{P}_{k+1}^-)^*
+		(\K_{k+1})^* &= \left( C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1} \right)^{-1} C_{Y|X}(\mathcal{P}_{k+1}^-)^*.
 	\end{aligned}
 \end{equation*}
-y que $C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^*$, $\mathcal{R}_{k+1}$ son simétricos y $\mathcal{P}_{k+1}$ es autoadjunto.
-    Entonces, las ecuaciones para cada iteración vienen dadas por
+Además, se asumió que $C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^*$, $\mathcal{R}_{k+1}$ son matrices simétricas, y que $\mathcal{P}_{k+1}$ es un operador autoadjunto.
+
+Entonces, las ecuaciones para cada iteración se expresan de la siguiente manera:
 \begin{equation*}
 	\begin{aligned}
 		\hat{\mu}_{k+1}^- & = C_{X^+|X} \hat{\mu}_{k} \\
 		\mathcal{P}_{k+1}^- & = C_{X^+|X} \mathcal{P}_k (C_{X^+|X})^* + \mathcal{Q}_{k+1} \\
 		\S_{k+1} & = C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1} \\
 		\K_{k+1} & = \mathcal{P}_{k+1}^- (C_{Y|X})^* \S_{k+1}^{-1} \\
-		\mathcal{P}_{k+1} & = (I + \K_{k+1} C_{Y|X}) \mathcal{P}_{k+1}^- \\
+		\mathcal{P}_{k+1} & = (I - \K_{k+1} C_{Y|X}) \mathcal{P}_{k+1}^- \\
 		\hat{\mu}_{k+1} &= C_{X^+|X} \hat{\mu}_k + \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)
 	\end{aligned}
 \end{equation*}
-Con 
+con las condiciones iniciales:
 \begin{equation*}
-	\hat{\mu}_0 = \E [\Phi_\X (\mathbf{x}_0)], \quad \mathcal{P}_{0} = \text{Cov}(\Phi_\X (\mathbf{x}_0) - \hat{\mu}_0)  
+	\hat{\mu}_0 = \E [\Phi_\X (\mathbf{x}_0)], \quad \mathcal{P}_{0} = \text{Cov}(\Phi_\X (\mathbf{x}_0) - \hat{\mu}_0).
 \end{equation*}
-    Ahora dejando todo en función del operador de Koopman, gracias a que
+
+Ahora, expresando todo en términos del operador de Koopman, gracias a que
 \begin{equation*}
 	C_{X^+|X} = \U^*, \quad C_{Y|X} = \G^*
 \end{equation*}
-Con lo que queda
+se obtiene:
 \begin{equation*}
 	\begin{aligned}
 		\hat{\mu}_{k+1}^- & = \U^* \hat{\mu}_{k} \\
@@ -277,7 +369,8 @@ Con lo que queda
 		\hat{\mu}_{k+1} &= \U^* \hat{\mu}_k + \K_{k+1} (\mathbf{y}_{k+1} - \G^* \hat{\mu}_{k+1}^-)
 	\end{aligned}
 \end{equation*}
-    Si hacemos las aproximaciones finito dimensionales, queda
+
+Si ahora se realizan las aproximaciones finito dimensionales, se obtiene:
 \begin{equation*}
 	\begin{aligned}
 		\hat{\mu}_{N, k+1}^- & = \U^*_N \hat{\mu}_{N, k} \\
@@ -287,21 +380,81 @@ Con lo que queda
 		\hat{\mu}_{N,k+1} &= \U^* \hat{\mu}_{N,k} + \K_{N,k+1} (\mathbf{y}_{k+1} - \G^*_N \hat{\mu}_{N,k+1}^-)
 	\end{aligned}
 \end{equation*}
-    En donde $\mathcal{Q}_{N,k+1}$, $\mathcal{R}_{N,k+1}$ son los estimadores insesgados de $\mathcal{Q}_{k+1}$ y $\mathcal{R}_{k+1}$, respectivamente, esto es
+
+En donde $\mathcal{Q}_{N,k+1}$, $\mathcal{R}_{N,k+1}$ son los estimadores insesgados de $\mathcal{Q}_{k+1}$ y $\mathcal{R}_{k+1}$, respectivamente, es decir:
 \begin{equation}
 	\mathcal{Q}_{N,k+1} = \frac{1}{N-1}\sum_{j=1}^N (z_{1,j} - \bar{z}_1)^2, \quad \mathcal{R}_{N,k+1} = \frac{1}{N-1}\sum_{j=1}^N (z_{2,j} - \bar{z}_2)^2
 	\label{eq: emp_covars}
 \end{equation}
-en donde $\{ z_{1,j} \}_{j=1}^N \sim \zeta_k^N$, $\{ z_{2,j} \}_{j=1}^N \sim \nu_k^N$ y 
+donde $\{ z_{1,j} \}_{j=1}^N \sim \zeta_k^N$, $\{ z_{2,j} \}_{j=1}^N \sim \nu_k^N$ y 
 \begin{equation*}
 	\bar{z}_i = \frac{1}{N} \sum_{j=1}^N z_{i,j}
 \end{equation*}
-Si $X_0$ es la distribución dada para la condición inicial y $\{ x_j \}_{j=1}^N \sim X_0$, entonces la inicialización viene dada por
+Si $X_0$ es la distribución dada para la condición inicial y $\{ x_j \}_{j=1}^N \sim X_0$, entonces la inicialización viene dada por:
 \begin{equation}
 	\hat{\mu}_{N,0} = \frac{1}{N} \sum_{j=1}^N \Phi_\X(x_{k}), \quad \mathcal{P}_{N,0} = \frac{1}{N-1} \sum_{j=1}^N (\Phi_\X(x_{k}) - \hat{\mu}_{N,0})^2
 	\label{eq: mean_element_covar}
 \end{equation}
-Aplicando el teorema anterior, es directo lo siguiente
+
+Es con todo esto que se concluye la deducción del filtro, por lo que procede con la estimación de la cota de error del filtro.
+
+\section{Cota de error de KKKF}
+
+El primer paso para deducir la cota de error es dejar la discrepancia en norma de los elementos a comparar, en un cierto instante $k$, en función del instante anterior $k-1$ y en función de los operadores involucrados.
+
+\begin{algorithm}
+\caption{Cov($W, N, \nu$)}\label{alg:AppCov}
+\begin{algorithmic}[1]
+\Require $W$ ley de una variable \textit{sampleable} con soporte en un conjunto $\Omega$, $N \geq 2$ cantidad de muestras a tomar, $\nu:\Omega \to \R^d$ función.
+\Ensure $\hat{\Sigma} \in \R^{d \times d}$ estimación de matriz de covarianzas de $\nu(W)$.
+\State $\{ \mathbf{w}_i \}_{i=1}^N \sim W^N$ \Comment{$N$ muestras independientes de $W$} 
+\State $\hat{\nu} = \frac{1}{N} \sum_{i=1}^N \nu (\mathbf{w}_i)$ \Comment{Promedio empírico}
+\State $\hat{\Sigma} = \frac{1}{N-1} \sum_{i=1}^N (\nu (\mathbf{w}_i) - \hat{\nu})^T(\nu (\mathbf{w}_i) - \hat{\nu})$  \Comment{Covarianza muestral insesgada}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Kernel Kalman Koopman Filter (KKKF)}\label{alg:KKKF}
+\begin{algorithmic}[1]
+\Require Dinámica discreta como en (\ref{eq:no_lin_dis_chap3}), $\mathbf{x}_0$ \textit{prior} sobre la condición inicial, $\mathbf{y}_{1:N}$ observaciones, $\mathbf{k}:\X \times \X \to \R$ \textit{kernel} semidefinido positivo, $N$ dimensión de aproximación del operador de Koopman y $n_{\text{samples}}$ cantidad de muestras para aproximar las matrices de covarianza.
+\Ensure $(\hat{\mathbf{x}}_{k|k})_{k=0}^{N}$ estimador de la trayectoria y $(\hat{\mathbf{P}}^{\mathbf{x}}_{k|k})_{k=0}^{N}$ matrices de covarianza de error.
+\State $\mathbf{U}_N, \, \Phi_\X (\cdot), \, \mathbf{G}_N, \mathbf{B}_N \gets $ kEDMD($\mu_\X$, $\rho_f$, $\rho_g$, $k$, $N$)
+\State $\hat{\mathbf{x}}_{0}, \, \hat{\mathbf{x}}_{0}^-   \gets \E [\mathbf{x}_0]$ \Comment{Estimación de la condición inicial para $\mathbf{x}$}
+\State $\hat{\mathbf{z}}_{0|0}   \gets \mathbf{\Psi}(\hat{\mathbf{x}}_{0|0})$ \Comment{Estimación de la condición inicial para $\mathbf{z}$}
+\State $\hat{\mathbf{P}}^\mathbf{x}_{0|0} \gets \E [(\mathbf{x}_0 - \hat{\mathbf{x}}_{0})(\mathbf{x}_0 - \hat{\mathbf{x}}_{0})^T]$ \Comment{Covarianza de error inicial para $\mathbf{x}$}
+\State $\hat{\mathbf{P}}^\mathbf{z}_{0|0} \gets$ Cov($\mathbf{x}_0$, $n_{\text{samples}}, \mathbf{\Psi}$) \Comment{Covarianza de error inicial para $\mathbf{z}$}
+\For{$k = 0, \dots, N-1$}
+    \State $\hat{\mathbf{x}}_{k+1|k} \gets \Tilde{\mathbf{f}}(\mathbf{x}_{k|k})$
+    \Comment{Estimación a priori para $\mathbf{x}$}
+    \State $\hat{\mathbf{z}}_{k+1|k} \gets \mathbf{\Psi}(\hat{\mathbf{x}}_{k+1|k})$
+    \Comment{Estimación a priori para $\mathbf{z}$}
+    \State $\mathbf{Q}_k \gets $ Cov($\mathbf{w}_k$, $n_{\text{samples}}, \mathbf{\Psi}(\mathbf{f}(\mathbf{x}_{k|k}, \cdot))$) 
+    \Comment{Covarianza de la dinámica para $\mathbf{z}$}
+    \State $\mathbf{P}^{\mathbf{z}}_{k+1|k} \gets \mathbf{U} \mathbf{P}^{\mathbf{z}}_{k|k} \mathbf{U}^T + \mathbf{Q}_k$
+    \Comment{Error de covarianza a priori}
+    \State $\hat{\mathbf{y}}_{k+1|k} \gets \Tilde{\mathbf{g}}(\hat{\mathbf{x}}_{k+1|k})$ 
+    \Comment{Estimación de observación a priori}
+    \State $\mathbf{e}_{\mathbf{y}_{k+1|k}} \gets \mathbf{y}_{k+1} - \hat{\mathbf{y}}_{k+1|k}$
+    \Comment{Error a priori (innovación)}
+    \State $\mathbf{R}_{k+1} \gets $ Cov($\mathbf{v}_k$, $n_{\text{samples}}, \mathbf{g}(\mathbf{x}_{k+1|k}, \cdot)$) 
+    \Comment{Covarianza de la observación para $\mathbf{z}$}
+    \State $ \mathbf{S}_{k+1} \gets \mathbf{C} \mathbf{P}^{\mathbf{z}}_{k|k} \mathbf{C}^T + \mathbf{R}_{k+1}$
+    \Comment{Covarianza residual para $\mathbf{z}$}
+    \State $\mathbf{K}_{k+1} \gets \mathbf{P}^{\mathbf{z}}_{k+1|k} \mathbf{C}^T$Cholesky$(\mathbf{S}_{k+1})^{-1}$
+    \Comment{Ganancia de Kalman}
+    \State $\hat{\mathbf{z}}_{k+1|k+1} \gets \hat{\mathbf{z}}_{k+1|k} + \mathbf{K}_{k+1} \mathbf{e}_{\mathbf{y}_{k+1|k}}$
+    \Comment{Estimación a posteriori para $\mathbf{z}$}
+    \State $\hat{\mathbf{x}}_{k+1|k+1} \gets \mathbf{B}\hat{\mathbf{z}}_{k+1|k+1}$
+    \Comment{\textit{Lift back} para el estado}
+    \State $\mathbf{P}^\mathbf{z}_{k+1|k+1} \gets (\mathbf{I} - \mathbf{K}_{k+1} 
+    \mathbf{C}) \mathbf{P}^{\mathbf{z}}_{k+1|k}$
+    \Comment{Error de covarianza a posteriori para $\mathbf{z}$}
+    \State $\mathbf{P}^\mathbf{x}_{k+1|k+1} \gets \mathbf{B}\mathbf{P}^\mathbf{z}_{k+1|k+1} \mathbf{B}^T$
+    \Comment{\textit{Lift back} para la covarianza}
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
 \begin{prop}
 	Para $k \geq 1$, existen constantes $c_{k,j}^i$ con $j \in \{ 1, \dots, 6\}$, $i \in \{ 1, 2\}$ tales que
 	\begin{equation*}
@@ -322,8 +475,29 @@ Aplicando el teorema anterior, es directo lo siguiente
 	En donde las constantes $c_{k,j}^i$ son positivas y dependen de $k$ solo a través de $\| \U \| $, $\| \G \| $, $\| \mathcal{Q}_{k} \| $, $\| \mathcal{R}_{k} \| $, $\| \S_{k}^{-1} \| $, $\| \hat{\mu}_{k-1} \| $ y $\| \mathcal{P}_{k-1} \| $.
 	\label{prop:err_kkkf_1}
 \end{prop}
-\begin{prop}
-	Existen constantes $C_i^j$ para $i \in \{1, 2, 3\}$, $j \in \{1, 2\}$ tales que
+
+\begin{proof}
+    Esto es directo del teorema \ref{teo:error_kalman}, ocupando
+    \begin{equation*}
+        A_{1,k} = \U, \quad A_{2,k} = \U_N 
+    \end{equation*}
+    \begin{equation*}
+        C_{1,k} = \G, \quad C_{2,k} = \G_N 
+    \end{equation*}
+    \begin{equation*}
+        \mathcal{Q}_{1,k} = \mathcal{Q}_k, \quad \mathcal{Q}_{2,k} = \mathcal{Q}_{N, k}
+    \end{equation*}
+    \begin{equation*}
+        \mathcal{R}_{1,k} = \mathcal{R}_k, \quad \mathcal{R}_{2,k} = \mathcal{R}_{N, k}
+    \end{equation*}
+    \begin{equation*}
+        y_{1, k} = y_{2, k} = \mathbf{y}_k.
+    \end{equation*}
+    Es decir, no se tiene el error por diferencia en las observaciones, ya que se considera que ambos sistemas tienen las mismas observaciones.
+\end{proof}
+
+\begin{teo}
+    Bajo las hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$, entonces con probabilidad $1-\delta$ se tiene que existen constantes $C_i^j$ para $i \in \{1, 2, 3\}$, $j \in \{1, 2\}$ tales que
 	
 	\begin{equation*}
 		\begin{aligned}
@@ -336,17 +510,18 @@ Aplicando el teorema anterior, es directo lo siguiente
 		\end{aligned}
 	\end{equation*}
 	En donde las constantes $C_i^j$ son positivas y dependen de $k$ solo a través de $\| \U \| $, $\| \G \| $, $\| \mathcal{Q}_{j} \| $, $\| \mathcal{R}_{j} \| $, $\| \S_{k}^{-1} \| $, $\| \hat{\mu}_{j} \| $ y $\| \mathcal{P}_{j} \| $, con $j \in \{ 0, \dots, k-1\}$.
-		\label{prop:err_kkkf_2}
-\end{prop}
-Ahora un lema que permite dar cotas para los elementos y operadores cuya norma se puede acotar por algo de orden $N^{-1/2}$, que son resultados conocidos en la literatura.
-\begin{lema}[\cite{Zhou2019ASpaces}] Sea $N \in \N$ y $\mathcal{Q}_{N,0}$, $\mathcal{R}_{N,0}$, $\mu_{N,0}$, $\mathcal{P}_{N,0}$, definidos en \ref{eq: emp_covars} y \ref{eq: mean_element_covar}, respectivamente, luego existe una constante $C$ tal que
+    \label{teo:teo_kkkf_2}
+\end{teo}
+
+Antes de probar esta proposición, se enuncia un lema que permite dar cotas para los elementos y operadores cuya norma se puede acotar por algo de orden $N^{-1/2}$, que son resultados conocidos en la literatura.
+\begin{lema}[Zhou et al. \cite{Zhou2019ASpaces}] Sea $N \in \N$ y $\mathcal{Q}_{N,0}$, $\mathcal{R}_{N,0}$, $\mu_{N,0}$, $\mathcal{P}_{N,0}$, definidos en \ref{eq: emp_covars} y \ref{eq: mean_element_covar}, respectivamente, luego existe una constante $C$ tal que
 	\begin{equation*}
 		\| \hat{\mu}_0 - \hat{\mu}_{N,0} \|_{\H_\X}, \, \|  \mathcal{P}_{0} -  \mathcal{P}_{N,0}\|_{HS}, \, \, \| \mathcal{Q}_{k} - \mathcal{Q}_{N, k} \|_{HS}, \| \mathcal{R}_{k} - \mathcal{R}_{N, k} \|_{HS} \leq C\cdot N^{-1/2}
 	\end{equation*}
 	que, sin pérdida de generalidad, se puede tomar común para todas las cotas.
 	\label{lema:oper_sqrt_N}
 \end{lema}
-Ahora se procede con la demotración de la Proposición \ref{prop:err_kkkf_2}.
+Ahora se procede con la demostración de la Proposición \ref{teo:teo_kkkf_2}.
 \begin{proof}
 	Gracias a la proposición \ref{prop:err_kkkf_1} y el lema \ref{lema:oper_sqrt_N} se obtiene que existen constantes $c_{k,j}^i$ con $j \in \{ 1, \dots, 6\}$, $i \in \{ 1, 2\}$ tales que
 	\begin{equation*}
@@ -364,7 +539,7 @@ Ahora se procede con la demotración de la Proposición \ref{prop:err_kkkf_2}.
 			& + c_{5,k}^2 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + c_{6,k}^2 \| \mathcal{P}_{k-1} - \mathcal{P}_{N, k-1} \|
 		\end{aligned}
 	\end{equation*}
-	Por teorema \ref{teo:error_koop_sqrt_N} entonces se concluye que
+	Por teorema \ref{teo:error_koop_sqrt_N} entonces se concluye que con probabilidad $1-\delta$ existen constantes $C^1_{1, k}$ y $C^2_{1, k}$ tales que
 	\begin{equation*}
 		\begin{aligned}
 			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{1,k}^1 N^{-1/2} + C_{2,k}^1 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k}^1 \| \mathcal{P}_{k-1}  - \mathcal{P}_{N, k-1}  \|
@@ -408,4 +583,169 @@ Ahora se procede con la demotración de la Proposición \ref{prop:err_kkkf_2}.
 			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{k+1}^1 N^{-1/2}
 		\end{aligned}
 	\end{equation*}
+\end{proof}
+
+Ahora se debe estudiar el error inducido por volver al espacio de dimensión original mediante el operador de \textit{lifting back} $\B : \R^n \to \X$ definido en la sección anterior, que cumple
+\begin{equation*}
+    \B^* \Phi_\X (\mathbf{x}) = \mathbf{x}.
+\end{equation*}
+
+Se propone entonces el estimador exacto del problema como
+\begin{equation*}
+    \hat{\mathbf{x}}_{k} = \B^* \hat{\mu}_{k}
+\end{equation*}
+que en la práctica es inaccesible, pero que se aproxima por el estimador
+\begin{equation*}
+    \hat{\mathbf{x}}_{N, k} = \B^*_{N} \hat{\mu}_{N,k}.
+\end{equation*}
+Este será el estimador que entregará el algoritmo de filtraje KKKF. Además, recordando que la matriz de covarianza de error a posteriori del problema está definida por
+\begin{equation*}
+    \mathbf{P}_{k} = \E[ (\hat{\mathbf{x}}_k - \mathbf{x}_k) (\hat{\mathbf{x}}_k - \mathbf{x}_k)^\top ]
+\end{equation*}
+se obtiene que
+\begin{equation*}
+    \begin{aligned}
+        \mathbf{P}_{k} & = \E[ (\hat{\mathbf{x}}_k - \mathbf{x}_k) (\hat{\mathbf{x}}_k - \mathbf{x}_k)^\top ] \\
+        & = \E[ (\B^* \Phi_\X (\hat{\mathbf{x}}_k) - \B^* \Phi_\X (\mathbf{x}_k)) (\B^* \Phi_\X (\hat{\mathbf{x}}_k) - \B^* \Phi_\X (\mathbf{x}_k))^\top ] \\
+        & = \B^* \E[ (\Phi_\X (\hat{\mathbf{x}}_k) - \Phi_\X (\mathbf{x}_k)) (\Phi_\X (\hat{\mathbf{x}}_k) -  \Phi_\X (\mathbf{x}_k))^* ] \B \\
+        & = \B^* \E[ (\mu_k - \hat{\mu}_{k}) (\mu_k - \hat{\mu}_{k})^*] \B \\
+        & = \B^* \mathcal{P}_k \B.
+    \end{aligned}
+\end{equation*}
+Por lo que la matriz de covarianza de error a posteriori aproximante se define como
+\begin{equation*}
+    \mathbf{P}_{N, k} = \B^*_{N} \mathcal{P}_{N, k} \B_{N}
+\end{equation*}
+Con esto se puede deducir de manera sencilla la cota de error deseada para la aproximación del filtro.
+\begin{teo}[Error de KKKF]
+    Bajo las hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$, entonces con probabilidad $1-\delta$ se tiene que existen constantes $\Tilde{C}^1_k$, $\Tilde{C}^2_k$ tales que
+    \begin{equation*}
+        \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \Tilde{C}^1_k N^{-1/2}
+    \end{equation*}
+    \begin{equation*}
+        \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq \Tilde{C}^2_k N^{-1/2}
+    \end{equation*}
+\end{teo}
+\begin{proof}
+    Primero para el término asociado a la estimación del estado
+    \begin{equation*}
+        \begin{aligned}
+            \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| & = \| \B^* \hat{\mu}_{k} - \B^*_{N} \hat{\mu}_{N,k} \| \\
+            & = \| \B^* \hat{\mu}_{k} - \B^* \hat{\mu}_{N, k} + \B^* \hat{\mu}_{N, k} - \B^*_{N} \hat{\mu}_{N,k} \| \\
+            & \leq \| \B^* \hat{\mu}_{k} - \B^* \hat{\mu}_{N, k}\| + \|\B^* \hat{\mu}_{N, k} - \B^*_{N} \hat{\mu}_{N,k} \| \\
+            & \leq \| \B^* \| \| \hat{\mu}_{k} -  \hat{\mu}_{N, k}\| + \|\B^* - \B^*_{N}  \| \|\hat{\mu}_{N,k} \|.
+        \end{aligned}
+    \end{equation*}
+    Entonces, por teoremas \ref{teo:error_koop_sqrt_N} y \ref{prop:teo_kkkf_2} se tiene que con probabilidad $1-\delta$ existe constantes $C$, $C_k^1$ tales que 
+    \begin{equation*}
+         \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \| \B \| C_k^1 N^{-1/2} + \| \hat{\mu}_{N, k} \| C N^{-1/2} = \Tilde{C}_{k}^1 N^{-1/2}
+    \end{equation*}
+    donde se ha utilizado $\| \B^* \| \leq \| \B \|$, $\| \B^* - \B^*_N \| \leq \| \B - \B_N \|$ y denotado $\Tilde{C}_{k}^1 = \| \B \| C_k^1 + \| \hat{\mu}_{N, k} \| C N^{-1/2}$.
+
+    Ahora para la matriz de covarianza de error a posteriori
+    \begin{equation*}
+        \begin{aligned}
+            \| \mathbf{P}_k - \mathbf{P}_{N, k} \| & = \| \B^*\mathcal{P}_k \B - \B^*_N \mathcal{P}_{N, k} \B_N \| \\
+            & = \| \B^*\mathcal{P}_k \B - \B^*_N \mathcal{P}_k \B + \B^*_N \mathcal{P}_k \B - \B^*_N \mathcal{P}_{N, k} \B_N \| \\
+            & \leq \| \B^*\mathcal{P}_k \B - \B^*_N \mathcal{P}_k \B \| + \| \B^*_N \mathcal{P}_k \B - \B^*_N \mathcal{P}_{N, k} \B_N \| \\
+            & \leq \| \B^* - \B^*_N  \| \| \mathcal{P}_k \B \| + \| \B^*_N \| \| \mathcal{P}_k \B - \mathcal{P}_{N, k} \B_N \| \\
+            & = \| \B - \B_N  \| \| \mathcal{P}_k \B \| + \| \B_N \| \| \mathcal{P}_k \B -\mathcal{P}_k \B_N + \mathcal{P}_k \B_N - \mathcal{P}_{N, k} \B_N \| \\
+            & \leq \| \B - \B_N  \| \| \mathcal{P}_k \B \| + \| \B_N \| \left (\| \mathcal{P}_k \B -\mathcal{P}_k \B_N \| + \| \mathcal{P}_k \B_N - \mathcal{P}_{N, k} \B_N \| \right ) \\
+            & \leq \| \B - \B_N  \| \| \mathcal{P}_k \B \| + \| \B_N \| \left ( \| \mathcal{P}_k \B -\mathcal{P}_k \B_N \| + \| \mathcal{P}_k \B_N - \mathcal{P}_{N, k} \B_N \| \right ) \\
+            & \leq \| \B - \B_N  \| \| \mathcal{P}_k \B \| + \| \B_N \| \left ( \| \B - \B_N \| \| \mathcal{P}_k \| + \| \mathcal{P}_k - \mathcal{P}_{N, k} \| \| \B_N \| \right ).
+        \end{aligned}
+    \end{equation*}
+    Usando nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{prop:teo_kkkf_2} se tiene que probabilidad $1-\delta$ existen constantes $C$, $C_k^2$ tales que 
+    \begin{equation*}
+        \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq C_k^2 \| \mathcal{P}_k \B \| N^{-1/2} + \| \B_N \| \left ( C \| \mathcal{P}_k \| + C_k^2 \| \B_N \| \right ) N^{-1/2}
+    \end{equation*}
+    y además
+    \begin{equation*}
+        \| \B_N \| = \| \B_N - \B + \B \| \leq \| \B_N - \B \| + \| \B \| \leq C N^{-1/2} + \| \B \| 
+    \end{equation*}
+    con lo que se obtiene
+    \begin{equation*}
+        \begin{aligned}
+            \| \mathbf{P}_k - \mathbf{P}_{N, k} \| & \leq C_k^2 \| \mathcal{P}_k \B \| N^{-1/2} + (C N^{-1/2} + \| \B \|) \left ( C \| \mathcal{P}_k \| + C_k^2 (C N^{-1/2} + \| \B \|) \right ) N^{-1/2} \\
+            & \leq \left ( C_k^2 \| \mathcal{P}_k \B \| + (C N^{-1/2} + \| \B \|) \left ( C \| \mathcal{P}_k \| + C_k^2 (C N^{-1/2} + \| \B \|) \right ) \right ) N^{-1/2} \\
+            & \leq \left ( C_k^2 \| \mathcal{P}_k \B \| + (C + \| \B \|) \left ( C \| \mathcal{P}_k \| + C_k^2 (C  + \| \B \|) \right ) \right ) N^{-1/2}
+        \end{aligned}
+    \end{equation*}
+    con lo que denotando $\Tilde{C}_k^2 = C_k^2 \| \mathcal{P}_k \B \| + (C + \| \B \|) \left ( C \| \mathcal{P}_k \| + C_k^2 (C  + \| \B \|) \right )$ se tiene que 
+    \begin{equation*}
+        \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq \Tilde{C}_k^2 N^{-1/2}
+    \end{equation*}
+    completando el resultado.
+\end{proof}
+Con esta cota, en conjunto con otros desarrollos realizados en secciones anteriores se puede probar el siguiente resultado sobre el sesgo y el error del estimador.
+\begin{teo}
+    Bajo la hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$, luego con probabilidad $1-\delta$ existen constantes $\hat{C}_1$ y $\hat{C}_2$ tales que
+    \begin{enumerate}
+        \item El sesgo del estimador $\hat{\mathbf{x}}_{N, k}$, para la trayectoria $\mathbf{x}_k$, está acotado por $\hat{C}_1 N^{-1/2}$, esto es
+    \begin{equation*}
+        \left \| \E \left [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) \right] \right \| \leq \hat{C}_1 N^{-1/2}
+    \end{equation*}
+        \item El estimador $\hat{\mathbf{x}}_{N, k}$ es un $\hat{C}_2 N^{-1/2}$-mínimo del problema de filtraje, esto es
+    \begin{equation*}
+        \E \left [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) \right] \leq  \E \left [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) \right] + \Tilde{C}_k^2 N^{-1/2}
+    \end{equation*}
+    \end{enumerate}
+\end{teo}
+\begin{proof}
+    Primero para el punto 1. se tiene que
+    \begin{equation*}
+        \begin{aligned}
+            \| \E [\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k] \| & = \| \E [ \B^*_N \hat{\mu}_{N,k} - \B^*_N \hat{\mu}_{k} + \B^*_N \hat{\mu}_{k} - \B^* \hat{\mu}_k + \B^* \hat{\mu}_k - \B^* \mu_k ] \| \\
+            &  = \| \E [ \B^*_N \hat{\mu}_{N,k} - \B^*_N \hat{\mu}_{k} ] + \E [\B^*_N \hat{\mu}_{k} - \B^* \hat{\mu}_k ] + \E [\B^* \hat{\mu}_k - \B^* \mu_k ] \| \\
+            & = \| \E [ \B^*_N \hat{\mu}_{N,k} - \B^*_N \hat{\mu}_{k} ] + \E [\B^*_N \hat{\mu}_{k} - \B^* \hat{\mu}_k ] + \B^* \E [ \hat{\mu}_k - \mu_k ] \|.
+        \end{aligned}
+    \end{equation*}
+    Gracias a la proposición \ref{prop:unbias_kalman_operator} se tiene que $\hat{\mu}_k$ es insesgado para $\mu_k$ con lo que
+    \begin{equation*}
+        \begin{aligned}
+            \| \E [\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k] \| 
+            & = \| \E [ \B^*_N \hat{\mu}_{N,k} - \B^*_N \hat{\mu}_{k} ] + \E [\B^*_N \hat{\mu}_{k} - \B^* \hat{\mu}_k ] + \B^* \E [ \hat{\mu}_k - \mu_k ] \| \\
+            & = \| \E [ \B^*_N \hat{\mu}_{N,k} - \B^*_N \hat{\mu}_{k} ] + \E [\B^*_N \hat{\mu}_{k} - \B^* \hat{\mu}_k ] \| \\
+            & \leq  \E [ \| \B^*_N \hat{\mu}_{N,k} - \B^*_N \hat{\mu}_{k} \| ] + \E [\| \B^*_N \hat{\mu}_{k} - \B^* \hat{\mu}_k \|] \\
+            & \leq \E [\| \B^*_N \| \| \hat{\mu}_{N,k} - \hat{\mu}_{k}\|] + \E[\| \B^*_N - \B^* \| \| \hat{\mu}_k \|] \\
+            & \leq \hat{C}_1 N^{-1/2}
+        \end{aligned}
+    \end{equation*}
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{prop:teo_kkkf_2} para decir que dicha constante $\hat{C}_1$ existe con probabilidad a lo menos $1-\delta$. Para probar el punto 2. notar que
+    \begin{equation*}
+        \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] = \E [\hat{\mathbf{x}}_{N, k}^\top \hat{\mathbf{x}}_{N, k}] - 2 \E [\hat{\mathbf{x}}_{N, k}^\top \mathbf{x}_k] + \E[\mathbf{x}_k^\top \mathbf{x}_k]
+    \end{equation*}
+    \begin{equation*}
+        \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] = \E [\hat{\mathbf{x}}_{k}^\top \hat{\mathbf{x}}_{k}] - 2 \E [\hat{\mathbf{x}}_{k}^\top \mathbf{x}_k] + \E[\mathbf{x}_k^\top \mathbf{x}_k].
+    \end{equation*}
+    Restando ambas se tiene 
+    \begin{equation*}
+        \begin{aligned}
+            \E & [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] - \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] \\
+            & =  \E [\hat{\mathbf{x}}_{N, k}^\top \hat{\mathbf{x}}_{N, k}] - \E [\hat{\mathbf{x}}_{k}^\top \hat{\mathbf{x}}_{k}] + 2 \E [(\hat{\mathbf{x}}_{k} - \hat{\mathbf{x}}_{N, k})^T \mathbf{x}_k] \\
+            & = \E [(\hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_{k})^\top (\hat{\mathbf{x}}_{N, k} + \hat{\mathbf{x}}_{k})] + 2 \E [(\hat{\mathbf{x}}_{k} - \hat{\mathbf{x}}_{N, k})^T \mathbf{x}_k]
+        \end{aligned}   
+    \end{equation*}
+    Notar que dado que $\hat{\mathbf{x}}_k$ es óptimo del problema de filtraje, se tiene que 
+    \begin{equation*}
+        0 \leq \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] - \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ].
+    \end{equation*}
+    Por lo que, y utilizando Cauchy-Schwarz se tiene
+    \begin{equation*}
+        \begin{aligned}
+            0 & \leq \E [(\hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_{k})^\top (\hat{\mathbf{x}}_{N, k} + \hat{\mathbf{x}}_{k})] + 2 \E [(\hat{\mathbf{x}}_{k} - \hat{\mathbf{x}}_{N, k})^T \mathbf{x}_k] \\
+            & \leq \E [\| \hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_k \| \| \hat{\mathbf{x}}_{N, k} + \hat{\mathbf{x}}_k \|] + 2 \E [\| \hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_k \| \| \mathbf{x}_k \| ] \\
+            & \leq \E [\| \hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_k \| ( \| \hat{\mathbf{x}}_{N, k} \| + \| \hat{\mathbf{x}}_k \|)] + 2 \E [\| \hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_k \| \| \mathbf{x}_k \| ] \\
+            & \leq \hat{C}_2 N^{-1/2}
+        \end{aligned}
+    \end{equation*}
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{prop:teo_kkkf_2} para decir que dicha constante $\hat{C}_2$ existe con probabilidad a lo menos $1-\delta$. Con ello
+    \begin{equation*}
+        \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] - \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] \leq \hat{C}_2 N^{-1/2}
+    \end{equation*}
+    obteniendo que
+    \begin{equation*}
+        \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] \leq \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] + \hat{C}_2 N^{-1/2}
+    \end{equation*}
+    por lo que $\hat{\mathbf{x}}_{N, k}$ es $\hat{C}_2 N^{-1/2}$-mínimo del problema de filtraje.
 \end{proof}
