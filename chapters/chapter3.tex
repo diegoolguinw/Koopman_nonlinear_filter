@@ -432,10 +432,10 @@ El algoritmo \ref{alg:kEDMD} se deja el detalle para poder aplicar kernel Extend
 \State $x \sim \mu_\X, \, i = 1, \dots, N$ \Comment{$N$ muestras independientes \textit{sampleadas} desde $\mu_\X$}
 \State $x_i^+ \gets \rho_f(x_i, \cdot), \, i = 1, \dots, N$ \Comment{$N$ muestras de la dinámica}
 \State $y_i \gets \rho_g(x_i, \cdot), \, i = 1, \dots, N$ \Comment{$N$ muestras de la observación}
-\State $\Phi_\X (\cdot) \gets k(\mathbf{X}, \cdot)$
+\State $\Phi_N (\cdot) \gets k(\mathbf{X}, \cdot)$
 \Comment{Función de \textit{lift forward}}
-\State $\Phi_\X (\mathbf{X}) \gets (\mathbf{k}(x_i, x_j))_{i,j=1}^{N}$
-\State $\Phi_\X (\mathbf{X}^+) \gets (\mathbf{k}(x_i, x_j^+))_{i,j=1}^{N}$
+\State $\Phi_N (\mathbf{X}) \gets (\mathbf{k}(x_i, x_j))_{i,j=1}^{N}$
+\State $\Phi_N (\mathbf{X}^+) \gets (\mathbf{k}(x_i, x_j^+))_{i,j=1}^{N}$
 \State $\mathbf{U}_N \gets \Phi_\X (\mathbf{X})^{-1}\Phi_\X (\mathbf{X}^+)^T$
 \Comment{Aproximación del operador de Koopman}
 \State $\mathbf{G}_N \gets \Phi_\X (\mathbf{X})^{-1} \mathbf{Y}^T$

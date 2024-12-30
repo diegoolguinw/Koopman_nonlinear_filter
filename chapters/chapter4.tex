@@ -12,7 +12,7 @@ Para ello, se propone primero descomponer el error del Filtro de Kalman aplicado
 
 Posteriormente, se construye el filtro propuesto, denominado \textit{Kernel Koopman Kalman Filter} (KKKF), siguiendo una metodología análoga a la empleada en el Filtro de Kalman para sistemas lineales con mínimos cuadrados recursivos \cite{Kalman1960AProblems, Triantafyllopoulos2021BayesianBeyond}, y particularmente a como se formula en \cite{Gebhard2019} para la construcción de la denominada \textit{Kernel Bayes Rule}.
 
-Finalmente, utilizando los resultados obtenidos en el capítulo anterior junto con la descomposición del error, se demuestra la cota de error propuesta. El desempeño del filtro es evaluado en diferentes sistemas mediante una implementación en Python desarrollada específicamente para esta investigación \cite{Olguin2024KKKF:Filter}.
+Finalmente, utilizando los resultados obtenidos en el capítulo anterior junto con la descomposición del error, se demuestra la cota de error propuesta. El desempeño del filtro es evaluado en diferentes sistemas mediante una implementación en Python desarrollada específicamente para este trabajo \cite{Olguin2024KKKF:Filter}.
 
 \section{Descomposición de error de Kalman}
 
@@ -300,45 +300,53 @@ Con esta perspectiva, el operador de covarianza posterior puede reformularse com
 \mathcal{P}_k = (I - \K_k C_{Y|X})\mathcal{P}^-_{k}(I - \K_k C_{Y|X})^* + \K_k \mathcal{R}_k \K_k^*,
 \end{equation*}
 
-donde $\mathcal{R}_k = \mathbb{E}[\nu_k\nu_k^*]$ es la covarianza del ruido asociado a la observación. Tomando la derivada de la traza del operador de covarianza e igualándola a cero, lleva a la solución para el operador de ganancia de Kalman kernel como
-
+donde $\mathcal{R}_k = \mathbb{E}[\nu_k\nu_k^*]$ es la covarianza del ruido asociado a la observación. Tomando la derivada de la traza del operador de covarianza e igualándola a cero se obtiene
 \begin{align*}
-0 &= 2(I - \K_k C_{Y|X})\mathcal{P}^-_{k}(-C_{Y|X}^*) + 2\K_k \mathcal{R}_k \\
-\K_k C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \K_k \mathcal{R}_k &= \K^-_{k}C_{Y|X}^* \\
-Q_k(C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \mathcal{R}_k) &= \mathcal{P}^-_{k}C_{Y|X}^* \\
-\K_k &= \mathcal{P}^-_{k}C_{Y|X}^*(C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \mathcal{R}_k)^{-1}.
+2(I - \K_k C_{Y|X})\mathcal{P}^-_{k}(-C_{Y|X}^*) + 2\K_k \mathcal{R}_k &= 0,
 \end{align*}
+que es equivalente a 
+\begin{equation}
+    -(I - \K_k C_{Y|X})\mathcal{P}^-_{k}C_{Y|X}^* + \K_k \mathcal{R}_k = 0.
+    \label{eq:kalman_gain_rel}
+\end{equation}
+Con esto
+\begin{align*}
+\K_k C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \K_k \mathcal{R}_k &= \K^-_{k}C_{Y|X}^* \\
+\K_k(C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \mathcal{R}_k) &= \mathcal{P}^-_{k}C_{Y|X}^* .
+\end{align*}
+
+A priori se debe tener cuidado con invertir el operador que acompaña a $\K_k$, pero por un argumento de inyectividad se puede afirmar que
+
+\begin{equation*} 
+\K_k = \mathcal{P}^-_{k}C_{Y|X}^*(C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \mathcal{R}_k)^{-1}.
+\end{equation*}
+
 Con esto se obtiene la expresión requerida para el operador de ganancia de Kalman.
 \end{proof}
 
-Con lo que se obtiene una expresión cerrada para el operador de ganancia de Kalman. En consecuencia, el operador de covarianza del error a posteriori es
+Recobrando la expresión para el operador de covarianza de error a posteriori
+
 \begin{equation*}
-	\mathcal{P}_{k+1} = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}).
+\mathcal{P}_k = (I - \K_k C_{Y|X})\mathcal{P}^-_{k}(I - \K_k C_{Y|X})^* + \K_k \mathcal{R}_k \K_k^*,
+\end{equation*}
+se obtiene que
+\begin{equation*}
+\mathcal{P}_k = (I - \K_k C_{Y|X})\mathcal{P}^-_{k} - (I - \K_k C_{Y|X})\mathcal{P}^-_{k} C_{Y|X}^* \K_k^* + \K_k \mathcal{R}_k \K_k^*,
+\end{equation*}
+y con ello
+\begin{equation*}
+\mathcal{P}_k = (I - \K_k C_{Y|X})\mathcal{P}^-_{k} + (-(I - \K_k C_{Y|X})\mathcal{P}^-_{k} C_{Y|X}^*  + \K_k \mathcal{R}_k) \K_k^*,
+\end{equation*}
+que, recordando de \eqref{eq:kalman_gain_rel} que se tiene
+\begin{equation*}
+    -(I - \K_k C_{Y|X})\mathcal{P}^-_{k} C_{Y|X}^*  + \K_k \mathcal{R}_k
+\end{equation*}
+se llega a que
+\begin{equation*}
+    \mathcal{P}_k = (I - \K_k C_{Y|X})\mathcal{P}^-_{k}.
 \end{equation*}
 
-Desarrollando este término y utilizando la independencia, se tiene:
-\begin{equation*}
-	\begin{aligned}
-		\mathcal{P}_{k+1} &= \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}) \\
-		&= \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^- - \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)) \\
-		&= \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-) - \text{Cov}(\K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)) \\
-		&= \mathcal{P}_{k+1}^- - \K_{k+1} \text{Cov} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-) (\K_{k+1})^* \\
-		&= \mathcal{P}_{k+1}^- - \K_{k+1} \left( C_{Y|X} \Phi_\X( \mathbf{x}_{k+1}) + \nu_k - C_{Y|X} \hat{\mu}_{k+1}^- \right) (\K_{k+1})^* \\
-		&= \mathcal{P}_{k+1}^- - \K_{k+1} \left( C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \text{Cov}(\nu_{k+1}) \right) (\K_{k+1})^* \\
-		&= \mathcal{P}_{k+1}^- - \K_{k+1} \left( C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1} \right) (\K_{k+1})^* \\
-		&= \mathcal{P}_{k+1}^- - \K_{k+1} C_{Y|X} \mathcal{P}_{k+1}^- \\
-		&= (I - \K_{k+1} C_{Y|X}) \mathcal{P}_{k+1}^-.
-	\end{aligned}
-\end{equation*}
-Donde se utilizó que
-\begin{equation*}
-	\begin{aligned}
-		(\K_{k+1})^* &= \left( C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1} \right)^{-1} C_{Y|X}(\mathcal{P}_{k+1}^-)^*.
-	\end{aligned}
-\end{equation*}
-Además, se asumió que $C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^*$, $\mathcal{R}_{k+1}$ son matrices simétricas, y que $\mathcal{P}_{k+1}$ es un operador autoadjunto.
-
-Entonces, las ecuaciones para cada iteración se expresan de la siguiente manera:
+Entonces, con expresiones cerradas para el operador de ganancia de Kalman y los operadores de covarianza de error, las ecuaciones para cada iteración se expresan de la siguiente manera:
 \begin{equation*}
 	\begin{aligned}
 		\hat{\mu}_{k+1}^- & = C_{X^+|X} \hat{\mu}_{k} \\
@@ -396,16 +404,12 @@ Si $X_0$ es la distribución dada para la condición inicial y $\{ x_j \}_{j=1}^
 	\label{eq: mean_element_covar}
 \end{equation}
 
-Es con todo esto que se concluye la deducción del filtro, por lo que procede con la estimación de la cota de error del filtro.
+Es con todo esto que se concluye la deducción del filtro, tanto en dimensión infinita como su representante en dimensión infinita, para este último se puede encontrar su pseudo-código en el algoritmo \ref{alg:KKKF}.
 
-\section{Cota de error de KKKF}
-
-El primer paso para deducir la cota de error es dejar la discrepancia en norma de los elementos a comparar, en un cierto instante $k$, en función del instante anterior $k-1$ y en función de los operadores involucrados.
-
-\begin{algorithm}
+\begin{algorithm}[h]
 \caption{Cov($W, N, \nu$)}\label{alg:AppCov}
 \begin{algorithmic}[1]
-\Require $W$ ley de una variable \textit{sampleable} con soporte en un conjunto $\Omega$, $N \geq 2$ cantidad de muestras a tomar, $\nu:\Omega \to \R^d$ función.
+\State \textbf{Entrada:} $W$ ley de una variable \textit{sampleable} con soporte en un conjunto $\Omega$, $N \geq 2$ cantidad de muestras a tomar, $\nu:\Omega \to \R^d$ función.
 \Ensure $\hat{\Sigma} \in \R^{d \times d}$ estimación de matriz de covarianzas de $\nu(W)$.
 \State $\{ \mathbf{w}_i \}_{i=1}^N \sim W^N$ \Comment{$N$ muestras independientes de $W$} 
 \State $\hat{\nu} = \frac{1}{N} \sum_{i=1}^N \nu (\mathbf{w}_i)$ \Comment{Promedio empírico}
@@ -413,22 +417,22 @@ El primer paso para deducir la cota de error es dejar la discrepancia en norma d
 \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}
+\begin{algorithm}[h]
 \caption{Kernel Kalman Koopman Filter (KKKF)}\label{alg:KKKF}
 \begin{algorithmic}[1]
-\Require Dinámica discreta como en (\ref{eq:no_lin_dis_chap3}), $\mathbf{x}_0$ \textit{prior} sobre la condición inicial, $\mathbf{y}_{1:N}$ observaciones, $\mathbf{k}:\X \times \X \to \R$ \textit{kernel} semidefinido positivo, $N$ dimensión de aproximación del operador de Koopman y $n_{\text{samples}}$ cantidad de muestras para aproximar las matrices de covarianza.
-\Ensure $(\hat{\mathbf{x}}_{k|k})_{k=0}^{N}$ estimador de la trayectoria y $(\hat{\mathbf{P}}^{\mathbf{x}}_{k|k})_{k=0}^{N}$ matrices de covarianza de error.
-\State $\mathbf{U}_N, \, \Phi_\X (\cdot), \, \mathbf{G}_N, \mathbf{B}_N \gets $ kEDMD($\mu_\X$, $\rho_f$, $\rho_g$, $k$, $N$)
-\State $\hat{\mathbf{x}}_{0}, \, \hat{\mathbf{x}}_{0}^-   \gets \E [\mathbf{x}_0]$ \Comment{Estimación de la condición inicial para $\mathbf{x}$}
-\State $\hat{\mathbf{z}}_{0|0}   \gets \mathbf{\Psi}(\hat{\mathbf{x}}_{0|0})$ \Comment{Estimación de la condición inicial para $\mathbf{z}$}
+\State \textbf{Entrada:} Dinámica discreta como en (\ref{eq:no_lin_dis_chap3}), $\mathbf{x}_0$ \textit{prior} sobre la condición inicial, $\mathbf{y}_{1:N}$ observaciones, $\mathbf{k}:\X \times \X \to \R$ \textit{kernel} semidefinido positivo, $N$ dimensión de aproximación del operador de Koopman y $n_{\text{samples}}$ cantidad de muestras para aproximar las matrices de covarianza.
+\State \textbf{Salida:} $(\hat{\mathbf{x}}_{k|k})_{k=0}^{N}$ estimador de la trayectoria y $(\hat{\mathbf{P}}^{\mathbf{x}}_{k|k})_{k=0}^{N}$ matrices de covarianza de error.
+\State $\mathbf{U}_N, \, \Phi_N (\cdot), \, \mathbf{G}_N, \mathbf{B}_N \gets $ kEDMD($\mu_\X$, $\rho_f$, $\rho_g$, $k$, $N$)
+\State $\hat{\mathbf{x}}_{0|0}   \gets \E [\mathbf{x}_0]$ \Comment{Estimación de la condición inicial para $\mathbf{x}$}
+\State $\hat{\mathbf{z}}_{0|0}   \gets \mathbf{\Phi}_N(\hat{\mathbf{x}}_{0|0})$ \Comment{Estimación de la condición inicial para $\mathbf{z}$}
 \State $\hat{\mathbf{P}}^\mathbf{x}_{0|0} \gets \E [(\mathbf{x}_0 - \hat{\mathbf{x}}_{0})(\mathbf{x}_0 - \hat{\mathbf{x}}_{0})^T]$ \Comment{Covarianza de error inicial para $\mathbf{x}$}
-\State $\hat{\mathbf{P}}^\mathbf{z}_{0|0} \gets$ Cov($\mathbf{x}_0$, $n_{\text{samples}}, \mathbf{\Psi}$) \Comment{Covarianza de error inicial para $\mathbf{z}$}
+\State $\hat{\mathbf{P}}^\mathbf{z}_{0|0} \gets$ Cov($\mathbf{x}_0$, $n_{\text{samples}}, \mathbf{\Phi}_N$) \Comment{Covarianza de error inicial para $\mathbf{z}$}
 \For{$k = 0, \dots, N-1$}
     \State $\hat{\mathbf{x}}_{k+1|k} \gets \Tilde{\mathbf{f}}(\mathbf{x}_{k|k})$
     \Comment{Estimación a priori para $\mathbf{x}$}
-    \State $\hat{\mathbf{z}}_{k+1|k} \gets \mathbf{\Psi}(\hat{\mathbf{x}}_{k+1|k})$
+    \State $\hat{\mathbf{z}}_{k+1|k} \gets \mathbf{\Phi}_N(\hat{\mathbf{x}}_{k+1|k})$
     \Comment{Estimación a priori para $\mathbf{z}$}
-    \State $\mathbf{Q}_k \gets $ Cov($\mathbf{w}_k$, $n_{\text{samples}}, \mathbf{\Psi}(\mathbf{f}(\mathbf{x}_{k|k}, \cdot))$) 
+    \State $\mathbf{Q}_k \gets $ Cov($\mathbf{w}_k$, $n_{\text{samples}}, \mathbf{\Phi}_N(\mathbf{f}(\mathbf{x}_{k|k}, \cdot))$) 
     \Comment{Covarianza de la dinámica para $\mathbf{z}$}
     \State $\mathbf{P}^{\mathbf{z}}_{k+1|k} \gets \mathbf{U} \mathbf{P}^{\mathbf{z}}_{k|k} \mathbf{U}^T + \mathbf{Q}_k$
     \Comment{Error de covarianza a priori}
@@ -454,6 +458,10 @@ El primer paso para deducir la cota de error es dejar la discrepancia en norma d
 \EndFor
 \end{algorithmic}
 \end{algorithm}
+
+\section{Cota de error de KKKF}
+
+El primer paso para deducir la cota de error es dejar la discrepancia en norma de los elementos a comparar, en un cierto instante $k$, en función del instante anterior $k-1$ y en función de los operadores involucrados.
 
 \begin{prop}
 	Para $k \geq 1$, existen constantes $c_{k,j}^i$ con $j \in \{ 1, \dots, 6\}$, $i \in \{ 1, 2\}$ tales que
@@ -636,7 +644,7 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
             & \leq \| \B^* \| \| \hat{\mu}_{k} -  \hat{\mu}_{N, k}\| + \|\B^* - \B^*_{N}  \| \|\hat{\mu}_{N,k} \|.
         \end{aligned}
     \end{equation*}
-    Entonces, por teoremas \ref{teo:error_koop_sqrt_N} y \ref{prop:teo_kkkf_2} se tiene que con probabilidad $1-\delta$ existe constantes $C$, $C_k^1$ tales que 
+    Entonces, por teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kkkf_2} se tiene que con probabilidad $1-\delta$ existe constantes $C$, $C_k^1$ tales que 
     \begin{equation*}
          \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \| \B \| C_k^1 N^{-1/2} + \| \hat{\mu}_{N, k} \| C N^{-1/2} = \Tilde{C}_{k}^1 N^{-1/2}
     \end{equation*}
@@ -655,7 +663,7 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
             & \leq \| \B - \B_N  \| \| \mathcal{P}_k \B \| + \| \B_N \| \left ( \| \B - \B_N \| \| \mathcal{P}_k \| + \| \mathcal{P}_k - \mathcal{P}_{N, k} \| \| \B_N \| \right ).
         \end{aligned}
     \end{equation*}
-    Usando nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{prop:teo_kkkf_2} se tiene que probabilidad $1-\delta$ existen constantes $C$, $C_k^2$ tales que 
+    Usando nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kkkf_2} se tiene que probabilidad $1-\delta$ existen constantes $C$, $C_k^2$ tales que 
     \begin{equation*}
         \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq C_k^2 \| \mathcal{P}_k \B \| N^{-1/2} + \| \B_N \| \left ( C \| \mathcal{P}_k \| + C_k^2 \| \B_N \| \right ) N^{-1/2}
     \end{equation*}
@@ -711,7 +719,7 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
             & \leq \hat{C}_1 N^{-1/2}
         \end{aligned}
     \end{equation*}
-    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{prop:teo_kkkf_2} para decir que dicha constante $\hat{C}_1$ existe con probabilidad a lo menos $1-\delta$. Para probar el punto 2. notar que
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kkkf_2} para decir que dicha constante $\hat{C}_1$ existe con probabilidad a lo menos $1-\delta$. Para probar el punto 2. notar que
     \begin{equation*}
         \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] = \E [\hat{\mathbf{x}}_{N, k}^\top \hat{\mathbf{x}}_{N, k}] - 2 \E [\hat{\mathbf{x}}_{N, k}^\top \mathbf{x}_k] + \E[\mathbf{x}_k^\top \mathbf{x}_k]
     \end{equation*}
@@ -739,7 +747,7 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
             & \leq \hat{C}_2 N^{-1/2}
         \end{aligned}
     \end{equation*}
-    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{prop:teo_kkkf_2} para decir que dicha constante $\hat{C}_2$ existe con probabilidad a lo menos $1-\delta$. Con ello
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kkkf_2} para decir que dicha constante $\hat{C}_2$ existe con probabilidad a lo menos $1-\delta$. Con ello
     \begin{equation*}
         \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] - \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] \leq \hat{C}_2 N^{-1/2}
     \end{equation*}
@@ -749,3 +757,94 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
     \end{equation*}
     por lo que $\hat{\mathbf{x}}_{N, k}$ es $\hat{C}_2 N^{-1/2}$-mínimo del problema de filtraje.
 \end{proof}
+
+\section{Metodología de Estimación de Parámetros}
+
+Partiendo de la existencia de un algoritmo de filtraje, es posible desarrollar una metodología para la estimación de parámetros constantes y desconocidos en un sistema dinámico en tiempo discreto. 
+
+La idea detrás de este enfoque radica en que, si el sistema o el algoritmo logra integrar de manera efectiva la premisa de que debe existir un parámetro que se ajuste a las observaciones, entonces con la estabilización proporcionada por el operador de ganancia de Kalman, debería permitir que el parámetro constante se aproxime a su valor real conforme las iteraciones temporales del algoritmo de filtraje tiendan a infinito.
+
+De manera formal, si el sistema tiene $n_p$ parámetros sujetos a estimación, es decir, desconocidos en la práctica, denotados por $\mathbf{p} \in \R^{n_p}$, entonces se agregan como estados que tienen derivada discreta nula, con un ruido aditivo centrado en $0$ y segundo momento finito, esto es
+\begin{equation*}
+    \mathbf{x}_{k+1}^{n+i} = \mathbf{x}_{k}^{n+1} + \Tilde{\mathbf{w}}_k^i, \quad i = 1, \dots, n_p,
+\end{equation*}
+este ruido $\mathbf{w}_k^i$ ayudará a la convergencia del parámetro a través de las iteraciones. Lo esperado es que
+\begin{equation*}
+    \mathbf{x}_{k}^{n+1} \to \mathbf{p}_{i}, \quad k \to \infty
+\end{equation*}
+y esto se observará en experimentos numéricos.
+
+Este enfoque no es novedoso y ya ha sido explorado en la literatura, por ejemplo en \cite{Deng2013AdaptiveObjects, Jiang2007AEstimation, Kandepu2008ApplyingEstimation}. Sin embargo, en esta sección se propone una reinterpretación de dicha metodología para la estimación de parámetros. Además, se busca establecer una equivalencia con los métodos existentes en otras áreas de la literatura, como aquellos empleados en investigaciones aplicadas en las que se enfrenta incertidumbre sobre un parámetro a partir de observaciones. Un ejemplo destacado de estas técnicas son los algoritmos tipo Markov Chain Monte Carlo (MCMC) \cite{2010EncyclopediaLearning}.
+
+Como ocurre en muchas aplicaciones, en particular aquellas que serán de interés en este trabajo, la cantidad de observaciones disponibles es finita, y en muchos casos extremadamente limitada. Por esta razón, considerar la posibilidad de que el algoritmo de filtraje pueda converger al parámetro real en el límite cuando las iteraciones temporales tienden a infinito no resulta una opción válida en este contexto.
+
+Por ello, se propone realizar el filtraje de manera iterativa. En este enfoque, se establece un prior como condición inicial, permitiendo que el algoritmo de filtraje complete todas las iteraciones temporales disponibles. Posteriormente, el último elemento producido por el filtro se utiliza como una nueva condición inicial, aprovechando la matriz de covarianza de error en la última iteración como matriz de covarianza para la condición inicial y la dinámica, lo que haría que el mismo método regule su variabilidad.
+
+Eso se puede repetir todas las veces que sean necesarias y debería, en teoría, converger eventualmente al parámetro original. Este comportamiento será evaluado empíricamente en las gráficas y elementos que se presentarán a continuación.
+
+Es más, y haciendo un análogo con el algoritmo de Markov Chain Monte Carlo (MCMC), se puede aprovechar la paralelización de procesos, utilizando todos los núcleos disponibles para generar múltiples filtros que se ejecuten en paralelo. De este modo, se pueden obtener estimaciones distintas para cada uno de los parámetros, lo que potencialmente mejora la precisión y la robustez del proceso de estimación.
+
+Notar que, para cada hilo o subproceso, se genera una serie de tiempos, en los cuales la unidad temporal corresponde al número de iteraciones que se asignen al algoritmo iterativo. En cada uno de estos tiempos se generará una estimación distinta para el parámetro. Esto da lugar, de manera natural, a una distribución de probabilidad que debería concentrarse en torno al parámetro real. A partir de esta distribución, se eliminarán las primeras iteraciones del algoritmo, las cuales se considerarán como iteraciones de \textit{warm-up} o calentamiento, un procedimiento comúnmente utilizado también en el contexto de Markov Chain Monte Carlo y como lo hacen ciertos \textit{frameworks} que implementan este método \cite{Patil2010PyMC:Python, Carpenter2017Stan:Language, Burkner2017Brms:Stan, Abril-Pla2023PyMC:Python}.
+
+\begin{algorithm}[h!]
+\caption{ParamEstim($\mathbf{x}_0$, $\mathbf{p}_0$, $\mathbf{y}$, $\text{iters}$)}
+\label{alg:ParamEstim}
+\begin{algorithmic}[1]
+\State \textbf{Entrada:} $\mathbf{x}_0$ ley a priori para los estados del sistema, $\mathbf{p}_0$ ley a priori para los parámetros sujetos a estimación, $\mathbf{y}$ observaciones del sistema, $\text{iters}$ la cantidad de iteraciones.
+\State \textbf{Salida:} $\mathbf{\hat{p}} \in \R^{(\text{iters}+1)\times n_p}$ estimación de los parámetros en cada iteración.
+\State $\hat{\mathbf{p}}_{0,:} \gets \text{Media}(\mathbf{p}_0)$.
+\State $\hat{\mathbf{x}}_{0} \gets \text{Media}(\mathbf{x}_0)$.
+\State $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{0,:})$
+\For{k=1, \dots, \text{iters}} \\
+    \quad $\hat{\mathbf{z}} \gets $ KKKF($\Tilde{\mathbf{x}}, \mathbf{y})$. \\
+    \quad $\hat{\mathbf{p}}_{k,:} \gets \hat{\mathbf{z}}_{-1,n_p:}$ \Comment{Última iteración del filtro en las últimas $n_p$ entradas.} \\
+    \quad $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{k,:})$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+En el algoritmo \ref{alg:ParamEstim} se puede observar el pseudo-código para la estimación de parámetros constantes propuestos y que se verá aplicado en la siguiente sección.
+
+\section{Resultados numéricos}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{img/content/chapter4/kalman_vs_kkkf_01.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{img/content/chapter4/kalman_vs_kkkf_001.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{img/content/chapter4/kalman_vs_kkkf_025.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{img/content/chapter4/error_vs_N_01.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{img/content/chapter4/error_vs_N_001.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{img/content/chapter4/error_vs_N_025.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}

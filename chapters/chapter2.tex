@@ -150,7 +150,7 @@ A pesar de los simple que parece la adaptación de este algoritmo al caso no lin
 
 El algoritmo del \textit{Unscented Kalman Filter} (UKF), pseudo-código del algoritmo \ref{alg:UKF}, se basa en generar puntos de muestra (llamados puntos sigma) alrededor de la estimación actual del estado del sistema. Estos puntos permiten representar la distribución estadística de la estimación sin necesidad de calcular derivadas. Al propagar estos puntos sigma a través del modelo no lineal, el UKF logra realizar estimaciones en el siguiente instante de tiempo, capturando de manera precisa las propiedades no lineales del sistema. Esta estrategia hace que el UKF sea una alternativa robusta al \textit{Extended Kalman Filter} (EKF) para el seguimiento y la estimación en sistemas no lineales. Aún así, el algoritmo puede ser costoso en la práctica y es necesaria una gran cantidad de puntos sigma para lograr una estimación fiable.
 
-\begin{algorithm}
+\begin{algorithm}[h!]
 	\caption{\textit{Unscented Kalman Filter}}\label{alg:UKF}
 	\begin{algorithmic}[1]
 		\State \textbf{Entrada:} Dinámica discreta como en (\ref{eq:no_lin_disc_add}), $\mathbf{x}_0$ \textit{prior} sobre la condición inicial,  $\mathbf{y}_{1:N}$ observaciones, $\mathbf{u}_{0:N}$ \textit{inputs}.
@@ -191,9 +191,9 @@ El algoritmo del \textit{Unscented Kalman Filter} (UKF), pseudo-código del algo
 
 		\State $\mathbf{K}_k = \mathbf{C}_k \mathbf{S}_k^{-1}$
 		\Comment{Calcular la ganancia de Kalman.}
-		\State $\hat{ \mathbf{x}}_k = \hat{ \mathbf{x}}_{k|k-1} +  \mathbf{K}_k ( \mathbf{y}_k - \hat{ \mathbf{y}}_k)$ 
+		\State $\hat{ \mathbf{x}}_{k|k} = \hat{ \mathbf{x}}_{k|k-1} +  \mathbf{K}_k ( \mathbf{y}_k - \hat{ \mathbf{y}}_k)$ 
 		\Comment{Actualizar la estimación del estado.}
-		\State $\mathbf{P}_k =  \mathbf{P}_{k|k-1} -  \mathbf{K}_k \mathbf{S}_k  \mathbf{K}_k^\top$
+		\State $\mathbf{P}_{k|k} =  \mathbf{P}_{k|k-1} -  \mathbf{K}_k \mathbf{S}_k  \mathbf{K}_k^\top$
 		\Comment{Actualizar la covarianza.}
 		
 		\EndFor
@@ -204,7 +204,7 @@ El algoritmo del \textit{Unscented Kalman Filter} (UKF), pseudo-código del algo
 Los Filtros de Partículas (PF) o algoritmos de \textit{Sequential Monte Carlo} (SMC) \cite{Kemp2003AnMethods, Wills2023SequentialReview} son una familia de métodos que estiman el estado de sistemas dinámicos no lineales y/o no gaussianos mediante técnicas de muestreo tipo Monte Carlo. Estos algoritmos representan la distribución de probabilidad del estado mediante un conjunto de partículas, que son muestras aleatorias ponderadas según su probabilidad. La precisión de estos filtros depende críticamente del proceso de resampling, un paso fundamental que evita la degeneración de partículas al eliminar aquellas con pesos bajos y duplicar las más probables. Esto permite que los filtros de partículas mantengan una representación precisa de la distribución posterior en cada paso de tiempo, adaptándose dinámicamente a la complejidad del sistema.
 Para el algoritmo se considerará que los modelos vienen representados por distribuciones de probabilidad, una de transición para la dinámica  \( p(\mathbf{x}_k | \mathbf{x}_{k-1}) \) y para la observación \( p(\mathbf{y}_k | \mathbf{x}_k) \).
 
-\begin{algorithm}
+\begin{algorithm}[h!]
 	\caption{Filtro de Partículas}
 	\begin{algorithmic}[1]
 		
