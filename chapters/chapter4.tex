@@ -171,23 +171,54 @@ En este contexto, y de manera análoga a lo previamente demostrado, se obtiene l
 
 \end{proof}
 
-Con lo anterior, se concluye que, para una iteración $k$, el error depende tanto del error en la condición para la estimación del estado como para el operador de covarianza del error a posteriori.
+Con lo anterior, se concluye que, para una iteración $k$, el error depende tanto del error en la condición para la estimación del estado como del operador de covarianza del error a posteriori.
 
 \section{KKKF: Kernel Koopman Kalman Filter}
 
-En esta sección se presenta la deducción del algoritmo de filtraje solo utilizando la teoría de RKHS y de manera meticulosa. Primero notar que
+En esta sección se presenta la deducción del algoritmo de filtraje solo utilizando la teoría de RKHS junto con el operador de Koopman de manera meticulosa. Primero se deduce una dinámica del \textit{embedding}, para ello notar que  
 \begin{equation*}
 	\begin{aligned}
-		\Phi_\X (\mathbf{x_{k+1}}) &= \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) \\
-		&= \mathbb{E}[\Phi_\X (\mathbf{f}(\mathbf{x}_k, \cdot))] + \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) - \mathbb{E}[\Phi_\X (\mathbf{f}(\mathbf{x}_k, \cdot))] \\
-		&= (\U \Phi_\X) (\mathbf{x}_k) + \zeta_k
+		\Phi_\X (\mathbf{x}_{k+1}) &= \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) \\
+        &= \E[\Phi_\X (X^+) | X = \mathbf{x}_k] + \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) - \E[\Phi_\X (X^+) | X = \mathbf{x}_k]\\
+        &= C_{X^+|X} \Phi_\X (\mathbf{x}_k) + \zeta_k
 	\end{aligned}
 \end{equation*}
-donde $\zeta_k$ representa una variable aleatoria infinito dimensional, centrada, cuyo operador de covarianza está acotado y se denota por $\mathcal{Q}_k$. De manera análoga, se tiene
+donde 
 \begin{equation*}
-	\Phi_\Y (\mathbf{y}_k) = (\G \Phi_\Y) (\mathbf{x}_k) + \nu_k
+    \zeta_k = \Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k)) - \E[\Phi_\X (X^+) | X = \mathbf{x}_k]
 \end{equation*}
-donde $\nu_k$ es una variable aleatoria infinito dimensional, centrada, y cuyo operador de covarianza está acotado, denotado por $\mathcal{R}_k$. \\
+es una variable aleatoria infinita dimensional cuyo operador de covarianza está acotado y se denota por $\mathcal{Q}_k$. Además, esta variable aleatoria tiene media nula, esto ya que
+\begin{equation*}
+    \mathbf{f}(\mathbf{x}_k, \mathbf{w}_k) \sim X^+ | X = \mathbf{x}_k,
+\end{equation*}
+con lo que
+\begin{equation*}
+    \begin{aligned}
+         \E[\zeta_k] &= \E[\Phi_\X (\mathbf{f}(\mathbf{x}_k, \mathbf{w}_k))] - \E[\E[\Phi_\X (X^+) | X = \mathbf{x}_k]] \\
+         &= \E[\E[\Phi_\X (X^+) | X = \mathbf{x}_k]] - \E[\E[\Phi_\X (X^+) | X = \mathbf{x}_k]] \\
+         &= 0.
+    \end{aligned}
+\end{equation*}
+De manera análoga, para el \textit{embedding} de la observación se tiene
+\begin{equation*}
+	\begin{aligned}
+		\Phi_\Y (\mathbf{y}_{k}) &= \Phi_\Y (\mathbf{g}(\mathbf{x}_k, \mathbf{v}_k)) \\
+        &= \E[\Phi_\Y (Y) | X = \mathbf{x}_k] + \Phi_\Y (\mathbf{g}(\mathbf{x}_k, \mathbf{v}_k)) - \E[\Phi_\Y (Y) | X = \mathbf{x}_k]\\
+        &= C_{Y|X} \Phi_\X (\mathbf{x}_k) + \nu_k
+	\end{aligned}
+\end{equation*}
+donde $\nu_k$ es una variable aleatoria infinita dimensional cuyo operador de covarianza está acotado, denotado por $\mathcal{R}_k$, y está centrada ya que
+\begin{equation*}
+    \mathbf{g}(\mathbf{x}_k, \mathbf{v}_k) \sim Y | X = \mathbf{x}_k
+\end{equation*}
+con lo que
+\begin{equation*}
+    \begin{aligned}
+         \E[\nu_k] &= \E[\Phi_\Y (\mathbf{g}(\mathbf{x}_k, \mathbf{v}_k))] - \E[\E[\Phi_\Y (Y) | X = \mathbf{x}_k]] \\
+         &= \E[\E[\Phi_\Y (Y) | X = \mathbf{x}_k]] - \E[\E[\Phi_\Y (Y) | X = \mathbf{x}_k]] \\
+         &= 0.
+    \end{aligned}
+\end{equation*}
 Siguiendo un procedimiento similar al utilizado en \cite{Gebhard2019}, se define
 \begin{equation*}
 	\hat{\mu}_k = \mathbb{E} [\Phi_\X (\mathbf{x}_k) | \mathbf{y}_{1:k}], \quad \mathcal{P}_{k} = \text{Cov}(\Phi_\X(\mathbf{x}_k) - \hat{\mu}_k)
@@ -196,7 +227,6 @@ y, en particular,
 \begin{equation*}
 	\hat{\mu}_0 = \hat{\mu}_0^- = \mathbb{E} [\Phi_\X (\mathbf{x}_0)], \quad \mathcal{P}_{0} = \text{Cov}(\Phi_\X (\mathbf{x}_0) - \hat{\mu}_0).
 \end{equation*}
-
 Se define
 \begin{equation*}
 	\hat{\mu}_{k+1}^- = \mathbb{E} [\Phi_\X (\mathbf{x}_{k+1}) | \mathbf{y}_{1:k}], \quad \mathcal{P}_{k+1}^- = \text{Cov}(\Phi_\X (\mathbf{x}_{k+1}) - \hat{\mu}_{k+1}^-)
@@ -786,19 +816,34 @@ Es más, y haciendo un análogo con el algoritmo de Markov Chain Monte Carlo (MC
 
 Notar que, para cada hilo o subproceso, se genera una serie de tiempos, en los cuales la unidad temporal corresponde al número de iteraciones que se asignen al algoritmo iterativo. En cada uno de estos tiempos se generará una estimación distinta para el parámetro. Esto da lugar, de manera natural, a una distribución de probabilidad que debería concentrarse en torno al parámetro real. A partir de esta distribución, se eliminarán las primeras iteraciones del algoritmo, las cuales se considerarán como iteraciones de \textit{warm-up} o calentamiento, un procedimiento comúnmente utilizado también en el contexto de Markov Chain Monte Carlo y como lo hacen ciertos \textit{frameworks} que implementan este método \cite{Patil2010PyMC:Python, Carpenter2017Stan:Language, Burkner2017Brms:Stan, Abril-Pla2023PyMC:Python}.
 
-\begin{algorithm}[h!]
+\begin{algorithm}[h]
 \caption{ParamEstim($\mathbf{x}_0$, $\mathbf{p}_0$, $\mathbf{y}$, $\text{iters}$)}
 \label{alg:ParamEstim}
 \begin{algorithmic}[1]
-\State \textbf{Entrada:} $\mathbf{x}_0$ ley a priori para los estados del sistema, $\mathbf{p}_0$ ley a priori para los parámetros sujetos a estimación, $\mathbf{y}$ observaciones del sistema, $\text{iters}$ la cantidad de iteraciones.
+\State \textbf{Entrada:} $\mathbf{\mathbf{x}}_0$ prior sobre los estados, $\mathbf{Q}_0$ covarianza a priori sobre los estados, $\mathbf{\mathbf{p}}_0$ prior sobre el parámetro, $\mathbf{\Tilde{P}}_0$ covarianza a priori sobre los estados, $\text{iters}$ la cantidad de iteraciones.
 \State \textbf{Salida:} $\mathbf{\hat{p}} \in \R^{(\text{iters}+1)\times n_p}$ estimación de los parámetros en cada iteración.
-\State $\hat{\mathbf{p}}_{0,:} \gets \text{Media}(\mathbf{p}_0)$.
-\State $\hat{\mathbf{x}}_{0} \gets \text{Media}(\mathbf{x}_0)$.
-\State $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{0,:})$
+\State $\hat{\mathbf{x}}_{0,:} \gets \hat{\mathbf{x}}_0$.
+\State $\hat{\mathbf{p}}_{0,:} \gets \hat{\mathbf{p}}_0$.
+\State Tomar como prior inicial para KKKF $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{0,:})$.
+\State Tomar como covarianza inicial para KKKF 
+\begin{equation*}
+    \mathbf{P} = \begin{pmatrix}
+        \mathbf{Q}_0 & 0 \\
+        0            & \Tilde{\mathbf{P}}_0
+    \end{pmatrix}
+\end{equation*}
 \For{k=1, \dots, \text{iters}} \\
-    \quad $\hat{\mathbf{z}} \gets $ KKKF($\Tilde{\mathbf{x}}, \mathbf{y})$. \\
-    \quad $\hat{\mathbf{p}}_{k,:} \gets \hat{\mathbf{z}}_{-1,n_p:}$ \Comment{Última iteración del filtro en las últimas $n_p$ entradas.} \\
-    \quad $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{k,:})$
+    \quad $\hat{\mathbf{x}}, \, \hat{\mathbf{P}} \gets $ KKKF($\Tilde{\mathbf{x}}, \mathbf{P}, \mathbf{y})$. \Comment{$\mathbf{y}$ corresponden a las observaciones.} \\
+    \quad $\hat{\mathbf{p}}_{k,:} \gets \hat{\mathbf{x}}_{-1,n_p:}$ \Comment{Última iteración del filtro en las últimas $n_p$ entradas.} \\
+    \quad $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{k,:})$ \\
+    \quad Actualizar la matriz de covarianzas como
+    \begin{equation*}
+    \mathbf{P} = \begin{pmatrix}
+        \mathbf{Q}_0 & 0 \\
+        0            & \hat{\mathbf{P}}_{n_p:, n_p:}
+    \end{pmatrix}
+\end{equation*}
+    \quad donde $\hat{\mathbf{P}}_{n_p:, n_p:}$ es la submatriz cuadradad en el último bloque de tamaño $n_p \times n_p$.
 \EndFor
 \end{algorithmic}
 \end{algorithm}
@@ -806,6 +851,10 @@ Notar que, para cada hilo o subproceso, se genera una serie de tiempos, en los c
 En el algoritmo \ref{alg:ParamEstim} se puede observar el pseudo-código para la estimación de parámetros constantes propuestos y que se verá aplicado en la siguiente sección.
 
 \section{Resultados numéricos}
+
+A continuación se presentan los resultados numéricos para los aspectos presentados del filtro creado. Esto se hace en Python, como hay un factor estocástico importante en los experimentos se fija la semilla aleatoria en 42. Se implementan además los filtros de Kalman, Extended Kalman, Unscented Kalman y Filtro de Partículas con Importance Resampling, todas son implementaciones propias y están basadas en \cite{Setoodeh2022NonlinearApplications}.
+
+\subsection{Comparación el filtro de Kalman en el caso lineal}
 
 \begin{figure}[h!]
     \centering
@@ -849,6 +898,8 @@ En el algoritmo \ref{alg:ParamEstim} se puede observar el pseudo-código para la
     \label{fig:enter-label}
 \end{figure}
 
+\subsection{Comparación para el modelo SIR con otros filtros no lineales}
+
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_01.pdf}
@@ -890,6 +941,8 @@ En el algoritmo \ref{alg:ParamEstim} se puede observar el pseudo-código para la
     \caption{Caption}
     \label{fig:enter-label}
 \end{figure}
+
+\subsection{Estimación de parámetros del modelo SIR}
 
 \begin{figure}[h!]
     \centering

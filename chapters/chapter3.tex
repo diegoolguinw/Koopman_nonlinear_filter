@@ -664,21 +664,21 @@ donde:
 Se visualiza lo obtenido por kEDMD, utilizando \textit{kernel} de Matérn de parámetro $\nu=1/2$ y ancho de banda $\gamma=10^{-3}$. Se utiliza una distribución Dirichlet de parámetro $(1,1,1)$ como variable aleatoria asociada al espacio de estados y ruido aditivo centrado y Gaussiano de matriz de covarianza $10^{-7} I_{3 \times 3}$, de estas distribuciones se \textit{samplearán} $N=1000$ puntos. Se toma como condición inicial $\mathbf{x}_0 = (0.9, 0.1, 0.0)$ y los resultados obtenidos se pueden ver en la imagen \ref{fig:Comp_traj_SIR}. \\
 \begin{figure}[htbp]
     \centering
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/content/chapter3/SIR1.pdf}
         \caption{$\alpha=-0.3$}
         \label{fig:image1}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/content/chapter3/SIR2.pdf}
         \caption{$\alpha=-0.1$}
         \label{fig:image2}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/content/chapter3/SIR3.pdf}
         \caption{$\alpha=0.05$}
@@ -723,21 +723,21 @@ En donde el nuevo parámetro $\alpha$ es la tasa de pérdida de inmunidad despu�
 Se comparan las trayectorias generadas por el sistema original con las generadas por kEDMD, utilizando exactamente la misma configuración del sistema anterior, solo cambiando la dinámica.
 \begin{figure}[htbp]
     \centering
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec1.pdf}
         \caption{$\alpha=-0.3$}
         \label{fig:image1}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec2.pdf}
         \caption{$\alpha=-0.1$}
         \label{fig:image2}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec3.pdf}
         \caption{$\alpha=0.05$}
@@ -764,7 +764,7 @@ Se comparan las trayectorias generadas por el sistema original con las generadas
         \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec3Errors.pdf}
         \caption{$\alpha=0.05$}
     \end{subfigure}
-    \caption{Ilustración de los tres casos del modelo SIR elegido para la evolución en función de $N$ de la diferencia en norma entre el sistema lineal original y el sistema linealizado por Koopman a $N$ puntos,  \textit{sampleados} de una variable aleatoria normal. En forma de puntos se deja la evolución observada del error y en línea continua la mejor curva de la forma $C \cdot N^{a}$, donde $a$ es el exponente que se deja en la leyenda.}
+    \caption{Ilustración de los tres casos del modelo SIR con recuperación elegido para la evolución en función de $N$ de la diferencia en norma entre el sistema lineal original y el sistema linealizado por Koopman a $N$ puntos,  \textit{sampleados} de una variable aleatoria normal. En forma de puntos se deja la evolución observada del error y en línea continua la mejor curva de la forma $C \cdot N^{a}$, donde $a$ es el exponente que se deja en la leyenda.}
     \label{fig:ErrorSIR_rec}
 \end{figure}
 Nuevamente se observa que el orden de discrepancia de las trayectorias es de un orden similar, o incluso menor, al visto en la cota \ref{eq:kEDMD_bound}.
