@@ -6,7 +6,7 @@ Por otra parte, trabajos pioneros en la línea de observabilidad e identificaci�
 
 Aunque el algoritmo propuesto en este capítulo no constituye una contribución original en términos de su estructura, sí lo es la justificación de su funcionamiento y convergencia bajo el supuesto de contar con un muestreo suficiente de puntos. En este contexto, se demuestra que el \textit{kernel Dynamic Mode Decomposition} converge al operador de Koopman en un espacio de dimensión infinita. 
 
-El objetivo principal de este capítulo es demostrar que, bajo ciertas hipótesis, la tasa de convergencia del algoritmo es del orden de $1/N^{-1/2}$, lo que lo posiciona como un competidor viable frente a otros algoritmos de filtraje presentes en la literatura, tales como los filtros de partículas, discutidos previamente en la sección de preliminares.
+El objetivo principal de este capítulo es demostrar que, bajo ciertas hipótesis, la tasa de convergencia del algoritmo es del orden de $N^{-1/2}$, lo que lo posiciona como un competidor viable frente a otros algoritmos de filtraje presentes en la literatura, tales como los filtros de partículas, discutidos previamente en la sección de preliminares.
 
 Para ello, se propone primero descomponer el error del Filtro de Kalman aplicado a dos sistemas lineales, formulando este error en función de los datos provenientes de los sistemas. Este análisis, hasta la fecha de redacción de este trabajo, no se encuentra documentado en la literatura y, por lo tanto, constituye una contribución original de esta investigación.
 
@@ -663,6 +663,7 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
     \begin{equation*}
         \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq \Tilde{C}^2_k N^{-1/2}
     \end{equation*}
+    \label{teo:error_kkkf_fin}
 \end{teo}
 \begin{proof}
     Primero para el término asociado a la estimación del estado
@@ -856,91 +857,297 @@ A continuación se presentan los resultados numéricos para los aspectos present
 
 \subsection{Comparación el filtro de Kalman en el caso lineal}
 
+Se compara el KKKF con el filtro de Kalman, el cual entrega la solución analítica para el problema de filtraje en el caso en que la dinámica y la observación sean de la forma
+\begin{equation*}
+    \begin{aligned}
+        \mathbf{x}_{k+1} &= \mathbf{A} \mathbf{x}_k + \mathbf{w}_k \\
+        \mathbf{y}_k &= \mathbf{C} \mathbf{x}_k + \mathbf{v}_k.
+    \end{aligned}
+\end{equation*}
+Para este experimento se utilizaron las matrices de la forma
+\begin{equation*}
+    \mathbf{A} =
+    \begin{pmatrix}
+        1.01 & 0.01 & 0.0 \\
+        0.01 & 1.02 & \alpha \\
+        0.0 & 0.04 & 1.02
+    \end{pmatrix},
+    \quad  \mathbf{C} = 
+    \begin{pmatrix}
+        1 & 0 & 0 \\
+        0 & 1 & 0
+    \end{pmatrix},
+\end{equation*}
+es decir, se supone que se observan el primer y el segundo estado, siendo el tercero el que se encuentra complementamente oculto. Notar que este sistema cumple ser observable en el sentido usual del control \cite{Trelat2013ControleApplications}, que es que la matriz de observabilidad del sistema
+\begin{equation*}
+    \mathcal{O} = \begin{pmatrix}
+        C \\
+        CA \\
+        \vdots \\
+        CA^{n-1}
+    \end{pmatrix},
+\end{equation*}
+donde $n$ es la dimensión del estado, en este caso $n=3$. 
+
+Se corrobora que el cálculo de la matriz de observabilidad en este caso entrega
+\[
+\mathcal{O} =
+\begin{pmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+1.01 & 0.01 & 0 \\
+0.01 & 1.02 & \alpha \\
+1.0202 & 0.0203 & 0.01\alpha \\
+0.0203 & 0.04\alpha + 1.0405 & 2.04\alpha
+\end{pmatrix}.
+\]
+que es una matriz de rango completo al tener columnas linealmente independientes.
+
+En las figuras \ref{fig:kalman_vs_kkkf_01}, \ref{fig:kalman_vs_kkkf_001} y \ref{fig:kalman_vs_kkkf_025} se muestran los resultados del filtro de Kalman y KKKF para tres casos de $\alpha$ para la matriz $\mathbf{A}$, comparando con la trayectoria real sin ruido, ni de dinánica ni de observación.
+
+Se utiliza como condición inicial real del sistema $\mathbf{x}_0 = (1,1,1)$ y un prior sobre la condición inicial $\hat{\mathbf{x}}_0$ con media $(0.8, 1.2, 0.9)$ y matriz de covarianza diagonal con entradas $(0.01, 0.01, 0.01)$. Se utilizan como variables aleatorias para la dinámica y observación un ruido normal aditivo, centrado en el origen y con matrices de covarianza
+\begin{equation*}
+    \mathbf{Q} = \text{diag}(0.01, 0.01, 0.01), \quad \mathbf{R} = \text{diag}(0.01, 0.01),
+\end{equation*}
+respectivamente.
+
+Se simula el sistema por $30$ unidades de tiempo y para la aproximación de los operadores se utiliza $N=500$. En las tablas \ref{tab:errores_alpha_01}, \ref{tab:errores_alpha_001} y \ref{tab:errores_alpha_m025} se muestran los errores que cometen tanto el filtro de Kalman como KKKF con respecto a la curva real, en norma y por cada estado.
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/kalman_vs_kkkf_01.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Comparación del filtro de Kalman con KKKF para $\alpha = -0.1$. En línea azul se encuentra el resultado del sistema simulado sin ruidos ni de dinámica ni observación, en naranja la solución del filtro de Kalman y en verde la solución de KKKF.}
+    \label{fig:kalman_vs_kkkf_01}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/kalman_vs_kkkf_001.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Comparación del filtro de Kalman con KKKF para $\alpha = 0.01$. En línea azul se encuentra el resultado del sistema simulado sin ruidos ni de dinámica ni observación, en naranja la solución del filtro de Kalman y en verde la solución de KKKF.}
+    \label{fig:kalman_vs_kkkf_001}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/kalman_vs_kkkf_025.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Comparación del filtro de Kalman con KKKF para $\alpha = 0.25$. En línea azul se encuentra el resultado del sistema simulado sin ruidos ni de dinámica ni observación, en naranja la solución del filtro de Kalman y en verde la solución de KKKF.}
+    \label{fig:kalman_vs_kkkf_025}
 \end{figure}
+
+\begin{table}[h!]
+\centering
+\caption{Errores para $\alpha = -0.1$}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Estado} & \textbf{Kalman} & \textbf{KKKF} \\ \hline
+Estado 1 & 0.3588 & 0.3909 \\ \hline
+Estado 2 & 0.4347 & 0.4624 \\ \hline
+Estado 3 & 0.4195 & 0.2238 \\ \hline
+\end{tabular}
+\label{tab:errores_alpha_01}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Errores para $\alpha = 0.01$}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Estado} & \textbf{Kalman} & \textbf{KKKF} \\ \hline
+Estado 1 & 0.3588 & 0.3912 \\ \hline
+Estado 2 & 0.4242 & 0.4264 \\ \hline
+Estado 3 & 0.7550 & 0.5928 \\ \hline
+\end{tabular}
+\label{tab:errores_alpha_001}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Errores para $\alpha = -0.25$}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Estado} & \textbf{Kalman} & \textbf{KKKF} \\ \hline
+Estado 1 & 0.3588 & 0.3906 \\ \hline
+Estado 2 & 0.4592 & 0.5241 \\ \hline
+Estado 3 & 0.3679 & 0.2485 \\ \hline
+\end{tabular}
+\label{tab:errores_alpha_m025}
+\end{table}
+
+Con el objetivo de visualizar la cota de error probada en el teorema \ref{teo:error_kkkf_fin} se prueba ejecutar el filtro para distintos valores de $N$, manteniendo todo el resto de valores. Se prueba esto para $N \in \{10, 50, 100, 200, 300, 500, 1000, 1500, 2000\}$ y luego se ajusta una curva de la forma $C_1 \cdot N ^{-C_2}$, donde lo esperado es que $C_2$ sea, al menos, $0.5$.
+
+En las figuras \ref{fig:linear_error_01}, \ref{fig:linear_error_001} y \ref{fig:linear_error_025} se muestran los resultados de este experimento, en donde se observa que en efecto el orden de decaimiento del error en función de $N$ es cercano a $1/2$, lo que cumple la cota de error vista en el teorema $\ref{teo:error_kkkf_fin}$.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/linear_error_01.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Error en norma para el estado en función de $N$, para $\alpha = -0.1$}
+    \label{fig:linear_error_01}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/linear_error_001.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Error en norma para el estado en función de $N$, para $\alpha = 0.01$}
+    \label{fig:linear_error_001}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/linear_error_025.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Error en norma para el estado en función de $N$, para $\alpha = -0.25$}
+    \label{fig:linear_error_025}
 \end{figure}
 
-\subsection{Comparación para el modelo SIR con otros filtros no lineales}
+\subsection{Comparación para el modelo SIR con otros filtros}
+
+Ahora se compara el filtro con otros filtros no lineales presentados en los preliminares, que vendrían siendo Extended Kalman Filter (EKF), Unscented Kalman Filter (UKF) y Particle Filters (PF), que tal como se mencionó antes, son implementación propia para este trabajo. 
+
+El sistema a considerar es el sistema SIR ya visto anteriormente
+\begin{equation*}
+    \begin{aligned}
+    S_{k+1} &= S_k -\beta S_k I_k, \\
+    I_{k+1} &= I_k + \beta S_k I_k - \gamma I_k, \\
+    S_{k+1} &= R_k + \gamma I_k,
+    \end{aligned}
+\end{equation*}
+en donde para esta subsección se considerarán $\beta$ y $\gamma$ conocidos y que la función de observación es
+\begin{equation*}
+    \mathbf{g}(S, I, R) = I,
+\end{equation*}
+es decir, solo se observan los infectados.
+
+Se estudia primero el caso en que se prueban los filtros para $\beta = 1.0$ y $\gamma = 0.3$ y ruidos normales centrados con matrices de covarianza
+\begin{equation*}
+    \mathbf{Q} = \text{diag}(\sigma, \sigma, \sigma), \quad \mathbf{R} = \text{diag}(\sigma),
+\end{equation*}
+en donde $\sigma$ variará en cada experimento para poder visualizar cómo se comporta cada filtro en presencia de mayor ruido.
+
+Se utiliza como condición inicial real $\mathbf{x}_0 = (0.9, 0.1, 0.0)$, prior para la condición inicial una variable aleatoria normal centrada en $\hat{\mathbf{x}}_0 = (0.9, 0.05, 0.05)$ con matriz de covarianza $\mathbf{Q}_0 = (0.01, 0.01, 0.01)$. Para el EKF se utilizan diferencias finitas centradas para la aproximación de Jacobiano de la dinámica con precisión $\varepsilon=10^{-6}$, para PF se utilizaron $N_p = 5000$ partículas y para KKKF se utilizó $N=1000$ como dimensión de aproximación de los operadores. En las figuras \ref{fig:nonlinear_filters_sir_sigma_01}, \ref{fig:nonlinear_filters_sir_sigma_001} y \ref{fig:nonlinear_filters_sir_sigma_0001} se observan los resultados para $\sigma \in \{0.1, 0.01, 0.001\}$, seguido de las tablas \ref{tab:errores_sigma_01}, \ref{tab:errores_sigma_001} y \ref{tabla:errores_sigma_0001} que contienen el detalle de los errores para cada estado y cada filtro.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_01.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 1.0$, $\gamma = 0.3$ y $\sigma = 0.1$.}
+    \label{fig:nonlinear_filters_sir_sigma_01}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_001.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 1.0$, $\gamma = 0.3$ y $\sigma = 0.01$.}
+    \label{fig:nonlinear_filters_sir_sigma_001}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_0001.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 1.0$, $\gamma = 0.3$ y $\sigma = 0.001$.}
+    \label{fig:nonlinear_filters_sir_sigma_0001}
 \end{figure}
+
+\begin{table}[h!]
+\centering
+\caption{Errores para $\sigma = 0.1$}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
+S & 0.4757 & 0.7738 & 0.9571 & 0.3330 \\ \hline
+I & 0.8665 & 0.8300 & 0.8553 & 0.3015 \\ \hline
+R & 1.1360 & 1.4221 & 1.2151 & 0.2209 \\ \hline
+\end{tabular}
+\label{tab:errores_sigma_01}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Errores para $\sigma = 0.01$}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
+S & 0.1277 & 0.1328 & 0.1783 & 0.1737 \\ \hline
+I & 0.2801 & 0.2565 & 0.2779 & 0.1709 \\ \hline
+R & 0.4881 & 0.5135 & 0.4337 & 0.1329 \\ \hline
+\end{tabular}
+\label{tab:errores_sigma_001}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Errores para $\sigma = 0.001$}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
+S & 0.0417 & 0.0528 & 0.0493 & 0.2320 \\ \hline
+I & 0.1023 & 0.0985 & 0.1022 & 0.1996 \\ \hline
+R & 0.3070 & 0.2489 & 0.2983 & 0.1710 \\ \hline
+\end{tabular}
+\label{tabla:errores_sigma_0001}
+\end{table}
+
+Se observa que KKKF logra superar en error a todos los otros filtros con creces en el caso en que $\sigma \in \{ 0.1, 0.01\}$, aunque para el caso en donde hay menor ruido los resultados son bastante similares. Esto mostraría que el filtro tiene un mejor desempeño en comparación a los otros filtros en escenarios de mayor incertidumbre.
+
+Se muestra ahora el caso en que $\sigma = 0.01$ fijo y varía el parámetro $\beta \in \{0.6, 0.9, 1.5\}$, en donde el objetivo es ver cómo cambian los resultados en función de $\beta$, que es en algún sentido el parámetro que cuantifica la no linealidad del sistema. Dado que $\gamma$ en realidad representa una relación lineal, se deja fijo en $\gamma = 0.3$. Se utilizan los mismos valores para todo el resto de configuraciones. Los resultados se pueden apreciar en las figuras \ref{fig:nonlinear_filters_sir_beta_06}, \ref{fig:nonlinear_filters_sir_beta_09} y \ref{fig:nonlinear_filters_sir_beta_15}, y en las tablas \ref{tab:errores_beta_gamma_06}, \ref{tab:errores_beta_gamma_09} y \ref{tab:errores_beta_gamma_15}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_beta_06.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 0.6$, $\gamma = 0.3$ y $\sigma = 0.01$.}
+    \label{fig:nonlinear_filters_sir_beta_06}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_beta_09.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 0.9$, $\gamma = 0.3$ y $\sigma = 0.01$.}
+    \label{fig:nonlinear_filters_sir_beta_09}
 \end{figure}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_beta_15.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 1.5$, $\gamma = 0.3$ y $\sigma = 0.01$.}
+    \label{fig:nonlinear_filters_sir_beta_15}
 \end{figure}
+
+\begin{table}[h!]
+\centering
+\caption{Errores para $\beta = 0.6$ y $\gamma = 0.3$}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
+S & 0.2442 & 0.2379 & 0.3305 & 0.1629 \\ \hline
+I & 0.2904 & 0.2815 & 0.2903 & 0.1352 \\ \hline
+R & 0.4874 & 0.5503 & 0.4732 & 0.1210 \\ \hline
+\end{tabular}
+\label{tab:errores_beta_gamma_06}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Errores para $\beta = 0.9$ y $\gamma = 0.3$}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
+S & 0.1486 & 0.1533 & 0.2195 & 0.1672 \\ \hline
+I & 0.2808 & 0.2590 & 0.2798 & 0.1628 \\ \hline
+R & 0.4866 & 0.5246 & 0.4907 & 0.1300 \\ \hline
+\end{tabular}
+\label{tab:errores_beta_gamma_09}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Errores para $\beta = 1.5$ y $\gamma = 0.3$}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
+S & 0.0885 & 0.2296 & 0.2292 & 0.1906 \\ \hline
+I & 0.2834 & 0.2788 & 0.2816 & 0.1934 \\ \hline
+R & 0.4671 & 0.5295 & 0.4042 & 0.1435 \\ \hline
+\end{tabular}
+\label{tab:errores_beta_gamma_15}
+\end{table}
+
+
 
 \subsection{Estimación de parámetros del modelo SIR}
 
