@@ -35,12 +35,15 @@ Para ejecutar el código de este repositorio, necesitas tener instaladas las sig
 
 - Numpy
 - Matplotlib
+- Seaborn
 - Scipy
 - Pandas
 - Plotly
 - Kaleido
 - Sklearn
-- KKKF
+- kkf
+- tqdm
+- PyMC
 - nbformat
 
 Puedes instalar todas las dependencias utilizando el siguiente comando:
