@@ -102,19 +102,90 @@ El siguiente resultado le da toda su validez al algoritmo del Filtro de Kalman, 
 	\end{equation*}
 \end{prop}
 
+El algoritmo del Filtro de Kalman sigue un procedimiento de predicción y actualización:
+\begin{itemize}
+    \item Predicción: $\hat{\mathbf{x}}_{k|k} \to \hat{\mathbf{x}}_{k+1|k}$, donde solo es considerada la dinámica.
+    \item Actualización: $\hat{\mathbf{x}}_{k+1|k} \to \hat{\mathbf{x}}_{k+1|k+1}$, donde se corrige la predicción en base a las observaciones.
+\end{itemize}
+Esta será la base para el resto de algoritmos. Para visualizar el comportamiento del algoritmo se dejan los siguientes diagramas, en donde se tiene un estado real o subyacente, en azul, y se le entrega al algoritmo una observación ruidosa, en amarillo.
+\begin{itemize}
+    \item Primera iteración: se comienza con un punto que, eventualmente está lejos de la condición inicial real del sistema, y luego se hace el proceso de predicción y actualización.
+    \begin{figure}[h!]
+        \centering
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt0.pdf}
+            \caption{Condición inicial de la iteración.}
+        \end{subfigure}
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt1.pdf}
+            \caption{Predicción.}
+        \end{subfigure}
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt2.pdf}
+            \caption{Elección de la dirección de proyección.}
+        \end{subfigure}
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt3.pdf}
+            \caption{Proyección.}
+        \end{subfigure}
+    \end{figure}
+    \item Segunda iteración: comenzando desde el mismo punto en donde terminó la iteración anterior se observa que el estado filtrado se acerca al estado real o subyacente.
+        \begin{figure}[h!]
+        \centering
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt4.pdf}
+            \caption{Condición inicial de la iteración.}
+        \end{subfigure}
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt5.pdf}
+            \caption{Predicción.}
+        \end{subfigure}
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt6.pdf}
+            \caption{Elección de la dirección de proyección.}
+        \end{subfigure}
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt7.pdf}
+            \caption{Proyección.}
+        \end{subfigure}
+    \end{figure}
+    \item Iteraciones futuras: se espera que el estado filtrado ya sea muy cercano, eventualmente idéntico, al estado subyacente, con lo que se dice que el filtro se estabiliza.
+    \begin{figure}[h!]
+        \centering
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt25.pdf}
+            \caption{$k$-ésima iteración.}
+        \end{subfigure}
+        \begin{subfigure}[b]{.49\linewidth}
+        \centering
+            \includegraphics[width=\linewidth]{img/content/chapter2/filt26.pdf}
+            \caption{Última iteración.}
+        \end{subfigure}
+    \end{figure}
+\end{itemize}
+
 \subsection{Caso a tiempo discreto no lineal general}
 A diferencia del caso anterior, en el caso no lineal general hay muchos algoritmos propuestos, siendo los más clásicos las variantes del filtro de Kalman, como el \textit{Extended Kalman Filter} (EKF) y el \textit{Unscented Kalman Filter} (UKF), pero se sabe que resultan ser subóptimos \cite{Setoodeh2022NonlinearApplications}.\\ 
 A pesar de que dichos algoritmos reciben dinámicas no lineales, siguen suponiendo que el ruido es aditivo, centrado y Gaussiano. Se verá en secciones posteriores que esto no es un impedimento para poder ejecutarlos, pero una familia de métodos se han construido para el caso más general, cuyos representantes más famosos son los filtros de partículas.\\
-Con el motivo de no extender más este informe solo se expondrá el algoritmo de EKF. Para esta sección se supondrá que la dinámica es de la forma
+Con el motivo de no extender más este informe solo se expondrá el algoritmo de EKF. Para esta sección, se supondrá que la dinámica es de la forma
 \begin{equation}
 	\begin{aligned}
 		\mathbf{x}_{k+1} &= \mathbf{f}(t_k, \mathbf{x}_k, \mathbf{u}_k) + \mathbf{w}_k \\
 		\mathbf{y}_k &= \mathbf{g}(t_k, \mathbf{x}_k, \mathbf{u}_k) + \mathbf{v}_k 
 	\end{aligned}
 	\label{eq:no_lin_disc_add}
-\end{equation}
-Con $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{Q}_k)$ y $\mathbf{v}_k \sim \mathcal{N}(0, \mathbf{R}_k)$. 
-El algoritmo de \textit{Extended Kalman Filter}, cuyo pseudo-código puede visualizarse en el algoritmo \ref{alg:EKF}, busca linearizar el sistema a primer orden vía su Jacobiano, tanto para $\mathbf{f}$ como para $\mathbf{g}$ de manera de generar las matrices $\mathbf{A}_k$ y $\mathbf{C}_k$ necesarias para el Filtro de Kalman, respectivamente. \\
+\end{equation} 
+con $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{Q}_k)$ y $\mathbf{v}_k \sim \mathcal{N}(0, \mathbf{R}_k)$. 
+El algoritmo de \textit{Extended Kalman Filter}, cuyo pseudo-código puede visualizarse en el algoritmo \ref{alg:EKF}, busca linearizar el sistema a primer orden vía su Jacobiano, tanto para $\mathbf{f}$ como para $\mathbf{g}$, de manera de generar las matrices $\mathbf{A}_k$ y $\mathbf{C}_k$ necesarias para el Filtro de Kalman, respectivamente. \\
 A pesar de los simple que parece la adaptación de este algoritmo al caso no lineal, ilustra que extender el filtro de Kalman al caso no lineal se basa en una linealización de la dinámica, en este caso vía Jacobiano, pero podrían existir otras, que es en lo que se basará el filtro creado durante este trabajo.
 
 \begin{algorithm}
@@ -354,19 +425,26 @@ El siguiente teorema entrega una condición clave para los desarrollos de este t
 Si \( \mathcal{X} \) es un conjunto compacto que satisface la condición del cono interior y \( k \) es el kernel de Matérn con parámetro \( \nu > 0 \), entonces para \( s = \nu + n/2 \) se cumple que \( \mathcal{H}_k (\mathcal{X}) \) es equivalente en norma a \( H^s (\mathcal{X}) \).
 \end{teo}
 
-\begin{obs}
-    Si \( \nu = 1/2 \), se tiene que
-\[
+\begin{prop}
+    Si $\nu = 1/2$, se tiene que
+    \[
+    k_\nu (x, y) = \exp \left( -\frac{\|x-y\|}{\gamma} \right).
+    \]
+\end{prop}
+
+\begin{proof}
+    De \cite{Barton1965HandbookTables., Davis1944AFunctions} se sabe que
+\end{proof}
+    \[
 B_{1/2} (z) = \sqrt{ \frac{\pi}{2} } \frac{e^{-z}}{\sqrt{z}},
 \]
 por lo que se deduce que:
 \[
 \begin{aligned}
-k (x,y) &= \frac{\sqrt{2}}{\Gamma(1/2)} \left(  \frac{\|x-y\|}{\gamma} \right)^{1/2} \sqrt{ \frac{\pi}{2} } \exp \left( -\frac{\|x-y\|}{\gamma} \right) \left(  \frac{\|x-y\|}{\gamma} \right)^{-1/2} = \exp \left( -\frac{\|x-y\|}{\gamma} \right).
+k_\nu (x,y) &= \frac{\sqrt{2}}{\Gamma(1/2)} \left(  \frac{\|x-y\|}{\gamma} \right)^{1/2} \sqrt{ \frac{\pi}{2} } \exp \left( -\frac{\|x-y\|}{\gamma} \right) \left(  \frac{\|x-y\|}{\gamma} \right)^{-1/2} = \exp \left( -\frac{\|x-y\|}{\gamma} \right).
 \end{aligned}
 \]
-En consecuencia, el kernel de Matérn generaliza al kernel Laplace, y el RKHS asociado al kernel Laplace es \( H^{(n+1)/2} \).
-\end{obs}
+
 Notar que la definición \ref{def:frac_sob} no es válida cuando se tiene un subconjunto de $\R^n$, pero la deducción de esta propiedad en \cite{Wendland2004ScatteredApproximation} pasa por extender las funciones a todo $\R^n$ y luego aplicar la definición. \\
 En las secciones posteriores será de interés hacer un \textit{embedding} de una distribución en un RKHS, para lo que es necesario definir el elemento medio en un RKHS y los operadores de covarianza. Las definiciones y proposiciones que siguen han sido expuestas en \cite{Fukumizu2004DimensionalitySpaces, Song2009HilbertSystems, Muandet2017KernelBeyond}. \\
 Sean $\X \subset \R^n$, $\Y \subset \R^p$,  Sea $\mu$ una medida de probabilidad sobre $\X$, $\H$ un RKHS sobre $\X$ con kernel reproduciente $k$ y feature map $\Phi$ y $X$ una variable aleatoria con soporte en $\X$ y $Y$ una variable aleatoria con soporte en $\Y$.
@@ -465,10 +543,10 @@ El siguiente teorema indica la existencia y forma del operador de embedding cond
 \end{teo}
 
 % Operador de Koopman
-\section{Operador de Koopman}
+\section{Operador de Koopman para sistemas autónomos y deterministas}
 El estudio de sistemas dinámicos, tanto a tiempo continuo como a tiempo discreto, ha sido un amplio campo de estudio en diferentes áreas de la matemática, ciencia e ingeniería. En el presente escrito se aboradará su estudio, tanto teórico como computacional, con el operador de Koopman. \\ Desde un punto de vista más matemático, un trabajo pionero fue el de Koopman en 1931 \cite{Koopman1931HamiltonianSpace} en donde se define el operador de Koopman para sistemas dinámicos con espectro discreto. Lo desarrollado por Koopman fue posteriormente generalizado por Koopman y von Neumann en 1932 \cite{Koopman1932DynamicalSpectra}.\\
 En los tiempos recientes, el operador de Koopman ha vuelto a surgir en la literatura para el estudio de sistemas dinámicos no lineales, motivado principalmente por los trabajos de Mezić y Budišić junto a otros colaboradores \cite{Budisic2009AnObservables, Budisic2012GeometryFlows, Budisic2012AppliedKoopmanism}. \\
-Aprovechando la linealidad del operador de Koopman, aunque sea a costa de trabajar ahora en dimensión finita, es que se han propuesto técnicas para aproximar el operador vía matrices y así volver muchos problemas no lineales en tareas accesibles en un computador, en donde destacan los trabajos de Schmid \cite{Schmid2008DynamicData} en la creación del DMD y de Williams \cite{Williams2015ADecomposition} en la del EDMD.\\
+Aprovechando la linealidad del operador de Koopman, aunque sea a costa de trabajar ahora en dimensión infinita, es que se han propuesto técnicas para aproximar el operador vía matrices y así volver muchos problemas no lineales en tareas accesibles en un computador, en donde destacan los trabajos de Schmid \cite{Schmid2008DynamicData} en la creación del DMD y de Williams \cite{Williams2015ADecomposition} en la del EDMD.\\
 Posterior a ello, trabajos más modernos se han movido a ver extensiones a otros tipos de sistemas, como sistemas con retardo o sistemas de ecuaciones en derivadas parciales, en donde no solo los trabajos de Mezić han seguido siendo relevantes \cite{Mezic2013AnalysisOperator, Mezic2020SpectrumGeometry, Mezic2022OnOperator}, sino que también los trabajos de Brunton y Kutz han marcado la pauta en ámbitos aún más aplicados \cite{Kaiser2021Data-drivenControl, Brunton2016KoopmanControl, Proctor2018GeneralizingControl, Lusch2018DeepDynamics, Kamb2020Time-delayApplications, NathanKutz2018AppliedSystems}, en donde incluso destacan ya implementaciones a nivel librería de los avances numéricos en la aproximación de Koopman \cite{Pan2024PyKoopman:Operator}.\\
 Para introducir la idea y concepto del operador de Koopman a utilizar en este trabajo, se considera primero un sistema dinámico autónomo determinista.
 \begin{equation}
@@ -602,107 +680,107 @@ Esta definición para sistemas deterministas será la base para la definición e
 		%     \end{equation*}
 	%     Y por inducción queda probado lo pedido.
 	% \end{proof}
-\section{Dynamic Mode Decomposition y Extended Dynamic Mode Decomposition}
+% \section{Dynamic Mode Decomposition y Extended Dynamic Mode Decomposition}
 
-La \textbf{Dynamic Mode Decomposition (DMD)}, introducida originalmente en \cite{Schmid2008DynamicData}, constituye una de las primeras técnicas desarrolladas para aproximar el operador de Koopman mediante operadores de rango finito. Posteriormente, esta metodología fue mejorada con la introducción de la \textbf{Extended Dynamic Mode Decomposition (EDMD)}, presentada en \cite{Williams2015ADecomposition}, técnica que será empleada en este trabajo y que se detalla a continuación.
+% La \textbf{Dynamic Mode Decomposition (DMD)}, introducida originalmente en \cite{Schmid2008DynamicData}, constituye una de las primeras técnicas desarrolladas para aproximar el operador de Koopman mediante operadores de rango finito. Posteriormente, esta metodología fue mejorada con la introducción de la \textbf{Extended Dynamic Mode Decomposition (EDMD)}, presentada en \cite{Williams2015ADecomposition}, técnica que será empleada en este trabajo y que se detalla a continuación.
 
-Considérense las realizaciones de la dinámica, usualmente denominadas \textit{snapshots}, representadas como $(\{\mathbf{x}_j\}_{j=1}^N, \{\mathbf{y}_j\}_{j=1}^N)$, donde $\mathbf{y}_j = \mathbf{f}(\mathbf{x}_j)$. Sean además $\{\mathbf{\Psi}_k\}_{k=1}^{N_K}$, con $\mathbf{\Psi}_k: \mathcal{X} \to \mathbb{C}$, funciones generadoras del espacio $\mathcal{F}_{N_K} \subset \mathcal{F}$, que está finitamente generado. Se define la función de \textit{lifting forward} $\mathbf{\Psi}: \mathcal{X} \to \mathbb{C}^{N_K}$ como  
-\[
-\mathbf{\Psi}(\mathbf{x}) = (\mathbf{\Psi}_1(\mathbf{x}), \dots, \mathbf{\Psi}_{N_K}(\mathbf{x}))^T.
-\]
-Adicionalmente, se asume la existencia de una matriz de \textit{lifting back} $\mathbf{B} \in \mathbb{C}^{n \times N_K}$ tal que  
-\[
-\mathbf{B} \mathbf{\Psi}(\mathbf{x}) = \mathbf{x}, \quad \forall \mathbf{x} \in \mathcal{X}.
-\]
+% Considérense las realizaciones de la dinámica, usualmente denominadas \textit{snapshots}, representadas como $(\{\mathbf{x}_j\}_{j=1}^N, \{\mathbf{y}_j\}_{j=1}^N)$, donde $\mathbf{y}_j = \mathbf{f}(\mathbf{x}_j)$. Sean además $\{\mathbf{\Psi}_k\}_{k=1}^{N_K}$, con $\mathbf{\Psi}_k: \mathcal{X} \to \mathbb{C}$, funciones generadoras del espacio $\mathcal{F}_{N_K} \subset \mathcal{F}$, que está finitamente generado. Se define la función de \textit{lifting forward} $\mathbf{\Psi}: \mathcal{X} \to \mathbb{C}^{N_K}$ como  
+% \[
+% \mathbf{\Psi}(\mathbf{x}) = (\mathbf{\Psi}_1(\mathbf{x}), \dots, \mathbf{\Psi}_{N_K}(\mathbf{x}))^T.
+% \]
+% Adicionalmente, se asume la existencia de una matriz de \textit{lifting back} $\mathbf{B} \in \mathbb{C}^{n \times N_K}$ tal que  
+% \[
+% \mathbf{B} \mathbf{\Psi}(\mathbf{x}) = \mathbf{x}, \quad \forall \mathbf{x} \in \mathcal{X}.
+% \]
 
-El objetivo consiste en construir una aproximación lineal de la dinámica en una dimensión $N_K$, expresada como  
-\[
-\mathbf{z}_{k+1} = \mathbf{K} \mathbf{z}_k.
-\]
-Al aplicar $\mathbf{\Psi}$ a la dinámica, se obtiene  
-\[
-\mathbf{\Psi}(\mathbf{y}_j) = \mathbf{\Psi}(\mathbf{f}(\mathbf{x}_j)) = (\mathcal{U}\mathbf{\Psi})(\mathbf{x}_j) = \mathbf{K} \mathbf{\Psi}(\mathbf{x}_j) + \mathbf{r}(\mathbf{x}_j),
-\]
-donde $\mathbf{r} \in \mathcal{F}$ es una función de residuo que se busca minimizar sobre las realizaciones. Al definir las matrices  
-\[
-\mathbf{P}_X = (\mathbf{\Psi}(\mathbf{x}_1) \,|\, \dots \,|\, \mathbf{\Psi}(\mathbf{x}_N)) \in \mathbb{R}^{N_K \times N}, \quad \mathbf{P}_Y = (\mathbf{\Psi}(\mathbf{y}_1) \,|\, \dots \,|\, \mathbf{\Psi}(\mathbf{y}_N)) \in \mathbb{R}^{N_K \times N},
-\]
-el problema se formula como una regresión lineal:
-\[
-\mathbf{P}_Y = \mathbf{K} \mathbf{P}_X + \mathbf{R}(\mathbf{P}_X).
-\]
-Este problema puede escribirse como  
-\[
-\min_{\mathbf{K} \in \mathbb{R}^{N_K \times N_K}} J(\mathbf{K}) = \frac{1}{2} \|\mathbf{P}_Y - \mathbf{K} \mathbf{P}_X\|_F^2,
-\]
-donde $\|\cdot\|_F$ denota la norma de Frobenius, definida como  
-\[
-\|A\|_F = \sum_{i=1}^m \sum_{j=1}^n |a_{ij}|^2, \quad A \in \mathbb{R}^{m \times n}.
-\]
+% El objetivo consiste en construir una aproximación lineal de la dinámica en una dimensión $N_K$, expresada como  
+% \[
+% \mathbf{z}_{k+1} = \mathbf{K} \mathbf{z}_k.
+% \]
+% Al aplicar $\mathbf{\Psi}$ a la dinámica, se obtiene  
+% \[
+% \mathbf{\Psi}(\mathbf{y}_j) = \mathbf{\Psi}(\mathbf{f}(\mathbf{x}_j)) = (\mathcal{U}\mathbf{\Psi})(\mathbf{x}_j) = \mathbf{K} \mathbf{\Psi}(\mathbf{x}_j) + \mathbf{r}(\mathbf{x}_j),
+% \]
+% donde $\mathbf{r} \in \mathcal{F}$ es una función de residuo que se busca minimizar sobre las realizaciones. Al definir las matrices  
+% \[
+% \mathbf{P}_X = (\mathbf{\Psi}(\mathbf{x}_1) \,|\, \dots \,|\, \mathbf{\Psi}(\mathbf{x}_N)) \in \mathbb{R}^{N_K \times N}, \quad \mathbf{P}_Y = (\mathbf{\Psi}(\mathbf{y}_1) \,|\, \dots \,|\, \mathbf{\Psi}(\mathbf{y}_N)) \in \mathbb{R}^{N_K \times N},
+% \]
+% el problema se formula como una regresión lineal:
+% \[
+% \mathbf{P}_Y = \mathbf{K} \mathbf{P}_X + \mathbf{R}(\mathbf{P}_X).
+% \]
+% Este problema puede escribirse como  
+% \[
+% \min_{\mathbf{K} \in \mathbb{R}^{N_K \times N_K}} J(\mathbf{K}) = \frac{1}{2} \|\mathbf{P}_Y - \mathbf{K} \mathbf{P}_X\|_F^2,
+% \]
+% donde $\|\cdot\|_F$ denota la norma de Frobenius, definida como  
+% \[
+% \|A\|_F = \sum_{i=1}^m \sum_{j=1}^n |a_{ij}|^2, \quad A \in \mathbb{R}^{m \times n}.
+% \]
 
-Si $\mathbf{P}_X$ tiene rango completo, el problema admite un único mínimo global dado por  
-\[
-\mathbf{K} = \mathbf{P}_Y \mathbf{P}_X^\dagger,
-\]
-donde $\mathbf{P}_X^\dagger$ es la pseudoinversa de Moore-Penrose, definida según el rango de la matriz:
-\begin{itemize}
-    \item Si $\mathbf{A} \in \mathbb{R}^{n \times m}$ es inyectiva, entonces $\mathbf{A}^T \mathbf{A}$ es invertible y  
-    \[
-    \mathbf{A}^\dagger = (\mathbf{A}^T \mathbf{A})^{-1} \mathbf{A}^T.
-    \]
-    \item Si $\mathbf{A}$ es sobreyectiva, entonces $\mathbf{A} \mathbf{A}^T$ es invertible y  
-    \[
-    \mathbf{A}^\dagger = \mathbf{A}^T (\mathbf{A} \mathbf{A}^T)^{-1}.
-    \]
-\end{itemize}
+% Si $\mathbf{P}_X$ tiene rango completo, el problema admite un único mínimo global dado por  
+% \[
+% \mathbf{K} = \mathbf{P}_Y \mathbf{P}_X^\dagger,
+% \]
+% donde $\mathbf{P}_X^\dagger$ es la pseudoinversa de Moore-Penrose, definida según el rango de la matriz:
+% \begin{itemize}
+%     \item Si $\mathbf{A} \in \mathbb{R}^{n \times m}$ es inyectiva, entonces $\mathbf{A}^T \mathbf{A}$ es invertible y  
+%     \[
+%     \mathbf{A}^\dagger = (\mathbf{A}^T \mathbf{A})^{-1} \mathbf{A}^T.
+%     \]
+%     \item Si $\mathbf{A}$ es sobreyectiva, entonces $\mathbf{A} \mathbf{A}^T$ es invertible y  
+%     \[
+%     \mathbf{A}^\dagger = \mathbf{A}^T (\mathbf{A} \mathbf{A}^T)^{-1}.
+%     \]
+% \end{itemize}
 
-La matriz $\mathbf{K}$ constituye una aproximación finita del operador de Koopman. Denotando $\mathbf{z}_k = \mathbf{\Psi}(\mathbf{x}_k)$, se obtiene el sistema lineal en dimensión finita $N_K$:  
-\[
-\begin{aligned}
-\mathbf{z}_{k+1} &= \mathbf{K} \mathbf{z}_k, \\
-\mathbf{x}_k &= \mathbf{B} \mathbf{z}_k, \\ 
-\mathbf{z}_0 &= \mathbf{\Psi}(\mathbf{x}_0).
-\end{aligned}
-\tag{\(L\)}
-\]
-Un objetivo central de este trabajo es establecer resultados que permitan demostrar que las trayectorias o soluciones del sistema \((L)\) aproximan, en algún sentido, a las de la dinámica no lineal \((\text{NL})\).
+% La matriz $\mathbf{K}$ constituye una aproximación finita del operador de Koopman. Denotando $\mathbf{z}_k = \mathbf{\Psi}(\mathbf{x}_k)$, se obtiene el sistema lineal en dimensión finita $N_K$:  
+% \[
+% \begin{aligned}
+% \mathbf{z}_{k+1} &= \mathbf{K} \mathbf{z}_k, \\
+% \mathbf{x}_k &= \mathbf{B} \mathbf{z}_k, \\ 
+% \mathbf{z}_0 &= \mathbf{\Psi}(\mathbf{x}_0).
+% \end{aligned}
+% \tag{\(L\)}
+% \]
+% Un objetivo central de este trabajo es establecer resultados que permitan demostrar que las trayectorias o soluciones del sistema \((L)\) aproximan, en algún sentido, a las de la dinámica no lineal \((\text{NL})\).
 
-Todo lo expuesto se resume en el diagrama ilustrado en la Figura \ref{fig:KoopDiag}.  
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.75]{img/content/chapter2/KoopDiag.pdf}
-\caption{Diagrama de evolución temporal en dimensión infinita y finita, representando la dinámica mediante el operador de Koopman y sus aproximaciones. Elaboración propia, basado en \cite{Williams2015ADecomposition}.}
-\label{fig:KoopDiag}
-\end{figure}
+% Todo lo expuesto se resume en el diagrama ilustrado en la Figura \ref{fig:KoopDiag}.  
+% \begin{figure}[h]
+% \centering
+% \includegraphics[scale=0.75]{img/content/chapter2/KoopDiag.pdf}
+% \caption{Diagrama de evolución temporal en dimensión infinita y finita, representando la dinámica mediante el operador de Koopman y sus aproximaciones. Elaboración propia, basado en \cite{Williams2015ADecomposition}.}
+% \label{fig:KoopDiag}
+% \end{figure}
 
-\section{Aproximación de rango bajo de matrices}
-La dimensión de aproximación del operador de Koopman puede ser muy alta para ciertas aplicaciones, lo que hace que ciertas operaciones se hagan muy inestables si se mantiene el rango original. Es por ello que en muchos contextos se propone bajar el rango de las matrices involucradas vía Descomposición en Valores Singulares (SVD). \\
-Primero consideremos el problema de obtener la mejor matriz de rango bajo que aproxima otra matriz dada. La solución de este problema fue dada en \cite{Eckart1936TheRank}, para ello se denota por $r(\mathbf{A})$ el rango de una matriz $\mathbf{A} \in \R^{m \times n}$.
+% \section{Aproximación de rango bajo de matrices}
+% La dimensión de aproximación del operador de Koopman puede ser muy alta para ciertas aplicaciones, lo que hace que ciertas operaciones se hagan muy inestables si se mantiene el rango original. Es por ello que en muchos contextos se propone bajar el rango de las matrices involucradas vía Descomposición en Valores Singulares (SVD). \\
+% Primero consideremos el problema de obtener la mejor matriz de rango bajo que aproxima otra matriz dada. La solución de este problema fue dada en \cite{Eckart1936TheRank}, para ello se denota por $r(\mathbf{A})$ el rango de una matriz $\mathbf{A} \in \R^{m \times n}$.
 
-\begin{lema}
-	La mejor aproximación de rango \( s \), en términos de la norma de Frobenius, para una matriz \( \mathbf{A} \) de rango \( t \) con \( t \geq s \), es decir, un minimizador global \( \hat{\mathbf{A}}^* \) de
-	\[
-	\min_{\hat{\mathbf{A}}} \| \mathbf{A} - \hat{\mathbf{A}} \|_F, \quad \text{s.a.} \quad r(\hat{\mathbf{A}}) \leq s
-	\]
-	viene dada por
-	\[
-	\hat{\mathbf{A}}^* = P_s (\mathbf{A}) = \mathbf{U} \Sigma_s \mathbf{V}^T,
-	\]
-	donde \( \Sigma_s \) es la matriz diagonal con los \( s \) valores singulares más grandes de \( \mathbf{A} \) y luego solo $0$, en donde se denota a la SVD de \( \mathbf{A} = \mathbf{U} \Sigma \mathbf{V}^T \).
-\end{lema}
-\noindent Es con esto que en \cite{Xiang2012OptimalMinimization} se provee una forma cerrada para un problema de regresión lineal en el que se busca que la matriz solución sea de rango bajo también, esto se formula como
-\begin{equation}
-	\min_{\mathbf{M}} \| \mathbf{Y} - \mathbf{M}\mathbf{X} \|_F, \quad \text{s.a.} \quad r(\mathbf{M}) \leq s
-\end{equation}
-\begin{prop}
-	Sea la SVD de $\mathbf{X} = \mathbf{U} \Sigma \mathbf{V}^T$, con $\textbf{U} \in \R^{m \times m}$, $\mathbf{V} \in \R^{n \times n}$ matrices ortogonales y $\Sigma$ la matriz diagonal con los valores singulares. Luego, el óptimo debe cumplir
-	\[
-	\mathbf{V}^T \mathbf{M}^* =
-	\begin{bmatrix}
-		\Sigma_{r(\mathbf{X})}^{-1} P_s(\mathbf{W}_{r(\mathbf{X})}) \\
-		\mathbf{a}
-	\end{bmatrix},
-	\]
-	donde $\Sigma_{r(\mathbf{X})}$ es la matriz diagonal con los valores singulares no nulos de $\mathbf{X}$, $\mathbf{W}_{r(\mathbf{X})}$ aquella con las primeras $r(\mathbf{X})$ filas de $\mathbf{W}$, con $\mathbf{W} = \mathbf{U}^T \mathbf{Y}$.
-\end{prop}
-\noindent Este resultado será importante para poder trabajar matrices de alta dimensionalidad, como ocurre en el caso de EDMD.
+% \begin{lema}
+% 	La mejor aproximación de rango \( s \), en términos de la norma de Frobenius, para una matriz \( \mathbf{A} \) de rango \( t \) con \( t \geq s \), es decir, un minimizador global \( \hat{\mathbf{A}}^* \) de
+% 	\[
+% 	\min_{\hat{\mathbf{A}}} \| \mathbf{A} - \hat{\mathbf{A}} \|_F, \quad \text{s.a.} \quad r(\hat{\mathbf{A}}) \leq s
+% 	\]
+% 	viene dada por
+% 	\[
+% 	\hat{\mathbf{A}}^* = P_s (\mathbf{A}) = \mathbf{U} \Sigma_s \mathbf{V}^T,
+% 	\]
+% 	donde \( \Sigma_s \) es la matriz diagonal con los \( s \) valores singulares más grandes de \( \mathbf{A} \) y luego solo $0$, en donde se denota a la SVD de \( \mathbf{A} = \mathbf{U} \Sigma \mathbf{V}^T \).
+% \end{lema}
+% \noindent Es con esto que en \cite{Xiang2012OptimalMinimization} se provee una forma cerrada para un problema de regresión lineal en el que se busca que la matriz solución sea de rango bajo también, esto se formula como
+% \begin{equation}
+% 	\min_{\mathbf{M}} \| \mathbf{Y} - \mathbf{M}\mathbf{X} \|_F, \quad \text{s.a.} \quad r(\mathbf{M}) \leq s
+% \end{equation}
+% \begin{prop}
+% 	Sea la SVD de $\mathbf{X} = \mathbf{U} \Sigma \mathbf{V}^T$, con $\textbf{U} \in \R^{m \times m}$, $\mathbf{V} \in \R^{n \times n}$ matrices ortogonales y $\Sigma$ la matriz diagonal con los valores singulares. Luego, el óptimo debe cumplir
+% 	\[
+% 	\mathbf{V}^T \mathbf{M}^* =
+% 	\begin{bmatrix}
+% 		\Sigma_{r(\mathbf{X})}^{-1} P_s(\mathbf{W}_{r(\mathbf{X})}) \\
+% 		\mathbf{a}
+% 	\end{bmatrix},
+% 	\]
+% 	donde $\Sigma_{r(\mathbf{X})}$ es la matriz diagonal con los valores singulares no nulos de $\mathbf{X}$, $\mathbf{W}_{r(\mathbf{X})}$ aquella con las primeras $r(\mathbf{X})$ filas de $\mathbf{W}$, con $\mathbf{W} = \mathbf{U}^T \mathbf{Y}$.
+% \end{prop}
+% \noindent Este resultado será importante para poder trabajar matrices de alta dimensionalidad, como ocurre en el caso de EDMD.

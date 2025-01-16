@@ -167,7 +167,7 @@ La demostración sigue un razonamiento similar al expuesto en \cite{Kohne2024L-e
 
 A continuación, se presentan las definiciones de los operadores de Koopman estocásticos para la dinámica y la observación, adaptados al caso en que se disponen de las funciones $p_f$ y $p_g$ como densidades.
 
-\begin{defn}[Operador de Koopman estocástico para la dinámica]
+\begin{defn}[Operador de Koopman estocástico para la dinámica, tiempo discreto]
 	Se define el operador asociado a $\mathbf{f}$ como $\U : L^2(\X) \to L^2(\X)$, dado por:
 	\begin{equation*}
 		[\U h](x) = \E [h (\mathbf{f} (x, \cdot) )]  = \int_\X h(x') d \rho_f (x, \cdot) (x') = \int_\X h(x') p_f (x, x') d \mu_\X (x').
@@ -382,7 +382,7 @@ cuya base canónica está dada por \( \{\Phi_\X (x_i) : i = 1, \dots, N \} \). E
 
 Se introducen las siguientes matrices:
 \begin{equation*}
-    \mathbf{X} = (x_{1} | \dots | x_N), \quad \mathbf{X} = (x_{1}^+ | \dots | x_N^+), \quad \mathbf{Y} = (y_1 | \dots | y_N),
+    \mathbf{X} = (x_{1} | \dots | x_N), \quad \mathbf{X}^+ = (x_{1}^+ | \dots | x_N^+), \quad \mathbf{Y} = (y_1 | \dots | y_N),
 \end{equation*}
 \begin{equation*}
     \Phi_N (\mathbf{X}) = (k_\X(x_i, x_j))_{i,j = 1}^N, \quad \Phi_N (\mathbf{X}^+) = (k_\X(x_i, x^+_j))_{i,j = 1}^N.
@@ -390,23 +390,17 @@ Se introducen las siguientes matrices:
 
 Con base en estas definiciones, se introducen los operadores:
 \begin{equation*}
-    C_{X}^N : \H_{\X, N} \to \H_{\X, N}, \quad C_{XX^+}^N : \H_{\X, N} \to \H_{\X, N},
+    C_{X}^N : \H_{\X, N} \to \H_{\X, N}, \quad C_{XX^+}^N : \H_{\X, N} \to \H_{\X, N}, \quad 
 \end{equation*}
 \begin{equation*}
     C_{XY}^N : \R^p \to \H_{\X, N}, \quad C_{XX}^N : \R^n \to \H_{\X, N}.
 \end{equation*}
 Las acciones de estos operadores se definen como:
 \begin{equation*}
-    C_{X}^N \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N k_\X(x_i, x_j) \Phi_\X (x_j),
+    C_{X}^N \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N k_\X(x_i, x_j) \Phi_\X (x_j), \quad C_{XX^+}^N \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N k_\X(x_i, x_j^+) \Phi_\X (x_j),
 \end{equation*}
 \begin{equation*}
-    C_{XX^+}^N \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N k_\X(x_i, x_j^+) \Phi_\X (x_j),
-\end{equation*}
-\begin{equation*}
-    C_{XY}^N \Phi_\Y (y_i) = \frac{1}{N} \sum_{j = 1}^N k_\Y (y_i, y_j) \Phi_\X (x_j),
-\end{equation*}
-\begin{equation*}
-    C_{XX}^N \phi (x_i) = \frac{1}{N} \sum_{j = 1}^N \langle x_i, x_j \rangle \Phi_\X (x_j).
+        C_{XY}^N \Phi_\Y (y_i) = \frac{1}{N} \sum_{j = 1}^N k_\Y (y_i, y_j) \Phi_\X (x_j), \quad C_{XX}^N \phi (x_i) = \frac{1}{N} \sum_{j = 1}^N \langle x_i, x_j \rangle \Phi_\X (x_j).
 \end{equation*}
 
 Estos operadores están representados mediante las matrices \( \Phi_N (\mathbf{X}) \), \( \Phi_N (\mathbf{X}^+) \), \( \mathbf{Y} \) y \( \mathbf{X} \), respectivamente. A continuación, se definen los operadores:
@@ -721,7 +715,7 @@ Con ello, de manera sencilla puede incluirse un factor de pérdida de inmunidad,
 \end{equation}
 En donde el nuevo parámetro $\alpha$ es la tasa de pérdida de inmunidad después de haberse recuperado de la enfermedad y que no debe ser confundido con el parámetro de la variable aleatoria Dirichlet vista antes.
 Se comparan las trayectorias generadas por el sistema original con las generadas por kEDMD, utilizando exactamente la misma configuración del sistema anterior, solo cambiando la dinámica.
-\begin{figure}[htbp]
+\begin{figure}[h]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
@@ -764,7 +758,7 @@ Se comparan las trayectorias generadas por el sistema original con las generadas
         \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec3Errors.pdf}
         \caption{$\alpha=0.05$}
     \end{subfigure}
-    \caption{Ilustración de los tres casos del modelo SIR con recuperación elegido para la evolución en función de $N$ de la diferencia en norma entre el sistema lineal original y el sistema linealizado por Koopman a $N$ puntos,  \textit{sampleados} de una variable aleatoria normal. En forma de puntos se deja la evolución observada del error y en línea continua la mejor curva de la forma $C \cdot N^{a}$, donde $a$ es el exponente que se deja en la leyenda.}
+    \caption{Ilustración de los tres casos del modelo SIR con pérdida de inmunidad elegido para la evolución en función de $N$ de la diferencia en norma entre el sistema lineal original y el sistema linealizado por Koopman a $N$ puntos,  \textit{sampleados} de una variable aleatoria normal. En forma de puntos se deja la evolución observada del error y en línea continua la mejor curva de la forma $C \cdot N^{a}$, donde $a$ es el exponente que se deja en la leyenda.}
     \label{fig:ErrorSIR_rec}
 \end{figure}
 Nuevamente se observa que el orden de discrepancia de las trayectorias es de un orden similar, o incluso menor, al visto en la cota \ref{eq:kEDMD_bound}.

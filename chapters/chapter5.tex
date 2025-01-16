@@ -13,7 +13,7 @@ para ciertas funciones a valores matriciales $\mathbf{Q}: \R \to \R^{n_\mathbf{w
 
 Se consideran las siguientes dinámicas discretas, parametrizadas por el paso de tiempo $\Delta t$
 \begin{align*}
-    \mathbf{x}_{k+1} & = \mathbf{x}_k + \Delta t \cdot \mathbf{f}(\mathbf{x}_k, \mathbf{w}_k )\\
+    \mathbf{x}_{k+1} & = \Tilde{\mathbf{f}} (\mathbf{x}_k, \mathbf{w}_k) := \mathbf{x}_k + \Delta t \cdot \mathbf{f}(\mathbf{x}_k, \mathbf{w}_k )\\
     \mathbf{y}_k & = \mathbf{g}(\mathbf{x}_k, \mathbf{v}_k)
 \end{align*}
 en donde 
@@ -21,3 +21,205 @@ en donde
     t_k = k\Delta t, \,  \mathbf{x}_k := \mathbf{x}(t_k), \,  \mathbf{y}_k := \mathbf{y}(t_k), \, \mathbf{w}_k := \mathbf{w}(t_k), \, \mathbf{v}_k := \mathbf{v}(t_k).
 \end{equation*}
 
+Se recuerda de secciones anteriores entonces el operador de Koopman asociado a $\Tilde{\mathbf{f}}$, que en este contexto quedará parametrizado por $\Delta t$,
+\[
+(\U_{\Delta t} \psi)(\mathbf{x}) = \E [\psi (\Tilde{\mathbf{f}} (\mathbf{x}, \cdot))] = \E [\psi (\mathbf{x} + \Delta t \cdot \mathbf{f} (\mathbf{x}, \cdot))].
+\]
+Esta definición motiva la del operador de Koopman en tiempo continuo.
+
+\begin{defn}[Operador de Koopman estocástico, tiempo continuo]
+    Se define el operador $\Tilde{\U}_{\Delta t}: \H_\X \to \H_\X$ mediante
+    \[
+    (\Tilde{\U}_{\Delta t} \psi)(\mathbf{x}_0) = \E \left [\psi \left ( \mathbf{x}_0 + \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds \right ) \right ]
+    \]
+\end{defn}
+
+Intuitivamente, este operador desplaza la dinámica continua en un tiempo $\Delta t$. 
+
+\begin{prop}[Phillip et al. \cite{Philipp2024ErrorOperator}]
+    $(\Tilde{\U}_{\Delta t})_{\Delta t \geq 0}$ es un $C_0$-semigrupo cuyo generador
+    \[
+    \Tilde{\mathcal{L}} \psi = \lim_{\Delta t \searrow 0} \frac{\Tilde{\U}_{\Delta t}\psi - \psi}{\Delta t}
+    \]
+    está bien definido en un denso de $\H_\X$, es cerrado y disipativo.
+\end{prop}
+
+\begin{lema}
+    Sea $k$ el kernel de Matérn de parámetro $\nu = 1/2$ y ancho de banda $\gamma$, es decir,
+    \[
+    k(x, y) = \text{exp} \left ( -\frac{\| x- y \|}{\gamma} \right ).
+    \]
+    Sea $\H_\X$ su espacio de Hilbert asociado, luego si $\psi \in \H_\X$ se tiene que $\psi$ es $1/2$-Hölder de constante $\sqrt{2/\gamma} \| \psi \|_{\H_\X}$, esto es,
+    \[
+    |\psi(x) - \psi(y)| \leq \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{\| x - y\|}, \quad \forall x, y \in \X.
+    \]
+    \label{lemma:matern_lipschitz}
+\end{lema}
+\begin{proof}
+    Sean $\psi \in \H_\X$, $x, y \in \X$. Primero, por propiedad reproduciente notar que se tiene
+    \[
+    | \psi(x) - \psi(y) |^2 = | \langle k(x, \cdot), \psi \rangle - \langle k(y, \cdot), \psi \rangle  |^2.
+    \]
+    Luego, por bilinealidad del producto interno
+    \[
+    | \psi(x) - \psi(y) |^2 = | \langle k(x, \cdot) - k(y, \cdot), \psi \rangle  |^2.
+    \]
+    Por desigualdad de Cauchy-Schwarz se tiene
+    \[
+    \begin{aligned}
+        | \psi(x) - \psi(y) |^2 &\leq \| \psi \|^2_{\H_\X} \| k(x, \cdot) - k(y, \cdot) \|^2_{\H_\X} \\
+        &\leq \| \psi \|^2_{\H_\X} \langle k(x, \cdot) - k(y, \cdot), k(x, \cdot) - k(y, \cdot) \rangle \\
+        &\leq \| \psi \|^2_{\H_\X} ( k(x, x) + k(y, y) - 2k(x,y) ).
+    \end{aligned}
+    \]
+    Dado que 
+    \[
+    k(x, y) = \text{exp} \left ( -\frac{\| x- y \|}{\gamma} \right ),
+    \]
+    se tiene que $k(x,x) = k(y,y) = 1$, con lo que
+    \[
+    | \psi(x) - \psi(y) |^2 \leq 2 \| \psi \|^2_{\H_\X} \left ( 1 - \text{exp} \left ( -\frac{\| x- y \|}{\gamma} \right ) \right ).
+    \]
+    Utilizando que $1 - e^{-x} \leq x$ para $x \geq 0$, se llega a
+    \[
+    | \psi(x) - \psi(y) |^2 \leq \frac{2}{\gamma} \| \psi \|^2_{\H_\X} \| x - y \|,
+    \]
+    lo que implica que
+    \[
+    | \psi(x) - \psi(y) | \leq \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{\| x - y \|}
+    \]
+    obteniendo el resultado.
+\end{proof}
+
+Esto tendrá como consecuencia una cota de error para el error que se comete al aproximar el operador de Koopman continuo por uno de dinámica discreta. 
+
+\begin{prop}
+    Bajo las hipótesis del lema \ref{lemma:matern_lipschitz}, se tiene que
+    \[
+    \| \Tilde{\U}_{\Delta t} - \U_{\Delta t} \| \leq 2 \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t }{\gamma}} 
+    \]
+    \label{prop:aprox_koop_cont_disc}
+\end{prop}
+
+\begin{proof}
+    Sean $\psi \in \H_\X$, $\mathbf{x}_0 \in \X$, entonces
+    \[
+    \begin{aligned}
+        \| (\Tilde{\U}_{\Delta t}\psi)(\mathbf{x}_0) - (\U_{\Delta t} \psi)(\mathbf{x}_0) \| &= \left  \| \E \left [\psi \left ( \mathbf{x}_0 + \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds \right ) \right ] - \E [\psi(\mathbf{x}_0 + \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)))] \right \| \\
+        &\leq \E \left [ \left \| \psi \left ( \mathbf{x}_0 + \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds \right ) - \psi(\mathbf{x}_0 + \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t))) \right \| \right ] \\
+        &\leq \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ \left \| \mathbf{x}_0 + \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds - \mathbf{x}_0 - \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)))\right \|} \right ] \\
+        &= \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ \left \| \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds - \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)))\right \|} \right ] \\
+        &= \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ \left \| \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds - \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)) \right \|} \right ] \\
+        &= \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ \left \| \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds - \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)) ds \right \|} \right ] \\
+        &\leq \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ 2 \| \mathbf{f} \|_\infty \Delta t } \right ] \\
+        &= 2 \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t}{\gamma}} \| \psi \|_{\H_\X}  
+     \end{aligned}
+    \]
+    Al ser esta cota uniforme en $\mathbf{x}_0$ se concluye que
+    \[
+    \| \Tilde{\U}_{\Delta t}\psi - \U_{\Delta t} \psi \| \leq 2 \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t}{\gamma}} \| \psi \|_{\H_\X}\] 
+    con lo que
+    \[
+    \| \Tilde{\U}_{\Delta t} - \U_{\Delta t} \| \leq 2 \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t}{\gamma}}. \] 
+\end{proof}
+
+Primero, se deduce la dinámica continua del embedding
+\[
+\mu_{k+1} = \U^*_{\Delta t} \mu_k + \zeta_k = \E [X^+ | X = \mathbf{x}_k] + \Phi_\X (\mathbf{x}_{k+1}) - \E [X^+ | X = \mathbf{x}_k]  = \Phi_\X (\mathbf{x}_{k+1})
+\]
+con lo que
+\[
+\frac{\mu_{k+1} - \mu_k}{\Delta t} = \frac{\U^*_{\Delta t} \mu_k - \mu_k + \zeta_k}{\Delta t} = \frac{\Tilde{\U}^*_{\Delta t} \mu_k - \mu_k + \Tilde{\U}^*_{\Delta t} \mu_k - \U^*_{\Delta t} \mu_k + \zeta_k}{\Delta t}
+\]
+haciendo $\Delta t \searrow 0$ se obtiene
+\[
+\mu'(t) = \Tilde{\mathcal{L}}^* \mu(t) + \Tilde{\zeta} (t)
+\]
+con $\mu(t) = \Phi_\X (\mathbf{x}(t))$ y $\Tilde{\zeta}(t)$ algún proceso centrado con operador de covarianza $\mathcal{Q}(t)$.
+Entonces se genera el siguiente sistema a tiempo continuo
+\begin{equation*}
+    \begin{aligned}
+        \mu'(t) &= \Tilde{\mathcal{L}}^* \mu(t) + \Tilde{\zeta}(t) \\
+        \mathbf{y}(t) &= \mathcal{G}^* \mu(t) + \nu (t)
+    \end{aligned}
+\end{equation*}
+siendo $\nu$ un proceso centrado con función de covarianza $\mathcal{R}:[0, T] \to \R^{p \times p}$ que se supondrá invertible.
+
+Luego, tiene el siguiente filtro de Kalman-Bucy asociado
+
+\begin{equation*}
+    \hat{\mu}'(t) = \Tilde{\mathcal{L}}^*\hat{\mu}(t)  + \K(t) \big( \mathbf{y}(t) - \mathcal{G}^*\hat{\mu}(t) \big),
+\end{equation*}
+\begin{equation*}
+    \mathcal{P}'(t) = \Tilde{\mathcal{L}}^*\mathcal{P}(t) + \mathcal{P}(t)\Tilde{\mathcal{L}} - \mathcal{P}(t)\mathcal{G}\mathcal{R}^{-1}\mathcal{G}^*\mathcal{P}(t) + \mathcal{Q}(t).
+\end{equation*}
+\begin{equation*}
+    \mathcal{K}(t) = \mathcal{P}(t)\mathcal{G}\mathcal{R}^{-1}(t).
+\end{equation*}
+
+Para $\Delta t > 0$ se propone aproximar la solución por la solución del siguiente sistema
+
+\begin{equation*}
+    \hat{\mu}'_{N, \Delta t}(t) = \Tilde{\mathcal{L}}_{N, \Delta t}^* \hat{\mu}_{N}(t)  + \K_{N, \Delta t}(t) \big( \mathbf{y}(t) - \mathcal{G}_N^*\hat{\mu}_{N, \Delta t}(t) \big),
+\end{equation*}
+\begin{equation*}
+    \mathcal{P}_{N, \Delta t}'(t) = \Tilde{\mathcal{L}}_{N, \Delta t}^*\mathcal{P}_{N, \Delta t}(t) + \mathcal{P}_{N, \Delta t}(t)\Tilde{\mathcal{L}}_{N, \Delta t} - \mathcal{P}_{N, \Delta t}(t)\mathcal{G}_N\mathcal{R}_N^{-1}\mathcal{G}_N^*\mathcal{P}_{N, \Delta t}(t) + \mathcal{Q}_N(t).
+\end{equation*}
+\begin{equation*}
+    \mathcal{K}_{N, \Delta t}(t) = \mathcal{P}_{N, \Delta t}(t)\mathcal{G}_N\mathcal{R}_N^{-1}(t).
+\end{equation*}
+\begin{equation*}
+    \Tilde{\mathcal{L}}_{N, \Delta t} = \frac{\U_N - I}{\Delta t}
+\end{equation*}
+
+\begin{prop}
+    Bajo las hipótesis del lema y del teorema \ref{teo:error_koop}, tomando $\gamma = N^{3/4}$, $\Delta t = N^{-1/4}$, se tiene que, para $\delta \in (0, 1)$, con probabilidad $1-\delta$ existe una constante $\Tilde{C}$ tal que
+    \[
+    \| \Tilde{\mathcal{L}}_{N, \Delta t} - \Tilde{\mathcal{L}}\| \leq \Tilde{C} N^{-1/4}
+    \]
+\end{prop}
+\begin{proof}
+    La demostración pasa por 3 aproximaciones intermedias
+    \[
+    \begin{aligned}
+        \| \Tilde{\mathcal{L}} - \Tilde{\mathcal{L}}_{N, \Delta t}\| &= \left \| \Tilde{\mathcal{L}} - \left ( \frac{\Tilde{\U}_{\Delta t} - I}{\Delta t} \right ) + \left ( \frac{\Tilde{\U}_{\Delta t} - I}{\Delta t} \right ) - \left ( \frac{\U_{\Delta t} - I}{\Delta t} \right ) + \left ( \frac{\U_{\Delta t} - I}{\Delta t} \right ) - \left ( \frac{\U_N - I}{\Delta t} \right )  \right \| \\
+        &\leq \left \| \Tilde{\mathcal{L}} - \left ( \frac{\Tilde{\U}_{\Delta t} - I}{\Delta t} \right ) \right \| + \left \| \left ( \frac{\Tilde{\U}_{\Delta t} - I}{\Delta t} \right ) - \left ( \frac{\U_{\Delta t} - I}{\Delta t} \right ) \right \| + \left \| \left ( \frac{\U_{\Delta t} - I}{\Delta t} \right ) - \left ( \frac{\U_N - I}{\Delta t} \right )  \right \| \\
+        & \leq C \Delta t + \frac{1}{\Delta t} \left \|  \Tilde{\U}_{\Delta t} - \U_{\Delta t}  \right \| + \frac{1}{\Delta t} \left \| \U_{\Delta t} - \U_N \right \|.
+    \end{aligned}
+    \]
+    Aplicando la proposición \ref{prop:aprox_koop_cont_disc} se tiene
+        \[
+    \begin{aligned}
+        \| \Tilde{\mathcal{L}} - \Tilde{\mathcal{L}}_{N, \Delta t}\|
+        & \leq C \Delta t + \frac{1}{\Delta t} \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t}{\gamma}} + \frac{1}{\Delta t} C N^{-1/2} \\
+        & = C \Delta t + \frac{1}{\sqrt{\Delta t}} \sqrt{\frac{\| \mathbf{f} \|_\infty}{\gamma}} + \frac{1}{\Delta t} C N^{-1/2}.
+    \end{aligned}
+    \]
+    Utilizando $\gamma = N^{3/4}$ y $\Delta t = N^{-1/4}$ se obtiene
+    \[
+    \begin{aligned}
+        \| \Tilde{\mathcal{L}} - \Tilde{\mathcal{L}}_{N, \Delta t}\|
+        & = C N^{-1/4} + \frac{1}{\sqrt{N^{-1/4}}} \sqrt{\frac{\| \mathbf{f} \|_\infty}{N^{3/4}}} + \frac{1}{N^{-1/4}} C N^{-1/2} \\
+        & \leq C N^{-1/4} + \sqrt{\frac{\| \mathbf{f} \|_\infty}{N^{1/2}}} + C N^{-1/4} \\
+        & \leq C N^{-1/4} + \sqrt{\| \mathbf{f} \|_\infty} N^{-1/4} + C N^{-1/4} \\
+        & = \Tilde{C} N^{-1/4}
+    \end{aligned}
+    \]
+\end{proof}
+
+Entonces, se puede ver que
+\[
+\begin{aligned}
+    \| \mathcal{P}_{N, \Delta t}(t) - \mathcal{P}(t) \| &= \left \| \mathcal{P}_{N, \Delta t}(0) - \mathcal{P}(0) + \int_0^t (\mathcal{P}'_{N, \Delta t}(s) - \mathcal{P}'(s))ds \right \| \\
+    &\leq \| \mathcal{P}_{N, \Delta t}(0) - \mathcal{P}(0) \| + \int_0^t \| \mathcal{P}'_{N, \Delta t}(s) - \mathcal{P}'(s) \| ds \\
+    &\leq C_1 N^{-1/2} + \int_0^t C_2(s) N^{-1/2} \|  \mathcal{P}_{N, \Delta t}(s) - \mathcal{P}(s) \| ds
+\end{aligned}
+\]
+entonces por Gronwall-Bellman
+\[
+    \| \mathcal{P}_{N, \Delta t}(t) - \mathcal{P}(t) \| \leq C_1 N^{-1/2} \text{exp} \left ( N^{-1/4} \int_0^t C_2 (s) ds \right )
+\]
+con esta cota y haciendo lo análogo para $\hat{\mu}(t)$ se obtiene
+\[
+    \| \hat{\mu}_{N, \Delta t}(t) - \hat{\mu}(t) \| \leq C_3 N^{-1/2} \text{exp} \left ( N^{-1/4} \int_0^t C_4 (s) ds \right )
+\]

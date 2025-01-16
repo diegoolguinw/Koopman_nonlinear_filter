@@ -4,15 +4,17 @@ En la literatura, ya existen diversas conexiones entre el Filtro de Kalman y el 
 
 Por otra parte, trabajos pioneros en la línea de observabilidad e identificación de sistemas, liderados por Surana y colaboradores, han proporcionado una base sólida en este campo, como se documenta en \cite{Surana2016KoopmanSystems, Surana2016LinearFramework}.
 
+Por otro lado, hay enfoques que aplican la \textit{Kernel Bayes Rule} a sistemas dinámicos y filtraje, donde se incluyen los trabajos de Song, Fukumizu y colaboradores \cite{Fukumizu2004DimensionalitySpaces, Fukumizu2013KernelKernels, Fukumizu2015NonparametricEmbedding, Song2009HilbertSystems, Song2013KernelModels}, lo que aparece de manera natural al demostrar la utilidad de los operadores para representar esperanzas condicionales.
+
 Aunque el algoritmo propuesto en este capítulo no constituye una contribución original en términos de su estructura, sí lo es la justificación de su funcionamiento y convergencia bajo el supuesto de contar con un muestreo suficiente de puntos. En este contexto, se demuestra que el \textit{kernel Dynamic Mode Decomposition} converge al operador de Koopman en un espacio de dimensión infinita. 
 
 El objetivo principal de este capítulo es demostrar que, bajo ciertas hipótesis, la tasa de convergencia del algoritmo es del orden de $N^{-1/2}$, lo que lo posiciona como un competidor viable frente a otros algoritmos de filtraje presentes en la literatura, tales como los filtros de partículas, discutidos previamente en la sección de preliminares.
 
 Para ello, se propone primero descomponer el error del Filtro de Kalman aplicado a dos sistemas lineales, formulando este error en función de los datos provenientes de los sistemas. Este análisis, hasta la fecha de redacción de este trabajo, no se encuentra documentado en la literatura y, por lo tanto, constituye una contribución original de esta investigación.
 
-Posteriormente, se construye el filtro propuesto, denominado \textit{Kernel Koopman Kalman Filter} (KKKF), siguiendo una metodología análoga a la empleada en el Filtro de Kalman para sistemas lineales con mínimos cuadrados recursivos \cite{Kalman1960AProblems, Triantafyllopoulos2021BayesianBeyond}, y particularmente a como se formula en \cite{Gebhard2019} para la construcción de la denominada \textit{Kernel Bayes Rule}.
+Posteriormente, se construye el filtro propuesto, denominado \textit{Kernel Koopman Kalman Filter} (kerKKF), siguiendo una metodología análoga a la empleada en el Filtro de Kalman para sistemas lineales con mínimos cuadrados recursivos \cite{Kalman1960AProblems, Triantafyllopoulos2021BayesianBeyond}, y particularmente a como se formula en \cite{Gebhard2019} para la construcción de la denominada \textit{Kernel Bayes Rule}.
 
-Finalmente, utilizando los resultados obtenidos en el capítulo anterior junto con la descomposición del error, se demuestra la cota de error propuesta. El desempeño del filtro es evaluado en diferentes sistemas mediante una implementación en Python desarrollada específicamente para este trabajo \cite{Olguin2024KKKF:Filter}.
+Finalmente, utilizando los resultados obtenidos en el capítulo anterior junto con la descomposición del error, se demuestra la cota de error propuesta. El desempeño del filtro es evaluado en diferentes sistemas mediante una implementación en Python desarrollada específicamente para este trabajo.
 
 \section{Descomposición de error de Kalman}
 
@@ -173,7 +175,7 @@ En este contexto, y de manera análoga a lo previamente demostrado, se obtiene l
 
 Con lo anterior, se concluye que, para una iteración $k$, el error depende tanto del error en la condición para la estimación del estado como del operador de covarianza del error a posteriori.
 
-\section{KKKF: Kernel Koopman Kalman Filter}
+\section{Kernel Koopman Kalman Filter}
 
 En esta sección se presenta la deducción del algoritmo de filtraje solo utilizando la teoría de RKHS junto con el operador de Koopman de manera meticulosa. Primero se deduce una dinámica del \textit{embedding}, para ello notar que  
 \begin{equation*}
@@ -312,10 +314,9 @@ Sustituyendo la expresión para el error a posteriori se tiene que
 \begin{align*}
 \mathcal{P}_k &= \mathbb{E}[\varepsilon^+_k(\varepsilon^+_k)^*] \\
 &= \mathbb{E}[((I - \K_k C_{Y|X})\varepsilon^-_k - \K_k \nu_k)((I - \K_k C_{Y|X})\varepsilon^-_k - \K_k \nu_k)^*] \\
-&= (I - \K_k C_{Y|X})\mathbb{E}[\varepsilon^-_k(\varepsilon^-_k)^*](I - \K_k C_{Y|X})^* \\
-&\quad - \K_k\mathbb{E}[\nu_k(\varepsilon^-_k)^*](I - \K_k C_{Y|X})^* \\
-&\quad - (I - \K_k C_{Y|X})\mathbb{E}[\varepsilon^-_k\nu_k^*]\K_k^* \\
-&\quad + \K_k\mathbb{E}[\nu_k\nu_k^*]\K_k^*
+&= (I - \K_k C_{Y|X})\mathbb{E}[\varepsilon^-_k(\varepsilon^-_k)^*](I - \K_k C_{Y|X})^* 
+- \K_k\mathbb{E}[\nu_k(\varepsilon^-_k)^*](I - \K_k C_{Y|X})^* \\
+&\quad - (I - \K_k C_{Y|X})\mathbb{E}[\varepsilon^-_k\nu_k^*]\K_k^* + \K_k\mathbb{E}[\nu_k\nu_k^*]\K_k^*
 \end{align*}
 
 Dado que se asume que el ruido del operador de observación es independiente del error de estimación y dado que se asumió que la estimación a priori tiene media cero, se obtiene
@@ -434,7 +435,7 @@ Si $X_0$ es la distribución dada para la condición inicial y $\{ x_j \}_{j=1}^
 	\label{eq: mean_element_covar}
 \end{equation}
 
-Es con todo esto que se concluye la deducción del filtro, tanto en dimensión infinita como su representante en dimensión infinita, para este último se puede encontrar su pseudo-código en el algoritmo \ref{alg:KKKF}.
+Es con todo esto que se concluye la deducción del filtro, tanto en dimensión infinita como su representante en dimensión infinita, para este último se puede encontrar su pseudo-código en el algoritmo \ref{alg:kerKKF}.
 
 \begin{algorithm}[h]
 \caption{Cov($W, N, \nu$)}\label{alg:AppCov}
@@ -448,7 +449,7 @@ Es con todo esto que se concluye la deducción del filtro, tanto en dimensión i
 \end{algorithm}
 
 \begin{algorithm}[h]
-\caption{Kernel Kalman Koopman Filter (KKKF)}\label{alg:KKKF}
+\caption{Kernel Kalman Koopman Filter (kerKKF)}\label{alg:kerKKF}
 \begin{algorithmic}[1]
 \State \textbf{Entrada:} Dinámica discreta como en (\ref{eq:no_lin_dis_chap3}), $\mathbf{x}_0$ \textit{prior} sobre la condición inicial, $\mathbf{y}_{1:N}$ observaciones, $\mathbf{k}:\X \times \X \to \R$ \textit{kernel} semidefinido positivo, $N$ dimensión de aproximación del operador de Koopman y $n_{\text{samples}}$ cantidad de muestras para aproximar las matrices de covarianza.
 \State \textbf{Salida:} $(\hat{\mathbf{x}}_{k|k})_{k=0}^{N}$ estimador de la trayectoria y $(\hat{\mathbf{P}}^{\mathbf{x}}_{k|k})_{k=0}^{N}$ matrices de covarianza de error.
@@ -489,7 +490,7 @@ Es con todo esto que se concluye la deducción del filtro, tanto en dimensión i
 \end{algorithmic}
 \end{algorithm}
 
-\section{Cota de error de KKKF}
+\section{Cota de error del filtro}
 
 El primer paso para deducir la cota de error es dejar la discrepancia en norma de los elementos a comparar, en un cierto instante $k$, en función del instante anterior $k-1$ y en función de los operadores involucrados.
 
@@ -511,7 +512,7 @@ El primer paso para deducir la cota de error es dejar la discrepancia en norma d
 		\end{aligned}
 	\end{equation*}
 	En donde las constantes $c_{k,j}^i$ son positivas y dependen de $k$ solo a través de $\| \U \| $, $\| \G \| $, $\| \mathcal{Q}_{k} \| $, $\| \mathcal{R}_{k} \| $, $\| \S_{k}^{-1} \| $, $\| \hat{\mu}_{k-1} \| $ y $\| \mathcal{P}_{k-1} \| $.
-	\label{prop:err_kkkf_1}
+	\label{prop:err_kerKKF_1}
 \end{prop}
 
 \begin{proof}
@@ -548,7 +549,7 @@ El primer paso para deducir la cota de error es dejar la discrepancia en norma d
 		\end{aligned}
 	\end{equation*}
 	En donde las constantes $C_i^j$ son positivas y dependen de $k$ solo a través de $\| \U \| $, $\| \G \| $, $\| \mathcal{Q}_{j} \| $, $\| \mathcal{R}_{j} \| $, $\| \S_{k}^{-1} \| $, $\| \hat{\mu}_{j} \| $ y $\| \mathcal{P}_{j} \| $, con $j \in \{ 0, \dots, k-1\}$.
-    \label{teo:teo_kkkf_2}
+    \label{teo:teo_kerKKF_2}
 \end{teo}
 
 Antes de probar esta proposición, se enuncia un lema que permite dar cotas para los elementos y operadores cuya norma se puede acotar por algo de orden $N^{-1/2}$, que son resultados conocidos en la literatura.
@@ -559,9 +560,9 @@ Antes de probar esta proposición, se enuncia un lema que permite dar cotas para
 	que, sin pérdida de generalidad, se puede tomar común para todas las cotas.
 	\label{lema:oper_sqrt_N}
 \end{lema}
-Ahora se procede con la demostración de la Proposición \ref{teo:teo_kkkf_2}.
+Ahora se procede con la demostración de la Proposición \ref{teo:teo_kerKKF_2}.
 \begin{proof}
-	Gracias a la proposición \ref{prop:err_kkkf_1} y el lema \ref{lema:oper_sqrt_N} se obtiene que existen constantes $c_{k,j}^i$ con $j \in \{ 1, \dots, 6\}$, $i \in \{ 1, 2\}$ tales que
+	Gracias a la proposición \ref{prop:err_kerKKF_1} y el lema \ref{lema:oper_sqrt_N} se obtiene que existen constantes $c_{k,j}^i$ con $j \in \{ 1, \dots, 6\}$, $i \in \{ 1, 2\}$ tales que
 	\begin{equation*}
 		\begin{aligned}
 			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, c_{1,k}^1 \| \U - \U_N \| +  c_{2,k}^1 \| \G - \G_N \| \\ 
@@ -636,7 +637,7 @@ que en la práctica es inaccesible, pero que se aproxima por el estimador
 \begin{equation*}
     \hat{\mathbf{x}}_{N, k} = \B^*_{N} \hat{\mu}_{N,k}.
 \end{equation*}
-Este será el estimador que entregará el algoritmo de filtraje KKKF. Además, recordando que la matriz de covarianza de error a posteriori del problema está definida por
+Este será el estimador que entregará el algoritmo de filtraje kerKKF. Además, recordando que la matriz de covarianza de error a posteriori del problema está definida por
 \begin{equation*}
     \mathbf{P}_{k} = \E[ (\hat{\mathbf{x}}_k - \mathbf{x}_k) (\hat{\mathbf{x}}_k - \mathbf{x}_k)^\top ]
 \end{equation*}
@@ -655,7 +656,7 @@ Por lo que la matriz de covarianza de error a posteriori aproximante se define c
     \mathbf{P}_{N, k} = \B^*_{N} \mathcal{P}_{N, k} \B_{N}
 \end{equation*}
 Con esto se puede deducir de manera sencilla la cota de error deseada para la aproximación del filtro.
-\begin{teo}[Error de KKKF]
+\begin{teo}[Error de kerKKF]
     Bajo las hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$, entonces con probabilidad $1-\delta$ se tiene que existen constantes $\Tilde{C}^1_k$, $\Tilde{C}^2_k$ tales que
     \begin{equation*}
         \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \Tilde{C}^1_k N^{-1/2}
@@ -663,7 +664,7 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
     \begin{equation*}
         \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq \Tilde{C}^2_k N^{-1/2}
     \end{equation*}
-    \label{teo:error_kkkf_fin}
+    \label{teo:error_kerKKF_fin}
 \end{teo}
 \begin{proof}
     Primero para el término asociado a la estimación del estado
@@ -675,7 +676,7 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
             & \leq \| \B^* \| \| \hat{\mu}_{k} -  \hat{\mu}_{N, k}\| + \|\B^* - \B^*_{N}  \| \|\hat{\mu}_{N,k} \|.
         \end{aligned}
     \end{equation*}
-    Entonces, por teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kkkf_2} se tiene que con probabilidad $1-\delta$ existe constantes $C$, $C_k^1$ tales que 
+    Entonces, por teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kerKKF_2} se tiene que con probabilidad $1-\delta$ existe constantes $C$, $C_k^1$ tales que 
     \begin{equation*}
          \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \| \B \| C_k^1 N^{-1/2} + \| \hat{\mu}_{N, k} \| C N^{-1/2} = \Tilde{C}_{k}^1 N^{-1/2}
     \end{equation*}
@@ -694,7 +695,7 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
             & \leq \| \B - \B_N  \| \| \mathcal{P}_k \B \| + \| \B_N \| \left ( \| \B - \B_N \| \| \mathcal{P}_k \| + \| \mathcal{P}_k - \mathcal{P}_{N, k} \| \| \B_N \| \right ).
         \end{aligned}
     \end{equation*}
-    Usando nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kkkf_2} se tiene que probabilidad $1-\delta$ existen constantes $C$, $C_k^2$ tales que 
+    Usando nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kerKKF_2} se tiene que probabilidad $1-\delta$ existen constantes $C$, $C_k^2$ tales que 
     \begin{equation*}
         \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq C_k^2 \| \mathcal{P}_k \B \| N^{-1/2} + \| \B_N \| \left ( C \| \mathcal{P}_k \| + C_k^2 \| \B_N \| \right ) N^{-1/2}
     \end{equation*}
@@ -716,13 +717,13 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
     \end{equation*}
     completando el resultado.
 \end{proof}
-Con esta cota, en conjunto con otros desarrollos realizados en secciones anteriores se puede probar el siguiente resultado sobre el sesgo y el error del estimador.
+Con esta cota, en conjunto con otros desarrollos realizados en secciones anteriores, se puede probar el siguiente resultado sobre el sesgo y el error del estimador.
 \begin{teo}
     Bajo la hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$, luego con probabilidad $1-\delta$ existen constantes $\hat{C}_1$ y $\hat{C}_2$ tales que
     \begin{enumerate}
         \item El sesgo del estimador $\hat{\mathbf{x}}_{N, k}$, para la trayectoria $\mathbf{x}_k$, está acotado por $\hat{C}_1 N^{-1/2}$, esto es
     \begin{equation*}
-        \left \| \E \left [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) \right] \right \| \leq \hat{C}_1 N^{-1/2}
+        \left \| \E \left [ \hat{\mathbf{x}}_{N, k} - \mathbf{x}_k \right] \right \| \leq \hat{C}_1 N^{-1/2}
     \end{equation*}
         \item El estimador $\hat{\mathbf{x}}_{N, k}$ es un $\hat{C}_2 N^{-1/2}$-mínimo del problema de filtraje, esto es
     \begin{equation*}
@@ -750,7 +751,7 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
             & \leq \hat{C}_1 N^{-1/2}
         \end{aligned}
     \end{equation*}
-    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kkkf_2} para decir que dicha constante $\hat{C}_1$ existe con probabilidad a lo menos $1-\delta$. Para probar el punto 2. notar que
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}_1$ existe con probabilidad a lo menos $1-\delta$. Para probar el punto 2. notar que
     \begin{equation*}
         \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] = \E [\hat{\mathbf{x}}_{N, k}^\top \hat{\mathbf{x}}_{N, k}] - 2 \E [\hat{\mathbf{x}}_{N, k}^\top \mathbf{x}_k] + \E[\mathbf{x}_k^\top \mathbf{x}_k]
     \end{equation*}
@@ -778,7 +779,7 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
             & \leq \hat{C}_2 N^{-1/2}
         \end{aligned}
     \end{equation*}
-    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kkkf_2} para decir que dicha constante $\hat{C}_2$ existe con probabilidad a lo menos $1-\delta$. Con ello
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}_2$ existe con probabilidad a lo menos $1-\delta$. Con ello
     \begin{equation*}
         \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] - \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] \leq \hat{C}_2 N^{-1/2}
     \end{equation*}
@@ -789,7 +790,26 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
     por lo que $\hat{\mathbf{x}}_{N, k}$ es $\hat{C}_2 N^{-1/2}$-mínimo del problema de filtraje.
 \end{proof}
 
-\section{Metodología de Estimación de Parámetros}
+\section{Consecuencias}
+
+\subsection{Extended Dynamic Mode Decomposition Kalman Filters}
+
+Cabe notar que, en virtud del teorema \ref{teo:error_kalman}, el error del filtro se desglosa en 
+
+\begin{equation}
+    \text{Error filtro } \leq \text{ Error EDMD } + \text{ Error aproximando promedios }.
+    \label{eq:error_explicacion}
+\end{equation}
+
+El primer término depende de la manera de realizar EDMD, siendo kEDMD la que tiene como cota de error $O(N^{-1/2})$. Mientras que el segundo está asociado a aproximar elementos como $\mathcal{P}_0$, $\mathcal{Q}_k$ y $\mathcal{R}_k$, lo que comete un error del orden $O(N^{-1/2})$, característico del Teorema Central del Límite (TCL) y, por tanto, el error que cometen los algoritmos basados en métodos de Monte Carlo. 
+
+Esto, de alguna manera, impone una cota de error base para el filtro si es que se basa en este tipo de métodos. No importan cuán buena sea la cota de error de EDMD si es que no se puede superar esta barrera propia del TCL.
+
+Es por ello que parece ser que kEDMD comete la menor cota de error posible, al nivel del TCL y por tanto el filtro creado, kerKKF, parece estar dentro de una clase óptima de filtros que alcanzan a esta cota, impuesta de manera natural en un sistema donde los promedios se aproximan a tasa $N^{-1/2}$.
+
+Es más, la metodología de demostración crea algo de manera más directa, dada una forma de realizar Dynamic Mode Decomposition, existe un filtro asociado de manera instantanea, que tendrá un error de acuerdo a \ref{eq:error_explicacion}. Esta clase de filtros que nacen de una manera de hacer EDMD se pueden denominar los \textbf{Extended Dynamic Mode Decomposition Kalman Filters (eDMD-KF)}. Idea que, vista con esta generalidad, no se ha encontrado a día de hoy en literatura. 
+
+\subsection{Metodología de Estimación de Parámetros}
 
 Partiendo de la existencia de un algoritmo de filtraje, es posible desarrollar una metodología para la estimación de parámetros constantes y desconocidos en un sistema dinámico en tiempo discreto. 
 
@@ -805,7 +825,7 @@ este ruido $\mathbf{w}_k^i$ ayudará a la convergencia del parámetro a través 
 \end{equation*}
 y esto se observará en experimentos numéricos.
 
-Este enfoque no es novedoso y ya ha sido explorado en la literatura, por ejemplo en \cite{Deng2013AdaptiveObjects, Jiang2007AEstimation, Kandepu2008ApplyingEstimation}. Sin embargo, en esta sección se propone una reinterpretación de dicha metodología para la estimación de parámetros. Además, se busca establecer una equivalencia con los métodos existentes en otras áreas de la literatura, como aquellos empleados en investigaciones aplicadas en las que se enfrenta incertidumbre sobre un parámetro a partir de observaciones. Un ejemplo destacado de estas técnicas son los algoritmos tipo Markov Chain Monte Carlo (MCMC) \cite{2010EncyclopediaLearning}.
+Este enfoque no es novedoso y ya ha sido explorado en la literatura, por ejemplo en \cite{Deng2013AdaptiveObjects, Jiang2007AEstimation, Kandepu2008ApplyingEstimation}. Sin embargo, en esta sección se propone una reinterpretación de dicha metodología para la estimación de parámetros. Además, se busca establecer una equivalencia con los métodos existentes en otras áreas de la literatura, como aquellos empleados en investigaciones aplicadas en las que se enfrenta incertidumbre sobre un parámetro a partir de observaciones. Un ejemplo destacado de estas técnicas son los algoritmos tipo Markov Chain Monte Carlo (MCMC) \cite{Sammut2010EncyclopediaLearning}.
 
 Como ocurre en muchas aplicaciones, en particular aquellas que serán de interés en este trabajo, la cantidad de observaciones disponibles es finita, y en muchos casos extremadamente limitada. Por esta razón, considerar la posibilidad de que el algoritmo de filtraje pueda converger al parámetro real en el límite cuando las iteraciones temporales tienden a infinito no resulta una opción válida en este contexto.
 
@@ -825,8 +845,8 @@ Notar que, para cada hilo o subproceso, se genera una serie de tiempos, en los c
 \State \textbf{Salida:} $\mathbf{\hat{p}} \in \R^{(\text{iters}+1)\times n_p}$ estimación de los parámetros en cada iteración.
 \State $\hat{\mathbf{x}}_{0,:} \gets \hat{\mathbf{x}}_0$.
 \State $\hat{\mathbf{p}}_{0,:} \gets \hat{\mathbf{p}}_0$.
-\State Tomar como prior inicial para KKKF $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{0,:})$.
-\State Tomar como covarianza inicial para KKKF 
+\State Tomar como prior inicial para kerKKF $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{0,:})$.
+\State Tomar como covarianza inicial para kerKKF 
 \begin{equation*}
     \mathbf{P} = \begin{pmatrix}
         \mathbf{Q}_0 & 0 \\
@@ -834,7 +854,7 @@ Notar que, para cada hilo o subproceso, se genera una serie de tiempos, en los c
     \end{pmatrix}
 \end{equation*}
 \For{k=1, \dots, \text{iters}} \\
-    \quad $\hat{\mathbf{x}}, \, \hat{\mathbf{P}} \gets $ KKKF($\Tilde{\mathbf{x}}, \mathbf{P}, \mathbf{y})$. \Comment{$\mathbf{y}$ corresponden a las observaciones.} \\
+    \quad $\hat{\mathbf{x}}, \, \hat{\mathbf{P}} \gets $ kerKKF($\Tilde{\mathbf{x}}, \mathbf{P}, \mathbf{y})$. \Comment{$\mathbf{y}$ corresponden a las observaciones.} \\
     \quad $\hat{\mathbf{p}}_{k,:} \gets \hat{\mathbf{x}}_{-1,n_p:}$ \Comment{Última iteración del filtro en las últimas $n_p$ entradas.} \\
     \quad $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{k,:})$ \\
     \quad Actualizar la matriz de covarianzas como
@@ -844,7 +864,7 @@ Notar que, para cada hilo o subproceso, se genera una serie de tiempos, en los c
         0            & \hat{\mathbf{P}}_{n_p:, n_p:}
     \end{pmatrix}
 \end{equation*}
-    \quad donde $\hat{\mathbf{P}}_{n_p:, n_p:}$ es la submatriz cuadradad en el último bloque de tamaño $n_p \times n_p$.
+    \quad donde $\hat{\mathbf{P}}_{n_p:, n_p:}$ es la submatriz cuadradada en el último bloque de tamaño $n_p \times n_p$.
 \EndFor
 \end{algorithmic}
 \end{algorithm}
@@ -857,7 +877,7 @@ A continuación se presentan los resultados numéricos para los aspectos present
 
 \subsection{Comparación el filtro de Kalman en el caso lineal}
 
-Se compara el KKKF con el filtro de Kalman, el cual entrega la solución analítica para el problema de filtraje en el caso en que la dinámica y la observación sean de la forma
+Se compara el kerKKF con el filtro de Kalman, el cual entrega la solución analítica para el problema de filtraje en el caso en que la dinámica y la observación sean de la forma
 \begin{equation*}
     \begin{aligned}
         \mathbf{x}_{k+1} &= \mathbf{A} \mathbf{x}_k + \mathbf{w}_k \\
@@ -878,7 +898,7 @@ Para este experimento se utilizaron las matrices de la forma
         0 & 1 & 0
     \end{pmatrix},
 \end{equation*}
-es decir, se supone que se observan el primer y el segundo estado, siendo el tercero el que se encuentra complementamente oculto. Notar que este sistema cumple ser observable en el sentido usual del control \cite{Trelat2013ControleApplications}, que es que la matriz de observabilidad del sistema
+es decir, se supone que se observan el primer y el segundo estado, siendo el tercero el que se encuentra completamente oculto. Notar que este sistema cumple ser observable en el sentido usual del control \cite{Trelat2013ControleApplications}, que es que la matriz de observabilidad del sistema
 \begin{equation*}
     \mathcal{O} = \begin{pmatrix}
         C \\
@@ -903,7 +923,7 @@ Se corrobora que el cálculo de la matriz de observabilidad en este caso entrega
 \]
 que es una matriz de rango completo al tener columnas linealmente independientes.
 
-En las figuras \ref{fig:kalman_vs_kkkf_01}, \ref{fig:kalman_vs_kkkf_001} y \ref{fig:kalman_vs_kkkf_025} se muestran los resultados del filtro de Kalman y KKKF para tres casos de $\alpha$ para la matriz $\mathbf{A}$, comparando con la trayectoria real sin ruido, ni de dinánica ni de observación.
+En las figuras \ref{fig:kalman_vs_kerKKF_01}, \ref{fig:kalman_vs_kerKKF_001} y \ref{fig:kalman_vs_kerKKF_025} se muestran los resultados del filtro de Kalman y kerKKF para tres casos de $\alpha$ para la matriz $\mathbf{A}$, comparando con la trayectoria real sin ruido, ni de dinámica ni de observación.
 
 Se utiliza como condición inicial real del sistema $\mathbf{x}_0 = (1,1,1)$ y un prior sobre la condición inicial $\hat{\mathbf{x}}_0$ con media $(0.8, 1.2, 0.9)$ y matriz de covarianza diagonal con entradas $(0.01, 0.01, 0.01)$. Se utilizan como variables aleatorias para la dinámica y observación un ruido normal aditivo, centrado en el origen y con matrices de covarianza
 \begin{equation*}
@@ -911,95 +931,77 @@ Se utiliza como condición inicial real del sistema $\mathbf{x}_0 = (1,1,1)$ y u
 \end{equation*}
 respectivamente.
 
-Se simula el sistema por $30$ unidades de tiempo y para la aproximación de los operadores se utiliza $N=500$. En las tablas \ref{tab:errores_alpha_01}, \ref{tab:errores_alpha_001} y \ref{tab:errores_alpha_m025} se muestran los errores que cometen tanto el filtro de Kalman como KKKF con respecto a la curva real, en norma y por cada estado.
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/kalman_vs_kkkf_01.pdf}
-    \caption{Comparación del filtro de Kalman con KKKF para $\alpha = -0.1$. En línea azul se encuentra el resultado del sistema simulado sin ruidos ni de dinámica ni observación, en naranja la solución del filtro de Kalman y en verde la solución de KKKF.}
-    \label{fig:kalman_vs_kkkf_01}
-\end{figure}
+Se simula el sistema por $30$ unidades de tiempo y para la aproximación de los operadores se utiliza $N=500$. En las tablas \ref{tab:errores_alpha_01}, \ref{tab:errores_alpha_001} y \ref{tab:errores_alpha_m025} se muestran los errores que cometen tanto el filtro de Kalman como kerKKF con respecto a la curva real, en norma y por cada estado.
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/kalman_vs_kkkf_001.pdf}
-    \caption{Comparación del filtro de Kalman con KKKF para $\alpha = 0.01$. En línea azul se encuentra el resultado del sistema simulado sin ruidos ni de dinámica ni observación, en naranja la solución del filtro de Kalman y en verde la solución de KKKF.}
-    \label{fig:kalman_vs_kkkf_001}
-\end{figure}
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/kalman_vs_kkkf_025.pdf}
-    \caption{Comparación del filtro de Kalman con KKKF para $\alpha = 0.25$. En línea azul se encuentra el resultado del sistema simulado sin ruidos ni de dinámica ni observación, en naranja la solución del filtro de Kalman y en verde la solución de KKKF.}
-    \label{fig:kalman_vs_kkkf_025}
-\end{figure}
 
-\begin{table}[h!]
-\centering
-\caption{Errores para $\alpha = -0.1$}
-\begin{tabular}{|c|c|c|}
-\hline
-\textbf{Estado} & \textbf{Kalman} & \textbf{KKKF} \\ \hline
-Estado 1 & 0.3588 & 0.3909 \\ \hline
-Estado 2 & 0.4347 & 0.4624 \\ \hline
-Estado 3 & 0.4195 & 0.2238 \\ \hline
-\end{tabular}
-\label{tab:errores_alpha_01}
+\begin{table}[h]
+    \caption{Errores del filtro de Kalman y kerKKF con respecto a la trayectoria real, para distintos valores de $\alpha$.}
+    \begin{subtable}{.49\linewidth}
+        \centering
+    \caption{$\alpha = -0.1$}
+    \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{Estado} & \textbf{Kalman} & \textbf{kerKKF} \\ \hline
+    Estado 1 & 0.3588 & 0.3909 \\ \hline
+    Estado 2 & 0.4347 & 0.4624 \\ \hline
+    Estado 3 & 0.4195 & 0.2238 \\ \hline
+    \end{tabular}
+    \label{tab:errores_alpha_01}
+    \end{subtable}
+    \begin{subtable}{.49\linewidth}
+        \centering
+    \caption{$\alpha = 0.01$}
+    \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{Estado} & \textbf{Kalman} & \textbf{kerKKF} \\ \hline
+    Estado 1 & 0.3588 & 0.3912 \\ \hline
+    Estado 2 & 0.4242 & 0.4264 \\ \hline
+    Estado 3 & 0.7550 & 0.5928 \\ \hline
+    \end{tabular}
+    \label{tab:errores_alpha_001}
+    \end{subtable}
+    \begin{subtable}{\linewidth}
+        \centering
+        \caption{$\alpha = -0.25$}
+        \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Estado} & \textbf{Kalman} & \textbf{kerKKF} \\ \hline
+        Estado 1 & 0.3588 & 0.3906 \\ \hline
+        Estado 2 & 0.4592 & 0.5241 \\ \hline
+        Estado 3 & 0.3679 & 0.2485 \\ \hline
+        \end{tabular}
+        \label{tab:errores_alpha_m025}
+            \end{subtable}
 \end{table}
 
-\begin{table}[h!]
-\centering
-\caption{Errores para $\alpha = 0.01$}
-\begin{tabular}{|c|c|c|}
-\hline
-\textbf{Estado} & \textbf{Kalman} & \textbf{KKKF} \\ \hline
-Estado 1 & 0.3588 & 0.3912 \\ \hline
-Estado 2 & 0.4242 & 0.4264 \\ \hline
-Estado 3 & 0.7550 & 0.5928 \\ \hline
-\end{tabular}
-\label{tab:errores_alpha_001}
-\end{table}
+Con el objetivo de visualizar la cota de error probada en el teorema \ref{teo:error_kerKKF_fin} se prueba ejecutar el filtro para distintos valores de $N$, manteniendo todo el resto de valores. Se prueba esto para $N \in \{10, 50, 100, 200, 300, 500, 1000, 1500, 2000\}$ y luego se ajusta una curva de la forma $C_1 \cdot N ^{-C_2}$, donde lo esperado es que $C_2$ sea, al menos, $0.5$.
 
-\begin{table}[h!]
-\centering
-\caption{Errores para $\alpha = -0.25$}
-\begin{tabular}{|c|c|c|}
-\hline
-\textbf{Estado} & \textbf{Kalman} & \textbf{KKKF} \\ \hline
-Estado 1 & 0.3588 & 0.3906 \\ \hline
-Estado 2 & 0.4592 & 0.5241 \\ \hline
-Estado 3 & 0.3679 & 0.2485 \\ \hline
-\end{tabular}
-\label{tab:errores_alpha_m025}
-\end{table}
-
-Con el objetivo de visualizar la cota de error probada en el teorema \ref{teo:error_kkkf_fin} se prueba ejecutar el filtro para distintos valores de $N$, manteniendo todo el resto de valores. Se prueba esto para $N \in \{10, 50, 100, 200, 300, 500, 1000, 1500, 2000\}$ y luego se ajusta una curva de la forma $C_1 \cdot N ^{-C_2}$, donde lo esperado es que $C_2$ sea, al menos, $0.5$.
-
-En las figuras \ref{fig:linear_error_01}, \ref{fig:linear_error_001} y \ref{fig:linear_error_025} se muestran los resultados de este experimento, en donde se observa que en efecto el orden de decaimiento del error en función de $N$ es cercano a $1/2$, lo que cumple la cota de error vista en el teorema $\ref{teo:error_kkkf_fin}$.
+En las figuras \ref{fig:linear_error_01}, \ref{fig:linear_error_001} y \ref{fig:linear_error_025} se muestran los resultados de este experimento, en donde se observa que, en efecto, el orden de decaimiento del error en función de $N$ es cercano a $1/2$, lo que cumple la cota de error vista en el teorema $\ref{teo:error_kerKKF_fin}$.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/linear_error_01.pdf}
-    \caption{Error en norma para el estado en función de $N$, para $\alpha = -0.1$}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\linewidth]{img/content/chapter4/linear_error_01.pdf}
+    \caption{$\alpha = -0.1$}
     \label{fig:linear_error_01}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/linear_error_001.pdf}
-    \caption{Error en norma para el estado en función de $N$, para $\alpha = 0.01$}
+    \end{subfigure}
+     \begin{subfigure}[b]{0.49\textwidth}
+         \includegraphics[width=\linewidth]{img/content/chapter4/linear_error_001.pdf}
+    \caption{$\alpha = 0.01$}
     \label{fig:linear_error_001}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/linear_error_025.pdf}
-    \caption{Error en norma para el estado en función de $N$, para $\alpha = -0.25$}
+    \end{subfigure}
+     \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\linewidth]{img/content/chapter4/linear_error_025.pdf}
+    \caption{$\alpha = -0.25$}
     \label{fig:linear_error_025}
+    \end{subfigure}    
+    \caption{Error en norma para el estado en función de $N$ para distintos valores de $\alpha$.}
 \end{figure}
 
 \subsection{Comparación para el modelo SIR con otros filtros}
 
-Ahora se compara el filtro con otros filtros no lineales presentados en los preliminares, que vendrían siendo Extended Kalman Filter (EKF), Unscented Kalman Filter (UKF) y Particle Filters (PF), que tal como se mencionó antes, son implementación propia para este trabajo. 
+Ahora se compara el filtro con otros filtros no lineales presentados en los preliminares, que vendrían siendo Extended Kalman Filter (EKF), Unscented Kalman Filter (UKF) y Particle Filters (PF), que, tal como se mencionó antes, son implementación propia para este trabajo. 
 
 El sistema a considerar es el sistema SIR ya visto anteriormente
 \begin{equation*}
@@ -1021,174 +1023,221 @@ Se estudia primero el caso en que se prueban los filtros para $\beta = 1.0$ y $\
 \end{equation*}
 en donde $\sigma$ variará en cada experimento para poder visualizar cómo se comporta cada filtro en presencia de mayor ruido.
 
-Se utiliza como condición inicial real $\mathbf{x}_0 = (0.9, 0.1, 0.0)$, prior para la condición inicial una variable aleatoria normal centrada en $\hat{\mathbf{x}}_0 = (0.9, 0.05, 0.05)$ con matriz de covarianza $\mathbf{Q}_0 = (0.01, 0.01, 0.01)$. Para el EKF se utilizan diferencias finitas centradas para la aproximación de Jacobiano de la dinámica con precisión $\varepsilon=10^{-6}$, para PF se utilizaron $N_p = 5000$ partículas y para KKKF se utilizó $N=1000$ como dimensión de aproximación de los operadores. En las figuras \ref{fig:nonlinear_filters_sir_sigma_01}, \ref{fig:nonlinear_filters_sir_sigma_001} y \ref{fig:nonlinear_filters_sir_sigma_0001} se observan los resultados para $\sigma \in \{0.1, 0.01, 0.001\}$, seguido de las tablas \ref{tab:errores_sigma_01}, \ref{tab:errores_sigma_001} y \ref{tabla:errores_sigma_0001} que contienen el detalle de los errores para cada estado y cada filtro.
+Se utiliza como condición inicial real $\mathbf{x}_0 = (0.9, 0.1, 0.0)$, prior para la condición inicial una variable aleatoria normal centrada en $\hat{\mathbf{x}}_0 = (0.9, 0.05, 0.05)$ con matriz de covarianza $\mathbf{Q}_0 = (0.01, 0.01, 0.01)$. Para el EKF se utilizan diferencias finitas centradas para la aproximación del Jacobiano de la dinámica con precisión $\varepsilon=10^{-6}$, para PF se utilizaron $N_p = 5000$ partículas y para kerKKF se utilizó $N=1000$ como dimensión de aproximación de los operadores. En las figuras \ref{fig:nonlinear_filters_sir_sigma_01}, \ref{fig:nonlinear_filters_sir_sigma_001} y \ref{fig:nonlinear_filters_sir_sigma_0001} se observan los resultados para $\sigma \in \{0.1, 0.01, 0.001\}$, seguido de las tablas \ref{tab:errores_sigma_01}, \ref{tab:errores_sigma_001} y \ref{tabla:errores_sigma_0001} que contienen el detalle de los errores para cada estado y cada filtro.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_01.pdf}
-    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 1.0$, $\gamma = 0.3$ y $\sigma = 0.1$.}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=0.9\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_01.pdf}
+    \caption{$\sigma = 0.1$.}
     \label{fig:nonlinear_filters_sir_sigma_01}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_001.pdf}
-    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 1.0$, $\gamma = 0.3$ y $\sigma = 0.01$.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=0.9\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_001.pdf}
+    \caption{$\sigma = 0.01$.}
     \label{fig:nonlinear_filters_sir_sigma_001}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_0001.pdf}
-    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 1.0$, $\gamma = 0.3$ y $\sigma = 0.001$.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=0.9\linewidth]{img/content/chapter4/nonlinear_filters_sir_sigma_0001.pdf}
+    \caption{$\sigma = 0.001$.}
     \label{fig:nonlinear_filters_sir_sigma_0001}
+    \end{subfigure}
+    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y kerKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. $\sigma$ es variable para (a), (b) y (c), mientras que $\beta = 1.0$ y $\gamma = 0.3$ fijos.}
 \end{figure}
 
 \begin{table}[h!]
-\centering
-\caption{Errores para $\sigma = 0.1$}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
-S & 0.4757 & 0.7738 & 0.9571 & 0.3330 \\ \hline
-I & 0.8665 & 0.8300 & 0.8553 & 0.3015 \\ \hline
-R & 1.1360 & 1.4221 & 1.2151 & 0.2209 \\ \hline
-\end{tabular}
-\label{tab:errores_sigma_01}
+    \caption{Errores de los distintos filtros con respecto a la trayectoria real, para distintos valores de la diagonal de la matriz de covarianza del ruido de dinámica $\sigma$.}
+    \begin{subtable}{\linewidth}
+        \centering
+    \caption{$\sigma = 0.1$}
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{kerKKF} \\ \hline
+    S & 0.4757 & 0.7738 & 0.9571 & 0.3330 \\ \hline
+    I & 0.8665 & 0.8300 & 0.8553 & 0.3015 \\ \hline
+    R & 1.1360 & 1.4221 & 1.2151 & 0.2209 \\ \hline
+    \end{tabular}
+    \label{tab:errores_sigma_01}
+    \end{subtable}
+    \begin{subtable}{\linewidth}
+        \centering
+    \caption{$\sigma = 0.01$}
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{kerKKF} \\ \hline
+    S & 0.1277 & 0.1328 & 0.1783 & 0.1737 \\ \hline
+    I & 0.2801 & 0.2565 & 0.2779 & 0.1709 \\ \hline
+    R & 0.4881 & 0.5135 & 0.4337 & 0.1329 \\ \hline
+    \end{tabular}
+    \label{tab:errores_sigma_001}
+    \end{subtable}
+    \begin{subtable}{\linewidth}
+        \centering
+    \caption{$\sigma = 0.001$}
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{kerKKF} \\ \hline
+    S & 0.0417 & 0.0528 & 0.0493 & 0.2320 \\ \hline
+    I & 0.1023 & 0.0985 & 0.1022 & 0.1996 \\ \hline
+    R & 0.3070 & 0.2489 & 0.2983 & 0.1710 \\ \hline
+    \end{tabular}
+    \label{tabla:errores_sigma_0001}
+    \end{subtable}
 \end{table}
 
-\begin{table}[h!]
-\centering
-\caption{Errores para $\sigma = 0.01$}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
-S & 0.1277 & 0.1328 & 0.1783 & 0.1737 \\ \hline
-I & 0.2801 & 0.2565 & 0.2779 & 0.1709 \\ \hline
-R & 0.4881 & 0.5135 & 0.4337 & 0.1329 \\ \hline
-\end{tabular}
-\label{tab:errores_sigma_001}
-\end{table}
-
-\begin{table}[h!]
-\centering
-\caption{Errores para $\sigma = 0.001$}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
-S & 0.0417 & 0.0528 & 0.0493 & 0.2320 \\ \hline
-I & 0.1023 & 0.0985 & 0.1022 & 0.1996 \\ \hline
-R & 0.3070 & 0.2489 & 0.2983 & 0.1710 \\ \hline
-\end{tabular}
-\label{tabla:errores_sigma_0001}
-\end{table}
-
-Se observa que KKKF logra superar en error a todos los otros filtros con creces en el caso en que $\sigma \in \{ 0.1, 0.01\}$, aunque para el caso en donde hay menor ruido los resultados son bastante similares. Esto mostraría que el filtro tiene un mejor desempeño en comparación a los otros filtros en escenarios de mayor incertidumbre.
+Se observa que kerKKF logra superar en error a todos los otros filtros con creces en el caso en que $\sigma \in \{ 0.1, 0.01\}$, aunque para el caso en donde hay menor ruido los resultados son bastante similares. Esto mostraría que el filtro tiene un mejor desempeño en comparación con los otros filtros en escenarios de mayor incertidumbre.
 
 Se muestra ahora el caso en que $\sigma = 0.01$ fijo y varía el parámetro $\beta \in \{0.6, 0.9, 1.5\}$, en donde el objetivo es ver cómo cambian los resultados en función de $\beta$, que es en algún sentido el parámetro que cuantifica la no linealidad del sistema. Dado que $\gamma$ en realidad representa una relación lineal, se deja fijo en $\gamma = 0.3$. Se utilizan los mismos valores para todo el resto de configuraciones. Los resultados se pueden apreciar en las figuras \ref{fig:nonlinear_filters_sir_beta_06}, \ref{fig:nonlinear_filters_sir_beta_09} y \ref{fig:nonlinear_filters_sir_beta_15}, y en las tablas \ref{tab:errores_beta_gamma_06}, \ref{tab:errores_beta_gamma_09} y \ref{tab:errores_beta_gamma_15}.
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_beta_06.pdf}
-    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 0.6$, $\gamma = 0.3$ y $\sigma = 0.01$.}
-    \label{fig:nonlinear_filters_sir_beta_06}
-\end{figure}
+Además, se midió el error en norma de los filtros para $50$ valores de $\beta$ entre $0.1$ y $2.5$ equiespaciados, manteniendo todo el resto de parámetros sin cambios. El resultado se puede observar en la figura \ref{fig:nonlinear_filters_sir_error_beta}, en donde kerKKF tiene un mejor desempeño a nivel general.
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_beta_09.pdf}
-    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 0.9$, $\gamma = 0.3$ y $\sigma = 0.01$.}
-    \label{fig:nonlinear_filters_sir_beta_09}
-\end{figure}
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_beta_15.pdf}
-    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. Para $\beta = 1.5$, $\gamma = 0.3$ y $\sigma = 0.01$.}
-    \label{fig:nonlinear_filters_sir_beta_15}
-\end{figure}
-
-\begin{table}[h!]
-\centering
-\caption{Errores para $\beta = 0.6$ y $\gamma = 0.3$}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
-S & 0.2442 & 0.2379 & 0.3305 & 0.1629 \\ \hline
-I & 0.2904 & 0.2815 & 0.2903 & 0.1352 \\ \hline
-R & 0.4874 & 0.5503 & 0.4732 & 0.1210 \\ \hline
-\end{tabular}
-\label{tab:errores_beta_gamma_06}
-\end{table}
-
-\begin{table}[h!]
-\centering
-\caption{Errores para $\beta = 0.9$ y $\gamma = 0.3$}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
-S & 0.1486 & 0.1533 & 0.2195 & 0.1672 \\ \hline
-I & 0.2808 & 0.2590 & 0.2798 & 0.1628 \\ \hline
-R & 0.4866 & 0.5246 & 0.4907 & 0.1300 \\ \hline
-\end{tabular}
-\label{tab:errores_beta_gamma_09}
-\end{table}
-
-\begin{table}[h!]
-\centering
-\caption{Errores para $\beta = 1.5$ y $\gamma = 0.3$}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKKF} \\ \hline
-S & 0.0885 & 0.2296 & 0.2292 & 0.1906 \\ \hline
-I & 0.2834 & 0.2788 & 0.2816 & 0.1934 \\ \hline
-R & 0.4671 & 0.5295 & 0.4042 & 0.1435 \\ \hline
-\end{tabular}
-\label{tab:errores_beta_gamma_15}
-\end{table}
 
 
 
 \subsection{Estimación de parámetros del modelo SIR}
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_params.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
-\end{figure}
+A continuación se prueba la metodología para estimación de parámetros, que se compara con Markov Chain Monte Carlo, utilizando como \textit{samplers} Differential Evolution Metropolis \cite{terBraak2008DifferentialChains}, que es un \textit{sampler} no basado en gradiente, y No-U-Turn Sampler (NUTS) \cite{Hoffman2014TheCarlo}, que está basado en gradiente y además es de los más utilizados cuando hay un sistema dinámico subyacente implementado en PyMC \cite{Patil2010PyMC:Python}.
+
+Se prueba la metodología de estimación de parámetros para el modelo SIR \eqref{eq:SIR}, esto es, lograr una estimación para $\beta$ y $\gamma$ en base a observaciones, tal como se encuentra en el algoritmo \ref{alg:ParamEstim}. Por lo que se considera el modelo con estados aumentados, que es
+
+\begin{equation*}
+    \begin{aligned}
+        S_{k+1} &= S_k - \beta_k S_k I_k + \mathbf{w}_k^1 \\
+        I_{k+1} &= I_k + \beta_k S_k I_k - \gamma_k I_k + \mathbf{w}_k^2 \\
+        R_{k+1} &= R_k + \gamma_k I_k + \mathbf{w}_k^3 \\
+        \beta_{k+1} &= \beta_k + \mathbf{w}_k^4 \\
+        \gamma_{k+1} &= \gamma_k + \mathbf{w}_k^5
+    \end{aligned}
+\end{equation*}
+
+Se utilizan como parámetros reales $\beta=1.3$ y $\gamma=0.5$, se utiliza como condición inicial para el estado aumentado $\mathbf{x}_0 = (0.9, 0.1, 0.0, 1.3, 0.5)$, y se entrega también como media del prior de la condición inicial $\hat{\mathbf{x}}_0 = (0.9, 0.1, 0.0, 0.1, 0.1)$, con matriz de covarianza inicial
+\begin{equation*}
+    \mathbf{Q}_0 = \text{diag}(0.001, 0.001, 0.001, 1, 1).
+\end{equation*}
+
+Es decir, se entrega como condición inicial para los parámetros $0.1$ y se espera que el algoritmo converja a los parámetros reales. 
+
+Se considera que los estados observables son $S$ e $I$, es decir
+\begin{equation*}
+    \mathbf{g}(S, I, R, \beta, \gamma) = (S, I)
+\end{equation*}
+y se consideran ruidos normales aditivos, centrados y con matrices de covarianza, para la dinámica y la observación, respectivamente
+\begin{equation*}
+    \mathbf{Q} = \text{diag}(0.001, 0.001, 0.001, 1, 1), \quad \mathbf{R} = \text{diag}(0.001, 0.001).
+\end{equation*}
+
+Se simula el sistema a $20$ unidades de tiempo, $N=200$ como dimensión de aproximación de Koopman y para muestrear puntos desde el estado se utiliza una variable aleatoria cuyas primeras tres entradas vienen desde una Dirichlet de parámetro $(1,1,1)$ y las otras dos desde Uniformes en $[0.5, 1.5]$ y $[0.1, 0.5]$, respectivamente. 
+
+Se realizan $300$ iteraciones para el procedimiento expuesto en el algoritmo \ref{alg:ParamEstim}. Este procedimiento se hace $8$ veces en paralelo, por lo que hay $8$ filtros, que se denotarán cadenas, que están estimando el parámetro en paralelo. De las $300$ iteraciones, la primera mitad se considerarán de \textit{warm up}, es decir, no se utilizarán para la estimación ya que en dichas iteraciones el algoritmo puede eventualmente aún estar muy lejos del parámetro real.
+
+En la figura \ref{fig:param_estim_SIR} se muestra el resultado del filtro en la última iteración y la evolución del parámetro estimado en función de las iteraciones, todo esto solo para la primera cadena de manera ilustrativa. En la figura \ref{fig:density_param_estim_SIR} se muestran las densidades de probabilidad generadas por cada cadena, comparadas con el valor real del parámetro. Si estas se promedian, queda una densidad de probabilidad que es mucho más robusta para la estimación del parámetro, resultado que se puede observar en la figura \ref{fig:mean_density_param_estim_SIR}.
+
+
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_params_evolution.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \begin{subfigure}[b]{0.8\textwidth}
+        \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_params_density.pdf}
+        \caption{}
+        \label{fig:density_param_estim_SIR}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.8\textwidth}
+        \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_params_density_mean.pdf}
+        \caption{}
+        \label{fig:mean_density_param_estim_SIR}
+    \end{subfigure}
+    \caption{A la izquierda el resultado para $\beta$ y a la derecha para $\gamma$, parámetros del modelo SIR \eqref{eq:SIR}. En línea punteada vertical se encuentra el valor real del parámetro. \\
+    (a) Densidades de probabilidad creadas por cada cadena solo considerando las iteraciones posteriores al \textit{warm up}. Por cada una son $8$ densidades correspondientes a cada cadena. \\
+    (b) Densidades de probabilidad resultante de promediar las $8$ densidades creadas por cada cadena.}
+    
 \end{figure}
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_params_density.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
-\end{figure}
+Se repite el mismo procedimiento con el modelo SIR con factor de pérdida de inmunidad para estimar sus parámetros $\alpha$, $\beta$ y $\gamma$, que con el estado aumentado queda
+\begin{equation*}
+    \begin{aligned}
+        S_{k+1} &= S_k - \beta_k S_k I_k + \alpha_k R_k + \mathbf{w}_k^1 \\
+        I_{k+1} &= I_k + \beta_k S_k I_k - \gamma_k I_k + \mathbf{w}_k^2 \\
+        R_{k+1} &= R_k + \gamma_k I_k - \alpha_k R_k + \mathbf{w}_k^3 \\
+        \alpha_{k+1} &= \alpha_k + \mathbf{w}_k^4 \\
+        \beta_{k+1} &= \beta_k + \mathbf{w}_k^5 \\
+        \gamma_{k+1} &= \gamma_k + \mathbf{w}_k^6.
+    \end{aligned}
+\end{equation*}
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_rec_params.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
-\end{figure}
+Para el experimento se utilizaron como valores reales reales $\alpha = 0.2$, $\beta = 1.4$, $\gamma = 0.4$ y condición inicial para el resto de estados $(S_0, I_0, R_0) = (0.9, 0.1, 0.0)$. Se entrega como prior para la condición inicial una normal centrada en $\hat{\mathbf{x}}_k = (0.9, 0.1, 0.0, 0.1, 0.1, 0.1)$ con matriz de covarianza
+\[
+\mathbf{Q}_0 = \text{diag}(0.01, 0.01, 0.01, 10, 10, 10).
+\]
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_rec_params_evolution.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
-\end{figure}
+Como función de observación ahora se considera que únicamente es posible observar a los infectados, es decir
+\[
+\mathbf{g}(S, I, R, \alpha, \beta, \gamma) = I,
+\]
+por lo que se tiene menos información incluso para este caso que para el anterior, en que se deseaba estimar menos parámetros.
 
-\begin{figure}[h!]
+Como distribuciones asociadas a la dinámica y la observación se utiliza un ruido normal aditivo, centrado y con matriz de covarianza y varianza, respectivamente
+\[
+\mathbf{Q} = \text{diag}(0.001, 0.001, 0.001, 10, 10, 10), \quad \mathbf{R} = 0.01
+\]
+dado que para la observación es necesaria una variable univariada.
+
+Se utiliza $N=500$ como dimensión de aproximación de Koopman y para muestrear desde el estado se utiliza una variable aleatoria cuyas primeras tres entradas provienen de una Dirichlet de parámetro $(1,1,1)$ y las otras tres de variables aleatorias uniformes en $[0.1, 1.0]$, $[0.1, 0.5]$ y $[0.1, 0.5]$, respectivamente. Se simula el sistema a $10$ unidades temporales y se utilizan $500$ iteraciones del procedimiento en el algoritmo \ref{alg:ParamEstim}, realizado $8$ veces en paralelo.
+
+En la figura \ref{fig:nonlinear_filters_sir_rec_params} se observa la solución de kerKKF para el sistema, esto para la última iteración del algoritmo \ref{alg:ParamEstim} y en la primera cadena de las $8$ muestreadas, mientras que en la figura \ref{fig:nonlinear_filters_sir_rec_params_evolution} se puede ver la evolución del parámetro a través de las iteraciones, esto también para la primera cadena.
+
+Análogo a lo hecho antes, se puede convertir la evolución del parámetro a través de las iteraciones del algoritmo en una densidad de probabilidad, para la cual se consideran solo la segunda mitad de las iteraciones, dejando la primera mitad como \textit{warm up}. Esto se puede ver en la figura \ref{fig:nonlinear_filters_sir_rec_params_density}, en donde se dejan las $8$ cadenas y en la figura \ref{fig:nonlinear_filters_sir_rec_params_density_mean} la cadena media para cada uno de los parámetros.
+
+El algoritmo logra acercarse mucho a los parámetros reales de cada sistema, dejando al menos el parámetro real en su intervalo de confianza de nivel $95$\%.
+
+\begin{table}[h!]
     \centering
-    \includegraphics[width=\linewidth]{img/content/chapter4/nonlinear_filters_sir_rec_params_density.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
-\end{figure}
+    \caption{Estimación de parámetros del modelo SIR.} 
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \textbf{Parámetro} & \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
+    $\beta$ & 1.3 & 1.5 (0.94, 2.06) & 1.42 (1.03, 1.81) & 157.8 \\ \hline
+    $\gamma$ & 0.5 & 0.63 (0.22, 1.04) & 0.48 (0.30, 0.66) & \\ \hline
+    \end{tabular}
+    \label{tab:SIR_params}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \caption{Estimación de parámetros del modelo SIR.} 
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \textbf{Parámetro}& \textbf{DEMetropolisZ} & \textbf{Real} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
+    $\alpha$ & 0.2 & 0.19 (0.13, 0.25) & 0.21 (0.05, 0.36) & 157.8 \\ \hline
+    $\beta$ & 1.3 & 1.32 (1.15, 1.49) & 1.45 (0.99, 1.90) & 157.8 \\ \hline
+    $\gamma$ & 0.5 & 0.50 (0.43, 0.58) & 0.56 (0.36, 0.75) & \\ \hline
+    \end{tabular}
+    \label{tab:SIR_params}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \caption{Estimación de parámetros del modelo SEIR.} 
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \textbf{Parámetro}& \textbf{DEMetropolisZ} & \textbf{Real} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
+    $\alpha$ & 0.2 & 0.55 (-0.055, 1.15) & 0.40 (-0.13, 0.94) &  \\ \hline
+    $\beta$ & 1.3 & 1.85 (1.41, 2.29) & 1.56 (0.94, 2.18) & 157.8 \\ \hline
+    $\gamma$ & 0.4 & 0.34 (0.18, 0.50) & 0.40 (0.09, 0.71) & \\ \hline
+    $\delta$ & 0.5 & 0.66 (0.47, 0.84) & 0.57 (0.32, 0.81) & \\ \hline
+    \end{tabular}
+    \label{tab:SIR_params}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \caption{Tiempos de ejecución para los distintos métodos y modelos, para estimación de parámetros.} 
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{Modelo} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
+    \textbf{SIR} & 60.9 & 222.5 &  \\ \hline
+    \textbf{SIR con pérdida de inmunidad} & 141.4 & 315.3 & \\ \hline
+    \textbf{SEIR} & 209.9 & 755.4 & \\ \hline
+    \end{tabular}
+    \label{tab:ex_times}
+\end{table}
