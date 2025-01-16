@@ -19,12 +19,13 @@
 \usepackage{algpseudocode}
 \usepackage{dsfont}
 \usepackage{float}
+\usepackage{wrapfig}
 
 \newcommand{\indep}{\perp \!\!\! \perp}
 \newcommand{\U}{\mathcal{U}}
 
 % INFORMACIÓN DEL DOCUMENTO
-\def\documenttitle {Título de la tesis}
+\def\documenttitle {Algoritmo de filtraje no lineal basado en operador de Koopman, aplicado a modelos en epidemiología}
 \def\documentsubtitle {}
 \def\degreetitle {
 	Tesis para optar al grado de magíster en ciencias de la ingeniería, mención matemáticas aplicadas
@@ -59,11 +60,12 @@
 		AXEL ESTEBAN OSSES ALVARADO \\
 		\vspace{0.5cm} \\
 		MIEMBROS DE LA COMISIÓN: \\
+            JOAQUÍN FONTBONA TORRES \\
 		PROFESOR 2 \\
 		PROFESOR 3 \\
 		\vspace{0.5cm} \\
-		Este trabajo ha sido parcialmente financiado por: \\
-		NOMBRE INSTITUCIÓN \\
+		Este trabajo ha sido parcialmente financiado por los proyectos: \\
+		Fondecyts 1201982 y 1240200, y Basal FB210005 de ANID. \\
 		\vspace{0.5cm} \\
 		\MakeUppercase{\universitylocation} \\
 		\MakeUppercase{\documentdate}
@@ -136,12 +138,16 @@
 \input{chapters/chapter4.tex}
 
 % Capítulo 5: Algoritmo de filtraje en tiempo continuo
-\chapter{Algoritmo de filtraje en tiempo continuo}
-\input{chapters/chapter5.tex}
+% \chapter{Algoritmo de filtraje en tiempo continuo}
+% \input{chapters/chapter5.tex}
 
 % Capítulo 6: Discusiones y conclusiones
-\chapter{Discusiones y conclusiones}
+\chapter{Discusiones, conclusiones y trabajo futuro}
 \input{chapters/chapter6.tex}
+
+\begin{appendixd}
+    \input{chapters/annexes}
+\end{appendixd}
 
 
 \bibliographystyle{plain}
