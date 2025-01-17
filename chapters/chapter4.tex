@@ -1182,7 +1182,7 @@ Como distribuciones asociadas a la dinámica y la observación se utiliza un rui
 \]
 dado que para la observación es necesaria una variable univariada.
 
-Se utiliza $N=500$ como dimensión de aproximación de Koopman y para muestrear desde el estado se utiliza una variable aleatoria cuyas primeras tres entradas provienen de una Dirichlet de parámetro $(1,1,1)$ y las otras tres de variables aleatorias uniformes en $[0.1, 1.0]$, $[0.1, 0.5]$ y $[0.1, 0.5]$, respectivamente. Se simula el sistema a $10$ unidades temporales y se utilizan $500$ iteraciones del procedimiento en el algoritmo \ref{alg:ParamEstim}, realizado $8$ veces en paralelo.
+Se utiliza $N=500$ como dimensión de aproximación de Koopman y para muestrear desde el estado se utiliza una variable aleatoria cuyas primeras tres entradas provienen de una Dirichlet de parámetro $(1,1,1)$ y las otras tres de variables aleatorias uniformes en $[0.1, 1.0]$, $[0.1, 0.5]$ y $[0.1, 0.5]$, respectivamente. Se simula el sistema a $20$ unidades temporales y se utilizan $300$ iteraciones del procedimiento en el algoritmo \ref{alg:ParamEstim}, realizado $8$ veces en paralelo.
 
 En la figura \ref{fig:nonlinear_filters_sir_rec_params} se observa la solución de kerKKF para el sistema, esto para la última iteración del algoritmo \ref{alg:ParamEstim} y en la primera cadena de las $8$ muestreadas, mientras que en la figura \ref{fig:nonlinear_filters_sir_rec_params_evolution} se puede ver la evolución del parámetro a través de las iteraciones, esto también para la primera cadena.
 
@@ -1190,14 +1190,34 @@ Análogo a lo hecho antes, se puede convertir la evolución del parámetro a tra
 
 El algoritmo logra acercarse mucho a los parámetros reales de cada sistema, dejando al menos el parámetro real en su intervalo de confianza de nivel $95$\%.
 
+Por último, se prueba para el modelo SEIR, que tiene 4 estados y 4 parámetros por estimar, $\alpha$, $\beta$, $\gamma$ y $\delta$.
+\begin{equation*}
+    \begin{aligned}
+        S_{k+1} &= S_k - \beta_k S_k I_k + \alpha_k R_k + \mathbf{w}_k^1 \\
+        E_{k+1} &= E_k + \beta_k S_k I_k - \delta_k R_k + \mathbf{w}_k^2 \\
+        I_{k+1} &= I_k + \delta_k E_k - \gamma_k I_k + \mathbf{w}_k^3 \\
+        R_{k+1} &= R_k + \gamma_k I_k - \alpha_k R_k + \mathbf{w}_k^4 \\
+        \alpha_{k+1} &= \alpha_k + \mathbf{w}_k^5 \\
+        \beta_{k+1} &= \beta_k + \mathbf{w}_k^6 \\
+        \gamma_{k+1} &= \gamma_k + \mathbf{w}_k^7 \\
+        \delta_{k+1} &= \delta_k + \mathbf{w}_k^8.
+    \end{aligned}
+\end{equation*}
+Se utiliza $N=100$, una simulación del sistema a $20$ unidades de tiempo suponiendo que solo se observan los susceptibles y los infectados, es decir,
+\begin{equation*}
+    g(S, E, I, R, \alpha, \beta, \gamma, \delta) = (S, I).
+\end{equation*}
+Se samplean $8$ cadenas en paralelo en $8$ núcleos, con $300$ iteraciones de las cuáles la mitad se utiliza para \textit{warm up}.
+
+
 \begin{table}[h!]
     \centering
     \caption{Estimación de parámetros del modelo SIR.} 
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro} & \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    $\beta$ & 1.3 & 1.5 (0.94, 2.06) & 1.42 (1.03, 1.81) & 157.8 \\ \hline
-    $\gamma$ & 0.5 & 0.63 (0.22, 1.04) & 0.48 (0.30, 0.66) & \\ \hline
+    $\beta$ & 1.3 & 1.5 (0.94, 2.06) & 1.42 (1.03, 1.81) & 1.3 (1.26, 1.33) \\ \hline
+    $\gamma$ & 0.5 & 0.63 (0.22, 1.04) & 0.48 (0.30, 0.66) & 0.44 (0.4, 0.47) \\ \hline
     \end{tabular}
     \label{tab:SIR_params}
 \end{table}
@@ -1208,9 +1228,9 @@ El algoritmo logra acercarse mucho a los parámetros reales de cada sistema, dej
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro}& \textbf{DEMetropolisZ} & \textbf{Real} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    $\alpha$ & 0.2 & 0.19 (0.13, 0.25) & 0.21 (0.05, 0.36) & 157.8 \\ \hline
-    $\beta$ & 1.3 & 1.32 (1.15, 1.49) & 1.45 (0.99, 1.90) & 157.8 \\ \hline
-    $\gamma$ & 0.5 & 0.50 (0.43, 0.58) & 0.56 (0.36, 0.75) & \\ \hline
+    $\alpha$ & 0.2 & 0.19 (0.13, 0.25) & 0.21 (0.05, 0.36) & 0.24 (0.16, 0.32) \\ \hline
+    $\beta$ & 1.3 & 1.32 (1.15, 1.49) & 1.45 (0.99, 1.90) & 1.23 (1.13, 1.33) \\ \hline
+    $\gamma$ & 0.5 & 0.50 (0.43, 0.58) & 0.56 (0.36, 0.75) & 0.42 (0.38, 0.46) \\ \hline
     \end{tabular}
     \label{tab:SIR_params}
 \end{table}
@@ -1221,10 +1241,10 @@ El algoritmo logra acercarse mucho a los parámetros reales de cada sistema, dej
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro}& \textbf{DEMetropolisZ} & \textbf{Real} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    $\alpha$ & 0.2 & 0.55 (-0.055, 1.15) & 0.40 (-0.13, 0.94) &  \\ \hline
-    $\beta$ & 1.3 & 1.85 (1.41, 2.29) & 1.56 (0.94, 2.18) & 157.8 \\ \hline
-    $\gamma$ & 0.4 & 0.34 (0.18, 0.50) & 0.40 (0.09, 0.71) & \\ \hline
-    $\delta$ & 0.5 & 0.66 (0.47, 0.84) & 0.57 (0.32, 0.81) & \\ \hline
+    $\alpha$ & 0.2 & 0.55 (-0.055, 1.15) & 0.40 (-0.13, 0.94) & 0.25 (0.17, 0.33) \\ \hline
+    $\beta$ & 1.3 & 1.85 (1.41, 2.29) & 1.56 (0.94, 2.18) & 1.31 (1.19, 1.43)\\  \hline
+    $\gamma$ & 0.4 & 0.34 (0.18, 0.50) & 0.40 (0.09, 0.71) & 0.6 (0.52, 0.68)\\ \hline
+    $\delta$ & 0.5 & 0.66 (0.47, 0.84) & 0.57 (0.32, 0.81) & 0.45 (0.33, 0.57)\\ \hline
     \end{tabular}
     \label{tab:SIR_params}
 \end{table}
@@ -1235,9 +1255,9 @@ El algoritmo logra acercarse mucho a los parámetros reales de cada sistema, dej
     \begin{tabular}{|c|c|c|c|}
     \hline
     \textbf{Modelo} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    \textbf{SIR} & 60.9 & 222.5 &  \\ \hline
-    \textbf{SIR con pérdida de inmunidad} & 141.4 & 315.3 & \\ \hline
-    \textbf{SEIR} & 209.9 & 755.4 & \\ \hline
+    \textbf{SIR} & 60.9 & 222.5 & 82.3 \\ \hline
+    \textbf{SIR con pérdida de inmunidad} & 141.4 & 315.3 & 23.8 \\ \hline
+    \textbf{SEIR} & 209.9 & 755.4 & 26.9 \\ \hline
     \end{tabular}
     \label{tab:ex_times}
 \end{table}

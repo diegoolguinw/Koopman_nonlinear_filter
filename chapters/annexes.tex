@@ -5,6 +5,8 @@
 
 \chapter{Gráficos de resultados numéricos capítulo 4}
 
+\subsection{}
+
 \begin{figure}[h!]
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
@@ -142,4 +144,34 @@
     \caption{A la izquierda el resultado para $\alpha$, al medio para $\beta$ y a la derecha para $\gamma$, parámetros del modelo SIR con pérdida de inmunidad \eqref{eq:SIR_rec}. En línea punteada vertical se encuentra el valor real del parámetro. \\
     (a) Densidades de probabilidad creadas por cada cadena solo considerando las iteraciones posteriores al \textit{warm up}. Por cada una son $8$ densidades correspondientes a cada cadena. \\
     (b) Densidades de probabilidad resultante de promediar las $8$ densidades creadas por cada cadena.}
+\end{figure}
+
+\section{Comparación con métodos de Markov Chain Monte Carlo}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_sir_params_density.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_sir_params_density.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_sir_rec_params_density.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_sir_rec_params_density.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
 \end{figure}
