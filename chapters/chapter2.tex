@@ -628,6 +628,61 @@ Suponiendo que $\{ \phi_{\mu_j} \}_{j \geq 1}$, las funciones propias de $\U$, g
 	A los coeficientes $\nu_j$ se les denota como los modos de Koopman de $g$.
 \end{defn}
 Esta definición para sistemas deterministas será la base para la definición en sistemas estocásticos que se presentará en la siguiente sección.
+
+\section{Modelos epidemiológicos}
+
+Los modelos epidemiológicos son un caso particular de modelos ecológicos, en donde interactúan dos tipos de poblaciones, una capaz de contraer una enfermedad, que en general se denomina susceptible, y otra que contagia la enfermedad, que se denota infectada. En ciertos modelos es conveniente dividir estas poblaciones, es decir, que hay diferencias entre una población susceptible y otra, o de infectados.
+
+También, es muy usual incluir en los modelos el hecho de que la población se recupera de la enfermedad y con ello gana inmunidad, al menos por un tiempo. Otro factor relevante es la incubación de la enfermedad, que hace referencia a que una vez que una persona se infecta, esta se demora un cierto tiempo en mostrar síntomas y volverse infecciosa, es lo que también se denominan personas latentes o expuestas.
+
+El primer ejemplo clásico es el modelo SIR, en donde se supone que se tiene una dinámica de contagios tal que los susceptibles y los infectados interactúan y a cierta tasa se generan más contagios; luego, a cierta tasa, estos infectados se recuperan, ganan inmunidad y por tanto son removidos de la dinámica de contagio, por lo que no vuelven a ser susceptibles.\\
+En tiempo discreto, la dinámica de este modelo viene dada por las ecuaciones
+\begin{equation}
+    \begin{aligned}
+    S_{k+1} &= S_k -\beta S_k I_k, \\
+    I_{k+1} &= I_k + \beta S_k I_k - \gamma I_k, \\
+    S_{k+1} &= R_k + \gamma I_k,
+    \end{aligned}
+    \label{eq:SIR}
+\end{equation}
+donde:
+\begin{itemize}
+    \item \(S_k\) es el número de individuos susceptibles en el tiempo k,
+    \item \(I_k\) es el número de individuos infecciosos en el tiempo \(k\),
+    \item \(R_k\) es el número de individuos recuperados en el tiempo \(k\),
+    \item \(\beta\) es la tasa de transmisión de la enfermedad,
+    \item \(\gamma\) es la tasa de recuperación.
+\end{itemize}
+
+De este modelo, de manera sencilla puede incluirse un factor de pérdida de inmunidad, lo que viene dado por las ecuaciones
+\begin{equation}
+    \begin{aligned}
+    S_{k+1} &= S_k -\beta S_k I_k + \alpha R_k, \\
+    I_{k+1} &= I_k + \beta S_k I_k - \gamma I_k, \\
+    S_{k+1} &= R_k + \gamma I_k - \alpha R_k,
+    \end{aligned}
+    \label{eq:SIR_rec}
+\end{equation}
+
+En donde el nuevo parámetro $\alpha$ es la tasa de pérdida de inmunidad después de haberse recuperado de la enfermedad.
+
+Incluyendo otra división en la población, que corresponde a la población expuesta o latente, que aún no es infecciosa. En este se agrega otro estado $E$ y un nuevo parámetro $\delta$, que cuantifica la tasa a la cual la población expuesta pasa a ser infecciosa.
+
+\begin{equation}
+    \begin{aligned}
+        S_{k+1} &= S_k - \beta S_k I_k + \alpha R_k  \\
+        E_{k+1} &= E_k + \beta S_k I_k - \delta E_k  \\
+        I_{k+1} &= I_k + \delta E_k - \gamma_k I_k \\
+        R_{k+1} &= R_k + \gamma I_k - \alpha R_k 
+    \end{aligned}
+    \label{eq:SEIR}
+\end{equation}
+
+Estos serán los modelos de interés para estudiar en esta tesis, ya que conforman la base de otros modelos muy utilizados en epidemiología, que incluyen infectados asintomáticos, sintomáticos y que se pueden conectar con otros modelos estadísticos para estimar hospitalizaciones y muertes.
+
+Ahora, a pesar de la simpleza que estos modelos representan, preservan un aspecto que también poseen los modelos más complejos y que es el objeto de estudio de este trabajo: la no linealidad. De la dinámica de interacción entre 2 poblaciones, es natural que aparezca un término cruzado que haga no lineal el sistema. Esto provoca que cualquier técnica válida en el régimen lineal no sea válida, como lo es el Filtro de Kalman en el contexto de problemas de filtraje, y se deban explorar nuevas opciones para abordarlo.
+
+
 % El operador de Koopman permite obtener una recurrencia lineal en dimensión infinita mediante funciones observables. Se denota $g_0 \in \mathcal{F}$ y se genera la recursión
 % \begin{equation}
 	%      g_{k+1} = \U g_k

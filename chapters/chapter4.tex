@@ -1194,7 +1194,7 @@ Por último, se prueba para el modelo SEIR, que tiene 4 estados y 4 parámetros 
 \begin{equation*}
     \begin{aligned}
         S_{k+1} &= S_k - \beta_k S_k I_k + \alpha_k R_k + \mathbf{w}_k^1 \\
-        E_{k+1} &= E_k + \beta_k S_k I_k - \delta_k R_k + \mathbf{w}_k^2 \\
+        E_{k+1} &= E_k + \beta_k S_k I_k - \delta_k E_k + \mathbf{w}_k^2 \\
         I_{k+1} &= I_k + \delta_k E_k - \gamma_k I_k + \mathbf{w}_k^3 \\
         R_{k+1} &= R_k + \gamma_k I_k - \alpha_k R_k + \mathbf{w}_k^4 \\
         \alpha_{k+1} &= \alpha_k + \mathbf{w}_k^5 \\
@@ -1227,7 +1227,7 @@ Se samplean $8$ cadenas en paralelo en $8$ núcleos, con $300$ iteraciones de la
     \caption{Estimación de parámetros del modelo SIR.} 
     \begin{tabular}{|c|c|c|c|c|}
     \hline
-    \textbf{Parámetro}& \textbf{DEMetropolisZ} & \textbf{Real} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
+    \textbf{Parámetro}& \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
     $\alpha$ & 0.2 & 0.19 (0.13, 0.25) & 0.21 (0.05, 0.36) & 0.24 (0.16, 0.32) \\ \hline
     $\beta$ & 1.3 & 1.32 (1.15, 1.49) & 1.45 (0.99, 1.90) & 1.23 (1.13, 1.33) \\ \hline
     $\gamma$ & 0.5 & 0.50 (0.43, 0.58) & 0.56 (0.36, 0.75) & 0.42 (0.38, 0.46) \\ \hline
@@ -1240,7 +1240,7 @@ Se samplean $8$ cadenas en paralelo en $8$ núcleos, con $300$ iteraciones de la
     \caption{Estimación de parámetros del modelo SEIR.} 
     \begin{tabular}{|c|c|c|c|c|}
     \hline
-    \textbf{Parámetro}& \textbf{DEMetropolisZ} & \textbf{Real} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
+    \textbf{Parámetro}& \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
     $\alpha$ & 0.2 & 0.55 (-0.055, 1.15) & 0.40 (-0.13, 0.94) & 0.25 (0.17, 0.33) \\ \hline
     $\beta$ & 1.3 & 1.85 (1.41, 2.29) & 1.56 (0.94, 2.18) & 1.31 (1.19, 1.43)\\  \hline
     $\gamma$ & 0.4 & 0.34 (0.18, 0.50) & 0.40 (0.09, 0.71) & 0.6 (0.52, 0.68)\\ \hline

@@ -2,6 +2,101 @@
 
 \section{A}
 
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR1.pdf}
+        \caption{$\alpha=-0.3$}
+        \label{fig:image1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR2.pdf}
+        \caption{$\alpha=-0.1$}
+        \label{fig:image2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR3.pdf}
+        \caption{$\alpha=0.05$}
+    \end{subfigure}
+    \caption{Ilustración de los tres casos de $\beta$ y $\gamma$ elegidos para la comparación entre el sistema no lineal original y el sistema linealizado por Koopman a 1000 puntos \textit{sampleados} de una variable aleatoria Dirichlet. En forma de puntos se dejan los valores reales que toma el sistema y en línea continua los valores entregados por el sistema linealizado, que se consideran como predicción.}
+    \label{fig:Comp_traj_SIR}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR1Errors.pdf}
+        \caption{$\beta=-0.3$, $\gamma=0.3$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR2Errors.pdf}
+        \caption{$\beta=0.5$, $\gamma=0.1$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR3Errors.pdf}
+        \caption{$\beta=1.5$, $\gamma=0.6$}
+    \end{subfigure}
+    \caption{Ilustración de los tres casos del modelo SIR elegido para la evolución en función de $N$ de la diferencia en norma entre el sistema lineal original y el sistema linealizado por Koopman a $N$ puntos,  \textit{sampleados} de una variable aleatoria normal. En forma de puntos se deja la evolución observada del error y en línea continua la mejor curva de la forma $C \cdot N^{a}$, donde $a$ es el exponente que se deja en la leyenda.}
+    \label{fig:ErrorSIR}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec1.pdf}
+        \caption{$\alpha=-0.3$}
+        \label{fig:image1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec2.pdf}
+        \caption{$\alpha=-0.1$}
+        \label{fig:image2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec3.pdf}
+        \caption{$\alpha=0.05$}
+    \end{subfigure}
+    \caption{Ilustración de los tres casos de $\beta$ y $\gamma$ elegidos para la comparación entre el sistema no lineal original y el sistema linealizado por Koopman a 1000 puntos \textit{sampleados} de una variable aleatoria Dirichlet. En forma de puntos se dejan los valores reales que toma el sistema y en línea continua los valores entregados por el sistema linealizado, que se consideran como predicción.}
+    \label{fig:Comp_traj_SIR}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec1Errors.pdf}
+        \caption{$\alpha=0.1$, $\beta=1$, $\gamma=0.3$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec2Errors.pdf}
+        \caption{$\alpha=0.3$, $\beta=1$, $\gamma=0.3$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/content/chapter3/SIR_rec3Errors.pdf}
+        \caption{$\alpha=0.05$}
+    \end{subfigure}
+    \caption{Ilustración de los tres casos del modelo SIR con pérdida de inmunidad elegido para la evolución en función de $N$ de la diferencia en norma entre el sistema lineal original y el sistema linealizado por Koopman a $N$ puntos,  \textit{sampleados} de una variable aleatoria normal. En forma de puntos se deja la evolución observada del error y en línea continua la mejor curva de la forma $C \cdot N^{a}$, donde $a$ es el exponente que se deja en la leyenda.}
+    \label{fig:ErrorSIR_rec}
+\end{figure}
+
 
 \chapter{Gráficos de resultados numéricos capítulo 4}
 
@@ -150,7 +245,28 @@
 
 \begin{figure}[h]
     \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_sir_params_trace.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
     \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_sir_params_density.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/DMetropolis_sir_params_density_mean.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_sir_params_trace.pdf}
     \caption{Caption}
     \label{fig:enter-label}
 \end{figure}
@@ -164,6 +280,20 @@
 
 \begin{figure}[h]
     \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_sir_params_density_mean.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_sir_rec_params_trace.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
     \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_sir_rec_params_density.pdf}
     \caption{Caption}
     \label{fig:enter-label}
@@ -171,7 +301,70 @@
 
 \begin{figure}[h]
     \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_sir_rec_params_density_mean.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_sir_rec_params_trace.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
     \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_sir_rec_params_density.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_sir_rec_params_density_mean.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_seir_params_trace.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_seir_params_density.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/DEMetropolis_seir_params_density_mean.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_seir_params_trace.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_seir_params_density.pdf}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter4/NUTS_seir_params_density_mean.pdf}
     \caption{Caption}
     \label{fig:enter-label}
 \end{figure}
