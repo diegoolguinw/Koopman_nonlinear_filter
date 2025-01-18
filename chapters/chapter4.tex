@@ -16,6 +16,8 @@ Posteriormente, se construye el filtro propuesto, denominado \textit{Kernel Koop
 
 Finalmente, utilizando los resultados obtenidos en el capítulo anterior junto con la descomposición del error, se demuestra la cota de error propuesta. El desempeño del filtro es evaluado en diferentes sistemas mediante una implementación en Python desarrollada específicamente para este trabajo.
 
+Se muestran resultados numéricos del filtro en modelos epidemiológicos, tanto en problemas de filtraje con observaciones parciales como problemas de estimación de parámetros de estos modelos. El trabajo de Catalán Muñoz \cite{CatalanMunoz2022DesarrolloChile} fue una inspiración para este trabajo al aplicar Filtro de Kalman para estimación de parámetros de un modelo epidemiológico relevante para la realidad de Santiago de Chile. Cabe notar que Mezić et al. ya han aplicado técnicas relacionadas con operador de Koopman para modelos epidemiológicos \cite{Mezic2024ACases}, aunque nunca se habla de filtraje, dinámicas específicas ni estimación de parámetros. 
+
 \section{Descomposición de error de Kalman}
 
 El objetivo de esta sección es analizar el error que se genera entre dos reglas de Kalman, lo cual permitirá cuantificar la discrepancia entre una regla de Kalman aproximante y otra exacta, ambas definidas formalmente más adelante en esta misma sección. 
@@ -807,7 +809,7 @@ Esto, de alguna manera, impone una cota de error base para el filtro si es que s
 
 Es por ello que parece ser que kEDMD comete la menor cota de error posible, al nivel del TCL y por tanto el filtro creado, kerKKF, parece estar dentro de una clase óptima de filtros que alcanzan a esta cota, impuesta de manera natural en un sistema donde los promedios se aproximan a tasa $N^{-1/2}$.
 
-Es más, la metodología de demostración crea algo de manera más directa, dada una forma de realizar Dynamic Mode Decomposition, existe un filtro asociado de manera instantanea, que tendrá un error de acuerdo a \ref{eq:error_explicacion}. Esta clase de filtros que nacen de una manera de hacer EDMD se pueden denominar los \textbf{Extended Dynamic Mode Decomposition Kalman Filters (eDMD-KF)}. Idea que, vista con esta generalidad, no se ha encontrado a día de hoy en literatura. 
+Es más, la metodología de demostración crea algo de manera más directa, dada una forma de realizar Dynamic Mode Decomposition, existe un filtro asociado de manera instantanea, que tendrá un error de acuerdo a \ref{eq:error_explicacion}. Esta clase de filtros que nacen de una manera de hacer EDMD se pueden denominar los \textbf{Extended Dynamic Mode Decomposition Kalman Filters (EDMD-KF)}. Idea que, vista con esta generalidad, no se ha encontrado a día de hoy en literatura. 
 
 \subsection{Metodología de Estimación de Parámetros}
 
@@ -1091,13 +1093,11 @@ Se muestra ahora el caso en que $\sigma = 0.01$ fijo y varía el parámetro $\be
 
 Además, se midió el error en norma de los filtros para $50$ valores de $\beta$ entre $0.1$ y $2.5$ equiespaciados, manteniendo todo el resto de parámetros sin cambios. El resultado se puede observar en la figura \ref{fig:nonlinear_filters_sir_error_beta}, en donde kerKKF tiene un mejor desempeño a nivel general.
 
-
-
-
-
 \subsection{Estimación de parámetros del modelo SIR}
 
-A continuación se prueba la metodología para estimación de parámetros, que se compara con Markov Chain Monte Carlo, utilizando como \textit{samplers} Differential Evolution Metropolis \cite{terBraak2008DifferentialChains}, que es un \textit{sampler} no basado en gradiente, y No-U-Turn Sampler (NUTS) \cite{Hoffman2014TheCarlo}, que está basado en gradiente y además es de los más utilizados cuando hay un sistema dinámico subyacente implementado en PyMC \cite{Patil2010PyMC:Python}.
+A continuación se prueba la metodología para estimación de parámetros, que se compara con Markov Chain Monte Carlo, utilizando como \textit{samplers} Differential Evolution Metropolis (DEMetropolisZ) \cite{terBraak2008DifferentialChains}, que es un \textit{sampler} no basado en gradiente, y No-U-Turn Sampler (NUTS) \cite{Hoffman2014TheCarlo}, que está basado en gradiente y además es de los más utilizados cuando hay un sistema dinámico subyacente implementado en PyMC \cite{Patil2010PyMC:Python}.
+
+Para DEMetropolisZ se utilizarán 20000 iteraciones de \textit{warm up}, es decir, no se utilizarán para la estimación y 20000 para estimación como tal. Mientras que para NUTS se utilizarán 150 y 150, respectivamente.
 
 Se prueba la metodología de estimación de parámetros para el modelo SIR \eqref{eq:SIR}, esto es, lograr una estimación para $\beta$ y $\gamma$ en base a observaciones, tal como se encuentra en el algoritmo \ref{alg:ParamEstim}. Por lo que se considera el modelo con estados aumentados, que es
 
