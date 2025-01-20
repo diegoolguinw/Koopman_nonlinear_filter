@@ -265,6 +265,7 @@ Finalmente, será necesario asumir que $\U \H_\X \subset \H_\X$ y $\G \H_\Y \sub
 	\begin{equation*}
 		\U \H^k (\X) \subset \H^k (\X), \quad \G \H^k (\Y) \subset \H^k (\X).
 	\end{equation*}
+    \label{prop:inv_koop}
 \end{prop}
 
 \begin{proof}
@@ -353,6 +354,17 @@ De forma análoga, se demuestra que
 Estas igualdades deben entenderse cuidadosamente y están bien definidas bajo la condición de que $C_X$ sea inyectivo \cite{Fukumizu2013KernelKernels}, lo que ya se discutió en la sección anterior.
 \end{proof}
 
+\begin{obs}
+    El hecho de que el operador de el operador de \textit{embedding} de la distribución condicional sea el adjunto del operador de Koopman, y no el operador de Koopman en sí mismo, está relacionado con algo ya visto por Gerlach et al., en donde indican que el operador de Koopman genera una dinámica de funciones y el operador de Perron-Frobenius una de distribuciones. Esto se explica mejor en la figura \ref{fig:koopman_exp}.
+    
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.5\linewidth]{img/content/chapter3/koopman_exp.pdf}
+        \caption{Diagrama explicativo de la relación entre el operador de Koopman y Perron-Frobenius, obtenido de \cite{Gerlach2020TheSystems}, a su vez adaptado de \cite{Leonard2019ProbabilisticAirdrop}.}
+        \label{fig:koopman_exp}
+    \end{figure}
+\end{obs}
+
 Notar que, una vez realizado el \textit{embedding} a dimensión infinita de las distribuciones de probabilidad del problema, es necesario regresar al espacio de dimensión original. Por ello, se introduce un nuevo operador de Koopman que actuará como un operador de \textit{lifting back}.
 
 Sea $\Tilde{k}_\X: \X \times \X \to \R$ el \textit{kernel} definido a partir del producto interno, con lo cual su \textit{feature map} canónico $\phi : \X \to \R^n$ está dado por la función identidad. Esto es:
@@ -417,6 +429,16 @@ los cuales están representados por las siguientes matrices:
 \begin{equation*}
     \mathbf{B}_N = (\Phi_N (\mathbf{X}))^{-1} \mathbf{X}^\top.
 \end{equation*}
+es decir,
+\begin{equation*}
+    \U_N = (C_X^N)^{-1} C_{XX^+}^N,
+\end{equation*}
+\begin{equation*}
+    \G_N = (C_X^N)^{-1} C_{XY}^N,
+\end{equation*}
+\begin{equation*}
+    \B_N = (C_X^N)^{-1} C_{XX}^N.
+\end{equation*}
 El algoritmo \ref{alg:kEDMD} se deja el detalle para poder aplicar kernel Extended Dynamic Mode Decomposition en el ámbito computacional.
 \begin{algorithm}
 \caption{kEDMD($\mu_\X$, $\rho_f$, $\rho_g$, $k$, $N$)}\label{alg:kEDMD}
@@ -471,7 +493,11 @@ El siguiente resultado, presentado por Philipp et al. \cite{Philipp2024ErrorOper
 Por último, se presenta un resultado complementario que proporciona una cota necesaria para las secciones posteriores.
 
 \begin{teo}
-    Bajo la misma hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$,  si $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$, entonces con probabilidad al menos $1 - \delta$ se tiene que:
+    Bajo la misma hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$,  si $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$ y
+    \[
+    8\|k\|^2_\infty \ln(4/\delta) \leq \frac{1}{2} (N+1)^{-7/2},
+    \]
+    con probabilidad al menos $1 - \delta$ se tiene que:
     \begin{equation}
         \| \U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2}.
         \label{eq:kEDMD_bound}
@@ -482,7 +508,8 @@ Por último, se presenta un resultado complementario que proporciona una cota ne
     \begin{equation*}
     \| \B - \B_N \|_{\R^n \to L^2(\X; \mu_\X)} \leq C N^{-1/2}
     \end{equation*}
-    \label{teo:error_koop_sqrt_N}
+    con $C$ alguna constante que no depende ni de $N$ ni de $\delta$.
+    \label{teo:error_koop_sqrt_N_hip}
 \end{teo}
 
 Para la demostración es necesario un teorema de Santin et al. que cuantifica el orden de decaimiento de los valores propios del operador $C_X$, que será clave para el teorema final de esta sección.
@@ -502,36 +529,448 @@ Para la demostración es necesario un teorema de Santin et al. que cuantifica el
     \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq \sqrt{\lambda_{N+1}} \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_N \varepsilon
     \]
     con $c_N$ definido en el enunciado del teorema $\ref{teo:error_koop}$ y con 
-    \begin{equation*}
+    \begin{equation}
         N \geq \frac{8\|k\|^2_\infty \ln(4/\delta)}{\varepsilon^2}.
-    \end{equation*}
-    
-    Es de esto último que se desprende que existe una constante $c_2$, dependiente de $\delta$, tal que tomando $\varepsilon$ suficientemente pequeño se obtiene
-    \begin{equation*}
-        \varepsilon \leq c_2 N^{-1/2}.
-    \end{equation*}
-    
-    Con esto
+        \label{eq:N_bound}
+    \end{equation}
+
+    Tomando, en virtud del teorema \ref{teo:eig_val_decay}, 
     \[
-    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq \sqrt{\lambda_{N+1}} \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_2 N^{-1/2}.
+    \varepsilon = \frac{\delta_N \lambda_N}{c_1(N+1)} N^{-1/2} \leq \frac{\delta_N}{(N+1)N^{(\nu+n)/n}} N^{-1/2} <\delta_N,
+    \]
+    se tiene
+    \[
+    c_N \varepsilon = \frac{\delta_N \sqrt{\lambda_N}}{c_1 (N+1) N^{1/2}} + \frac{N^{-1/2}}{c_1} (1 + \|k_\X\|_{1}) \|k_\X \|^{1/2}_{1}.
+    \]
+    Y notando que 
+    \[
+    \delta_N = \min_{j=1, \dots, N} \frac{\lambda_j - \lambda_{j+1}}{2} \leq \min_{j=1, \dots, N} \frac{\lambda_j}{2} = \frac{\lambda_N}{2},
+    \]
+    y llamando
+    \[
+    \Tilde{c}_1 = \frac{(1 + \|k_\X\|_{1}) \|k_\X \|^{1/2}_{1}}{c_1}
+    \]
+    se tiene
+    \[
+    \begin{aligned}
+        c_N \varepsilon & \leq  \frac{\lambda_N \sqrt{\lambda_N}}{2 c_1 (N+1) N^{1/2}} + \frac{N^{-1/2}}{c_1} (1 + \|k_\X\|_{1}) \|k_\X \|^{1/2}_{1} \\ 
+        & \leq \frac{(N-1)^{-3(n+\nu)/(2n)}}{2 c_1 (N+1) N^{1/2}} + \Tilde{c}_1 N^{-1/2} \\
+        & \leq \frac{(N+1)^{-3(n+\nu)/(2n)}}{2 c_1 (N+1) N^{1/2}} + \Tilde{c}_1 N^{-1/2} \\
+        & \leq \frac{1}{2c_1} N^{-1/2} + \Tilde{c}_1 N^{-1/2}.
+    \end{aligned}
     \]
     
-    Notando que dado que $\nu > 0$, se tiene que 
-    \begin{equation*}
-        N^{-(\nu + n)/(2n)} \leq N^{-n/(2n)} = N^{-1/2}
-    \end{equation*}
-    se puede utilizar entonces el teorema \ref{teo:eig_val_decay}, con lo que se tiene que existe una constante $c_1$ tal que
+    Llamando $c_2 = 1/(2c_1) + \Tilde{c}_1$ se obtiene que 
     \[
-    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq c_1 \|\U \|_{\H_{X} \to \mathcal{H_\X}} N^{-1/2} + c_2 N^{-1/2} = (c_1 \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_2) N^{-1/2}.
+    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq \sqrt{\lambda_{N+1}} \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_2 N^{-1/2},
     \]
-    
-    Denotando $C = c_1 \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_2$ se concluye que
+    con lo que ocupando nuevamente el teorema \ref{teo:eig_val_decay}, se obtiene
     \[
-    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2}.
+    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq c_1 \|\U \|_{\H_{X} \to \mathcal{H_\X}} N^{-(n+\nu)/(2n)} + c_2 N^{-1/2} \leq c_1 \|\U \|_{\H_{X} \to \mathcal{H_\X}} N^{-1/2} + c_2 N^{-1/2}.
     \]
+    Y denotando $C = c_1 \|\U \|_{\H_{X} \to \mathcal{H_\X}} + c_2$ se obtiene 
+    \[
+    \|\U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2},
+    \]
+    en donde se ha ocupado que dado que $\nu > 0$, $N^{-(n+\nu)/(2n)} \leq N^{-n/(2n)} = N^{-1/2}$.
+
+    Ahora, notar que de \ref{eq:N_bound} se tiene
+    \[
+    \begin{aligned}
+        8\|k\|^2_\infty \ln(4/\delta) & \leq N \varepsilon^2 \\
+        & = \frac{\delta_N \lambda_N N^{-1/2}}{c_1 (N+1)} \\
+        & \leq \frac{\lambda_N^2 N^{-1/2}}{2c_1 (N+1)} \\
+        & \leq \frac{c_1 N^{-2(\nu+n)/n} N^{-1/2}}{2c_1 (N+1)} \\
+        & \leq \frac{ (N+1)^{-2(\nu+n)/n} (N+1)^{-1/2}}{2 (N+1)} \\
+        & \leq \frac{1}{2} (N+1)^{-(2(\nu+n)/n + 3/2)}. \\
+        & \leq \frac{1}{2} (N+1)^{-(2n/n + 3/2)} \\
+        & = \frac{1}{2} (N+1)^{-(2 + 3/2)} \\
+        & = \frac{1}{2} (N+1)^{-7/2}
+    \end{aligned}
+    \]
+
+    Con lo que se obtiene la cota que relaciona $N$ con $\delta$.
 \end{proof}
 
-Cabe mencionar que \( N^{-1/2} \) representa una cota menos ajustada en comparación con la proporcionada por \cite{Philipp2024ErrorOperator}, aunque corresponde al orden de error característico de otras aproximaciones analizadas en la siguiente sección.
+% \begin{obs}
+%     Notar que tomando $\delta$ tal que
+%     \[
+%     8\|k\|^2_\infty \ln(4/\delta) = \frac{1}{2} (N+1)^{-7/2},
+%     \]
+%     entonces
+%     \[
+%      \ln(4/\delta) = \frac{1}{16\|k\|^2_\infty} (N+1)^{-7/2},
+%     \]
+%     con lo que
+%     \[
+%     \frac{4}{\delta} = \text{exp} \left ( \frac{1}{16\|k\|^2_\infty} (N+1)^{-7/2} \right ),
+%     \]
+%     y así
+%     \[
+%     4  \text{exp} \left ( -\frac{1}{16\|k\|^2_\infty} (N+1)^{-7/2} \right ) = \delta.
+%     \]
+
+%     Con lo que en efecto $\delta$, visto como función de $N$, es una 
+% \end{obs}
+
+Es importante destacar que \( N^{-1/2} \) representa una cota menos ajustada en comparación con la presentada por \cite{Philipp2024ErrorOperator}, aunque corresponde al orden de error característico de otras aproximaciones analizadas en la sección siguiente.
+
+El teorema anterior se fundamenta en dos hipótesis: la invarianza de Koopman y la simplicidad de los valores propios de \( C_X \). La primera hipótesis no plantea mayores inconvenientes, dado que existen numerosos sistemas donde se cumple. Por ejemplo, en el caso de ruido aditivo normal y funciones dependientes del estado que sean suficientemente suaves, dicha invarianza puede verificarse de acuerdo con la proposición \ref{prop:inv_koop}.
+
+Sin embargo, la hipótesis sobre la simplicidad de los valores propios de \( C_X \) resulta más restrictiva. Philipp et al. no proporcionan ejemplos específicos donde esta condición se cumpla. Además, se sabe que, en ciertos casos, como en el caso de \textit{kernel} de Matérn, los valores propios de \( C_X \) están relacionados con los del operador de Laplace-Beltrami asociado al espacio de estados \( \X \) \cite{Whittle1963StochasticDimensions, Borovitskiy2020MaternManifolds}. Este hecho sugiere que existen numerosos escenarios en los cuales la simplicidad de los valores propios podría no cumplirse.
+
+Los siguientes teoremas apuntan a eliminar ambas hipótesis, lo que permite situar la aproximación de Koopman en un contexto más general. Este nuevo enfoque no depende del dominio, salvo por la condición de compacidad, ni de las propiedades específicas de las funciones involucradas. En cambio, se basa en aspectos controlables, como el \textit{kernel} seleccionado y el número de puntos \textit{sampleados}, \( N \).
+
+Previo a la demostración, la intuición detrás de esta proposición es que el hecho de que haya un discreto de valores propios para un operador compacto y autoadjunto, permite acomodar valores propios con multiplicidad mayor a $1$ entre $2$ valores propios, de manera que la distancia vaya haciéndose nula, como lo explica la figura \ref{fig:simple_eig_vals}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.0\linewidth]{img/content/chapter3/simple_eig_vals.pdf}
+    \caption{Intuición de la proposición \ref{prop:val_prop_sim}. A la izquierda, en naranjo, los valores propios del operador que tienen multiplicidad mayor a $1$ y a la izquierda, en naranjo también, cómo se acomodan entre dos valores propios.}
+    \label{fig:simple_eig_vals}
+\end{figure}
+
+\begin{prop}
+    Sea $A: \H_\X \to \H_\X$ un operador compacto y autoadjunto, y sea $N \in \N$ tal que existe un valor propio $\lambda_j$, con $j < N$, cuya multiplicidad es $m > 1$. Entonces, para todo $\varepsilon \in (0, \lambda_{m+j} - \lambda_{m+j+1})$, existe un operador $B^\varepsilon: \H_\X \to \H_\X$ de rango $m$ tal que $A + B^\varepsilon$ posee los primeros $N$ valores propios simples, con las mismas funciones propias, y además $\| B^\varepsilon \| \leq C \cdot \varepsilon$, para alguna constante $C > 0$.
+    \label{prop:val_prop_sim}
+\end{prop}
+
+\begin{proof}
+    Dado que $\H_\X$ es un espacio de Hilbert separable y $A$ es compacto y autoadjunto, el teorema espectral \cite{Brezis2011FunctionalEquations} garantiza que $A$ posee un espectro discreto de valores propios $\{ \lambda_j \}_j$, todos positivos y decrecientes hacia $0$, con funciones propias $\{ v_j \}_j$ que constituyen una base ortonormal de $\H_\X$.
+
+    Se definen los operadores $T_k : \H_\X \to \H_\X$ de rango $1$ como
+    \[
+    T_k \psi = \langle v_k, \psi \rangle v_k, \quad \psi \in \H_\X,
+    \]
+    los cuales son lineales y continuos. Además, satisfacen
+    \[
+    T_k v_\ell = \langle v_k, v_\ell \rangle v_k = \delta_{k \ell} v_k,
+    \]
+    donde $\delta_{k \ell}$ es la delta de Kronecker, ya que $\{ v_j \}_j$ constituye una base ortonormal.
+
+    Sea $\varepsilon \in (0, \lambda_{m+j} - \lambda_{m+j+1})$, se define
+    \[
+    \varepsilon_k = \frac{\varepsilon (k-j)}{m^2 \cdot j^2}, \quad k \in \{ j, \dots , m+j \},
+    \]
+    que cumple $\varepsilon_k < \varepsilon < \lambda_{m+j} - \lambda_{m+j+1}$. A partir de esto, se define 
+    \[
+    B^\varepsilon = \sum_{k=j}^{m+j} \varepsilon_k T_k,
+    \]
+    el cual, al ser una suma de $m$ operadores de rango $1$ con rangos ortogonales, tiene rango $m$.
+
+    Para \( v_\ell \) con $\ell \notin \{ j, \dots, m+j \}$, se verifica
+    \[
+    (C_X + B^\varepsilon) v_\ell = C_X v_\ell + B^\varepsilon v_\ell = C_X v_\ell = \lambda_\ell v_\ell.
+    \]
+    Es decir, $C_X + B^\varepsilon$ conserva los mismos valores propios y funciones propias de $C_X$ para $\ell \notin \{ j, \dots, m+j \}$. En cambio, para $\ell \in \{ j, \dots, m+j \}$ se tiene
+    \[
+    (C_X + B^\varepsilon) v_\ell = C_X v_\ell + B^\varepsilon v_\ell = \lambda_\ell v_\ell + \sum_{k=j}^{m+j} \varepsilon_k T_k v_\ell = \lambda_\ell v_\ell + \sum_{k=j}^{m+j} \varepsilon_k \delta_{k \ell} v_k = \lambda_\ell v_\ell + \varepsilon_\ell v_\ell.
+    \]
+    Por lo tanto,
+    \[
+    (C_X + B^\varepsilon)v_\ell = (\lambda_\ell + \varepsilon_\ell) v_\ell,
+    \]
+    lo que implica que $\Tilde{\lambda}_\ell = \lambda_\ell + \varepsilon_\ell$ es un valor propio de $C_X + B^\varepsilon$ con función propia $v_\ell$. Estos valores propios son simples ya que
+    \[
+    \lambda_{j-1} < \lambda_j = \lambda_j + \frac{\varepsilon (j-j)}{m^2 j^2} = \Tilde{\lambda}_j < \Tilde{\lambda}_{m+j} = \lambda_{m+j} + \frac{\varepsilon m}{m^2 j^2} < \lambda_{m+j+1}.
+    \]
+
+    En consecuencia, $C_X + B^\varepsilon$ tiene los primeros $N$ valores propios simples con las mismas funciones propias. Finalmente, para $\psi \in \H_\X$, se cumple
+    \[
+    \| B^\varepsilon \psi \| \leq \sum_{k=j}^{m+j} \varepsilon_k \| T_k \psi \| = \sum_{k=j}^{m+j} \varepsilon_k | \langle v_k, \psi \rangle | \| v_k \| \leq \sum_{k=j}^{m+j} \varepsilon_k \| v_k \| \| \psi \| = \sum_{k=j}^{m+j} \varepsilon_k \| \psi \|,
+    \]
+    con lo que
+    \[
+    \| B^\varepsilon \| \leq \sum_{k=j}^{m+j} \varepsilon_k  = \sum_{k=j}^{m+j} \frac{\varepsilon (k-j)}{m^2 j^2} \leq \varepsilon \sum_{k=j}^{m+j} \frac{1}{m j^2} = \frac{\varepsilon}{j^2} \leq \varepsilon \sum_{j \geq 1} \frac{1}{j^2} = C \cdot \varepsilon.
+    \]
+
+    Cabe señalar que este factor $1/j^2$ no es estrictamente necesario para una única ventana de valores propios no simples, aunque facilita la extensión de la demostración a una cantidad infinita de ventanas con dicha característica.
+\end{proof}
+
+\begin{lema}
+    $C_X$ es un operador compacto y autoadjunto.
+\end{lema}
+
+\begin{proof}
+    Ya se estableció previamente que $C_X$ es autoadjunto, por lo que únicamente resta demostrar su compacidad. Sea $\{ \psi_n \}_n \subset \H_\X$ una sucesión débilmente convergente a $\psi$, es decir, para toda $\phi \in \H_\X$ y $\varepsilon > 0$, existe un $n_0 \in \N$ tal que, para $n \geq n_0$, se cumple
+    \[
+    \langle \psi_n - \psi, \phi \rangle \to 0.
+    \]
+    Se debe probar que $C_X \psi_n$ converge en norma a $C_X \psi$. Para ello, se tiene:
+    \[
+    \begin{aligned}
+        \| C_X (\psi_n - \psi) \| & \leq \int_\X | \psi_n (x) - \psi (x) | \| \Phi_\X (x) \| d \mu_\X (x) \\
+        & = \int_\X | \langle \psi_n - \psi, \Phi_\X (x) \rangle | \| \Phi_\X (x) \| d \mu_\X (x) \\
+        & \leq \left ( \int_\X | \langle \psi_n - \psi, \Phi_\X (x) \rangle |^2 d \mu_\X (x) \right )^{1/2} \left ( \int_\X \| \Phi_\X (x) \|^2 d \mu_\X (x) \right )^{1/2} \\
+        & = \left ( \int_\X | \langle \psi_n - \psi, \Phi_\X (x) \rangle |^2 d \mu_\X (x) \right )^{1/2} \left ( \int_\X k(x,x)^2 d \mu_\X (x) \right )^{1/2} \\
+        & \to 0,
+    \end{aligned}
+    \]
+    donde se ha aplicado la propiedad reproductora para establecer que
+    \[
+    \psi_n (x) - \psi (x) = \langle \psi_n - \psi, \Phi_\X (x) \rangle,
+    \]
+    y la desigualdad de Hölder para separar en dos integrales.
+\end{proof}
+
+\begin{lema}[\cite{Christmann2008SupportMachines}]
+    $C_X$ es inyectivo; de forma equivalente, existe una constante $c_1 > 0$ tal que
+    \[
+    \| C_X \psi \| \geq c_1 \| \psi \|, \quad \forall \psi \in \H_\X.
+    \]
+\end{lema}
+
+\begin{teo}
+    Se supone que los valores propios de $C_X$ son simples. Sea $\delta \in (0, 1)$,  si $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$ y
+    \[
+    8\|k\|^2_\infty \ln(4/\delta) \leq \frac{1}{2} (N+1)^{-7/2},
+    \]
+    entonces con probabilidad al menos $1-\delta$ se tiene que
+    \begin{equation*}
+        \| \U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2}.
+    \end{equation*}
+    \begin{equation*}
+        \| \G - \G_N \|_{\R^p \to L^2(\X; \mu_\X)} \leq C N^{-1/2}
+    \end{equation*}
+    \begin{equation*}
+        \| \B - \B_N \|_{\R^n \to L^2(\X; \mu_\X)} \leq C N^{-1/2}
+    \end{equation*}
+    con $C$ alguna constante que no depende ni de $N$ ni de $\delta$.
+    \label{teo:error_koop_sqrt_N_1}
+\end{teo}
+
+\begin{proof}
+    Se debe eliminar la hipótesis de invarianza de Koopman, es decir, que $\U \H_\X \subset \H_\X$. Al igual que antes se demuestra para $\U$ y para $\G$ y $\B$ es análogo.  
+    Sea $\varepsilon > 0$, luego existe una función $p^\varepsilon_f : \X \times \X \to \R$ de clase $C^\infty$ y con soporte compacto tal que 
+    \[
+    \| p^\varepsilon_f - p_f\|_{L^1} \leq \varepsilon
+    \]
+    Se define el operador aproximante $\U^\varepsilon : \H_\X \to \H_\X$ mediante
+    \[
+    (\U^\varepsilon \psi) (x) = \int_\X \psi (y) p^\varepsilon_f (x, y) d \mu_\X (y).
+    \]
+    Por tanto, sean $\psi \in \H_\X$ y $x \in \X$, con eso
+    \[
+    \begin{aligned}
+        |(\U^\varepsilon \psi) (x) - (\U \psi) (x)| & \leq \int_\X |\psi (y)| |p^\varepsilon_f (x, y) - p_f (x, y)| d \mu (y) \\
+        & \leq \| \psi \|_\infty \int_\X |p^\varepsilon_f (x, y) - p_f (x, y)| d \mu (y) \\
+        & = \sup_{y \in \X} |\psi (y)| \| p^\varepsilon_f - p_f\|_{L^1} \\
+        & \leq \varepsilon \sup_{y \in \X} |\psi (y)| \\
+        & = \varepsilon \sup_{y \in \X} |\langle \Phi_\X (y), \psi \rangle| \\
+        & \leq \varepsilon \sup_{y \in \X} \| \Phi_\X (y) \|_{\H_\X} \| \psi \|_{\H_\X} \\
+        & = \varepsilon \sup_{y \in \X} \sqrt{k(y,y)} \| \psi \|_{\H_\X}.
+    \end{aligned}
+    \]
+    Es así que
+    \[
+    \begin{aligned}
+        \|\U^\varepsilon \psi - \U \psi \|_{L^2}^2 &= \int_\X |(\U^\varepsilon \psi) (x) - (\U \psi) (x)|^2 d \mu_X (x) \\
+        &\leq \int_\X \varepsilon^2 \sup_{y \in \X} k(y,y) \| \psi \|_{\H_\X}^2 d \mu_\X (x) \\
+        & = \varepsilon^2 \sup_{y \in \X} k(y,y) \| \psi \|_{\H_\X}^2.
+    \end{aligned}
+    \]
+    Obteniendo que
+    \[
+    \|\U^\varepsilon - \U \|_{L^2} \leq \varepsilon \sup_{y \in \X} \sqrt{k(y,y)}
+    \]
+
+    Sea $\U^\varepsilon_N$ la aproximación de $\U^\varepsilon$, que se obtiene de manera análoga a la vista antes, solo que \textit{sampleando} puntos desde $p^\varepsilon_f$ en vez de $p_f$. Con esto
+\[
+\begin{aligned}
+    \| \U - \U_N \| & \leq \| \U - \U^\varepsilon \| + \| \U^\varepsilon - \U_N^\varepsilon \| + \| \U_N^\varepsilon - \U_N \| \\
+    & \leq \varepsilon \sup_{y \in \X} \sqrt{k(y,y)} + C N^{-1/2} + \| \U_N^\varepsilon - \U_N \| 
+\end{aligned}
+\]
+Para el término $\| \U_N^\varepsilon - \U_N \|$ recordar que
+\[
+\U_N = (C_X^N)^{-1} C_{XX^+}, \quad \U_N^\varepsilon = (C_X^N)^{-1} C_{XX^+_\varepsilon}
+\]
+donde $C_{XX^+_\varepsilon}$ es el operador que cumple
+\[
+ C_{XX^+_\varepsilon}^N \Phi_\X (x_i) = \frac{1}{N} \sum_{j = 1}^N k_\X(x_i, x_{j, \varepsilon}^+) \Phi_\X (x_j),
+\]
+siendo $ x_{j, \varepsilon}^+$ puntos \textit{sampleados} desde la variable aleatoria con densidad $p_f^\varepsilon$. 
+
+Con ello, y en virtud de la expresión para los adjuntos de los operadores de covarianza, para $\psi \in \H_\X$ se tiene
+\[
+\begin{aligned}
+    \| (\U_N^\varepsilon)^* \psi - (\U_N)^* \psi \| & = \| C_{XX_\varepsilon^+}^N (C_X^N)^{-1} \psi - C_{XX^+}^N (C_X^N)^{-1} \psi \| \\
+    & = \| C_{XX_\varepsilon^+}^N \Tilde{\psi}  - C_{XX^+}^N \Tilde{\psi} \|
+\end{aligned}
+\]
+con $\Tilde{\psi}$ satisfaciendo $C_X^N \Tilde{\psi} = \psi$, de lo cual se tiene $(C_X^N - C_X) \Tilde{\psi} + C_X \Tilde{\psi} = \psi$. En virtud de lo que probó Philipp et al. se tiene que con probabilidad $1-\delta$
+\[
+\| C^N_X - C_X \| \leq c \cdot N^{-1/2}.
+\]
+Con lo que, y en virtud de la inyectividad de $C_X$
+\[
+\begin{aligned}
+    \| (C_X^N - C_X) \Tilde{\psi} + C_X \Tilde{\psi}\| & \geq \| C_X \Tilde{\psi} \| - \| (C_X^N - C_X) \Tilde{\psi} \| \\
+    & \geq c_1 \| \Tilde{\psi} \| - \|C_X^N - C_X \| \| \Tilde{\psi}\| \\
+    & \geq (c_1 - c \cdot N^{-1/2}) \| \Tilde{\psi}\|.
+\end{aligned}
+\]
+Si la constante $c_1 - c \cdot N^{-1/2}$ es positiva, entonces
+\[
+\| \Tilde{\psi} \| \leq c_2 \|(C_X^N - C_X) \Tilde{\psi} + C_X \Tilde{\psi} \| = c_2 \| \psi \|
+\]
+Con ello
+\[
+\begin{aligned}
+    \| \U_N^\varepsilon \psi - \U_N \psi \| & \leq \| C_{XX_\varepsilon^+}^N - C_{XX^+}^N  \| \| \Tilde{\psi} \| \\
+    & \leq c_2 \| C_{XX_\varepsilon^+}^N - C_{XX^+}^N  \| \| \psi \|.
+\end{aligned}
+\]
+Basta entonces ver el término $\| C_{XX_\varepsilon^+}^N - C_{XX^+}^N  \|$:
+\[
+\begin{aligned}
+    \| C_{XX_\varepsilon^+}^N - C_{XX^+}^N  \| \leq \| C_{XX_\varepsilon^+}^N - C_{XX^+_\varepsilon} \| +  \| C_{XX^+} - C_{XX^+}^N \| + \| C_{XX_\varepsilon^+} - C_{XX^+} \|.
+\end{aligned}
+\]
+
+    Los dos primeros términos se acotan en virtud de la desigualdad de Hoeffding por $N^{-1/2}$, mientras que el tercero, sea $\phi \in \H_\X$, en virtud de la Kernel Bayes Rule
+\[
+\begin{aligned}
+    & \| C_{XX_\varepsilon^+} \phi - C_{XX^+} \phi \|\\
+    & \leq \left \| 
+    \int_\X \int_\X \phi(y) \Phi_\X (x) p^\varepsilon_f (x, y) d \mu_\X (y) d \mu_\X (x) -  \int_\X \int_\X \phi(y) \Phi_\X (x) p_f (x, y) d \mu_\X (y) d \mu_\X (x) \right \| \\
+    & \leq  
+    \int_\X \int_\X | \phi(y)| \| \Phi_\X (x) \| |p^\varepsilon_f (x, y) - p_f (x, y)|  d \mu_\X (y) d \mu_\X (x) \\
+    & \leq \int_\X \int_\X \| \phi \|_\infty \sqrt{k(x,x)} |p^\varepsilon_f (x, y) - p_f (x, y)|  d \mu_\X (y) d \mu_\X (x) \\
+    & \leq \| \phi \|_\infty \sup_{x \in \X}  \sqrt{k(x,x)}  \int_\X \int_\X |p^\varepsilon_f (x, y) - p_f (x, y)| d \mu_\X (y) d \mu_\X (x),
+\end{aligned}
+\]
+así,
+\[
+\begin{aligned}
+    & \| C_{XX_\varepsilon^+} \phi - C_{XX^+} \phi \|\\
+    & =  \| \phi \|_\infty \sup_{x \in \X}  \sqrt{k(x,x)} \| p_f^\varepsilon - p_f \|_{L^1} \\
+    & \leq \varepsilon \| \phi \|_\infty \sup_{x \in \X} \sqrt{k(x,x)}.
+\end{aligned}
+\]
+Con esto
+\[
+\| C_{XX_\varepsilon^+} - C_{XX^+}  \| \leq \varepsilon \sup_{x \in \X} \sqrt{k(x,x)}.
+\]
+Así se concluye, tomando $\varepsilon = N^{-1/2}$, que
+\[
+\| \U - \U_N \| \leq \Tilde{c}_1 N^{-1/2},
+\]
+aún cuando no se tenga la invarianza del espacio a través de Koopman.
+\end{proof}
+
+\begin{teo}
+    Sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$ y 
+    \[
+    8\|k\|^2_\infty \ln(4/\delta) \leq \frac{1}{2} (N+1)^{-7/2},
+    \]
+    entonces con probabilidad al menos $1-\delta$ se tiene que
+     \begin{equation*}
+        \| \U - \U_N \|_{\H_{\X, N} \to L^2(\X; \mu_\X)} \leq C N^{-1/2}.
+    \end{equation*}
+    \begin{equation*}
+    \| \G - \G_N \|_{\R^p \to L^2(\X; \mu_\X)} \leq C N^{-1/2}
+    \end{equation*}
+    \begin{equation*}
+    \| \B - \B_N \|_{\R^n \to L^2(\X; \mu_\X)} \leq C N^{-1/2}
+    \end{equation*}
+    con $C$ alguna constante que no depende ni de $N$ ni de $\delta$.
+    \label{teo:error_koop_sqrt_N_def}
+\end{teo}
+
+\begin{proof}
+    Ahora se elimina la hipótesis de la simplicidad de los valores propios de $C_X$, que es compacto y autoadjunto. Si se supone que existe un valor propio con multiplicidad mayor que $1$, entonces por la proposición \ref{prop:val_prop_sim}, se tiene que existe $B^\varepsilon$ de rango finito que cumple que $C_X + B^\varepsilon$ tiene los primeros $N+1$ valores propios simples, con las mismas funciones propias y $\| B^\varepsilon \| \leq C \varepsilon$. 
+
+    Se define un nuevo aproximante de Koopman como
+    \[
+    \U^\varepsilon = (C_X + B^\varepsilon)^{-1} C_{XX^+}
+    \]
+    y su aproximante en dimensión finita respectivo es
+    \[
+    \U^\varepsilon_N = (C_X^N + B^\varepsilon)^{-1} C_{XX^+}^N
+    \]
+    donde $B^\varepsilon$ se deja sin cambios ya que es de rango finito.
+
+    Que cumplen, para $\psi \in \H_\X$
+    \[
+    \begin{aligned}
+        \| \U\psi - \U^\varepsilon\psi \| & = \| C_X^{-1} C_{XX^+} \psi - (C_X + B^\varepsilon)^{-1} C_{XX^+} \psi \| \\
+        & = \| C_X^{-1} \Tilde{\psi} - (C_X + B^\varepsilon)^{-1} \Tilde{\psi} \| \\
+        & = \| \hat{\psi} - \hat{\psi}_\varepsilon \|
+    \end{aligned} 
+    \]
+    en donde
+    \[
+    C_{XX^+}\psi = \Tilde{\psi}, \quad C_X \hat{\psi} =  \Tilde{\psi}, \quad (C_X + B^\varepsilon)\hat{\psi}_\varepsilon = \Tilde{\psi}.
+    \]
+    Así
+    \[
+    C_X \hat{\psi} = (C_X + B^\varepsilon)\hat{\psi}_\varepsilon,
+    \]
+    con lo que
+    \[
+    C_X (\hat{\psi} - \hat{\psi}_\varepsilon) = B^\varepsilon \hat{\psi}_\varepsilon
+    \]
+    y así
+    \[
+    \|C_X (\hat{\psi} - \hat{\psi}_\varepsilon)\| = \|B^\varepsilon \hat{\psi}_\varepsilon\|.
+    \]
+
+    Gracias a la inyectividad de $C_X$, existe una constante $c_1$ tal que 
+    \[
+    \| \hat{\psi} - \hat{\psi}_\varepsilon \| \leq \frac{1}{c_1} \| C_X (\hat{\psi} - \hat{\psi}_\varepsilon) \| \leq \| B^\varepsilon \| \| \hat{\psi}_\varepsilon \| \leq C \cdot \varepsilon \| \hat{\psi}_\varepsilon \|. 
+    \]
+    Con ello notar que
+    \[
+    C_X \hat{\psi}_\varepsilon  = -B^\varepsilon \hat{\psi}_\varepsilon  + (B^\varepsilon + C_X)\hat{\psi}_\varepsilon
+    \]
+    así
+    \[
+    \| C_X \hat{\psi}_\varepsilon \| \leq \| B^\varepsilon \hat{\psi}_\varepsilon \| + \| (B^\varepsilon + C_X)\hat{\psi}_\varepsilon\| \leq C \cdot \varepsilon  \| \hat{\psi}_\varepsilon \| + \| (B^\varepsilon + C_X)\hat{\psi}_\varepsilon\|. 
+    \]
+    
+    Utilizando la inyectividad de $C_X$
+    \[
+    c_1 \|\hat{\psi}_\varepsilon\| \leq \| C_X \hat{\psi}_\varepsilon \| \leq  C \cdot \varepsilon  \| \hat{\psi}_\varepsilon \| + \| (B^\varepsilon + C_X)\hat{\psi}_\varepsilon\|
+    \]
+    con ello
+    \[
+    (c_1 - C\varepsilon)  \|\hat{\psi}_\varepsilon\| \leq \| (B^\varepsilon + C_X)\hat{\psi}_\varepsilon\| = \| \Tilde{\psi} \|
+    \]
+    
+    Tomando $\varepsilon$ tal que $c_1 - C \varepsilon > 0$ se tiene que
+    \[
+    \|\hat{\psi}_\varepsilon\| \leq \frac{1}{c_1 - C\varepsilon} \| \Tilde{\psi} \| = \frac{1}{c_1 - C\varepsilon} \| C_{XX^+} \psi \| \leq \frac{1}{c_1 - C\varepsilon} \| C_{XX^+} \| \| \psi \|
+    \]
+
+     Y así
+    \[
+     \| \U\psi - \U^\varepsilon\psi \| = \| \hat{\psi} - \hat{\psi}_\varepsilon \| \leq \frac{C \cdot \varepsilon}{c_1 - C \cdot \varepsilon} \| C_{XX^+} \| \| \psi \| \leq \frac{C \cdot \varepsilon}{c_1} \| C_{XX^+} \| \| \psi \| = c_2 \| \psi \|.
+    \]
+
+    De manera análoga, existe una constante $c_3$ tal que 
+
+    \[
+    \| \U^\varepsilon_N - \U_N \| \leq c_3 \cdot \varepsilon.
+    \]
+    
+    Luego, al igual que antes se tiene
+    \[
+    \begin{aligned}
+        \| \U - \U_N \| & \leq \| \U - \U^\varepsilon \| + \| \U^\varepsilon - \U_N^\varepsilon \| + \| \U_N^\varepsilon - \U_N \| \\
+        & \leq c_2 \cdot \varepsilon + C N^{-1/2} + c_3 \cdot \varepsilon.
+    \end{aligned}
+    \]
+
+   Tomando $\varepsilon = c_4 N^{-1/2}$, con $c_4 = c_1/(2C)$ que cumple
+   \[
+   C  \varepsilon = C c_4 N^{-1/2} \leq C c_4 = c_1/2 < c_1
+   \]
+   con lo que se cumple la condición $c_1 - C  \varepsilon > 0$, se tiene
+   \[
+   \| \U - \U_N \| \leq c_5 N^{-1/2}.
+   \]
+\end{proof}
 
 \section{Resultados numéricos}
 

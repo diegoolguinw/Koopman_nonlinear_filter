@@ -538,8 +538,11 @@ El primer paso para deducir la cota de error es dejar la discrepancia en norma d
 \end{proof}
 
 \begin{teo}
-    Bajo las hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$, entonces con probabilidad $1-\delta$ se tiene que existen constantes $C_i^j$ para $i \in \{1, 2, 3\}$, $j \in \{1, 2\}$ tales que
-	
+    Sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$ y
+    \[
+    8\|k\|^2_\infty \ln(4/\delta) \leq \frac{1}{2} (N+1)^{-7/2},
+    \]
+    con probabilidad al menos $1 - \delta$ se tiene que existen constantes $C_i^j$ para $i \in \{1, 2, 3\}$, $j \in \{1, 2\}$ tales que
 	\begin{equation*}
 		\begin{aligned}
 			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{k}^1 N^{-1/2}
@@ -580,7 +583,7 @@ Ahora se procede con la demostración de la Proposición \ref{teo:teo_kerKKF_2}.
 			& + c_{5,k}^2 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + c_{6,k}^2 \| \mathcal{P}_{k-1} - \mathcal{P}_{N, k-1} \|
 		\end{aligned}
 	\end{equation*}
-	Por teorema \ref{teo:error_koop_sqrt_N} entonces se concluye que con probabilidad $1-\delta$ existen constantes $C^1_{1, k}$ y $C^2_{1, k}$ tales que
+	Por teorema \ref{teo:error_koop_sqrt_N_def} entonces se concluye que con probabilidad $1-\delta$ existen constantes $C^1_{1, k}$ y $C^2_{1, k}$ tales que
 	\begin{equation*}
 		\begin{aligned}
 			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{1,k}^1 N^{-1/2} + C_{2,k}^1 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k}^1 \| \mathcal{P}_{k-1}  - \mathcal{P}_{N, k-1}  \|
@@ -659,7 +662,11 @@ Por lo que la matriz de covarianza de error a posteriori aproximante se define c
 \end{equation*}
 Con esto se puede deducir de manera sencilla la cota de error deseada para la aproximación del filtro.
 \begin{teo}[Error de kerKKF]
-    Bajo las hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$, entonces con probabilidad $1-\delta$ se tiene que existen constantes $\Tilde{C}^1_k$, $\Tilde{C}^2_k$ tales que
+   Sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$ y
+    \[
+    8\|k\|^2_\infty \ln(4/\delta) \leq \frac{1}{2} (N+1)^{-7/2},
+    \]
+    con probabilidad al menos $1 - \delta$ se tiene que existen constantes $\Tilde{C}^1_k$, $\Tilde{C}^2_k$ tales que
     \begin{equation*}
         \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \Tilde{C}^1_k N^{-1/2}
     \end{equation*}
@@ -678,7 +685,7 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
             & \leq \| \B^* \| \| \hat{\mu}_{k} -  \hat{\mu}_{N, k}\| + \|\B^* - \B^*_{N}  \| \|\hat{\mu}_{N,k} \|.
         \end{aligned}
     \end{equation*}
-    Entonces, por teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kerKKF_2} se tiene que con probabilidad $1-\delta$ existe constantes $C$, $C_k^1$ tales que 
+    Entonces, por teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} se tiene que con probabilidad $1-\delta$ existe constantes $C$, $C_k^1$ tales que 
     \begin{equation*}
          \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \| \B \| C_k^1 N^{-1/2} + \| \hat{\mu}_{N, k} \| C N^{-1/2} = \Tilde{C}_{k}^1 N^{-1/2}
     \end{equation*}
@@ -697,7 +704,7 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
             & \leq \| \B - \B_N  \| \| \mathcal{P}_k \B \| + \| \B_N \| \left ( \| \B - \B_N \| \| \mathcal{P}_k \| + \| \mathcal{P}_k - \mathcal{P}_{N, k} \| \| \B_N \| \right ).
         \end{aligned}
     \end{equation*}
-    Usando nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kerKKF_2} se tiene que probabilidad $1-\delta$ existen constantes $C$, $C_k^2$ tales que 
+    Usando nuevamente los teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} se tiene que probabilidad $1-\delta$ existen constantes $C$, $C_k^2$ tales que 
     \begin{equation*}
         \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq C_k^2 \| \mathcal{P}_k \B \| N^{-1/2} + \| \B_N \| \left ( C \| \mathcal{P}_k \| + C_k^2 \| \B_N \| \right ) N^{-1/2}
     \end{equation*}
@@ -721,7 +728,11 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
 \end{proof}
 Con esta cota, en conjunto con otros desarrollos realizados en secciones anteriores, se puede probar el siguiente resultado sobre el sesgo y el error del estimador.
 \begin{teo}
-    Bajo la hipótesis del teorema \ref{teo:error_koop}, sea $\delta \in (0, 1)$, luego con probabilidad $1-\delta$ existen constantes $\hat{C}_1$ y $\hat{C}_2$ tales que
+    Sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$ y
+    \[
+    8\|k\|^2_\infty \ln(4/\delta) \leq \frac{1}{2} (N+1)^{-7/2},
+    \]
+    con probabilidad al menos $1 - \delta$ existen constantes $\hat{C}_1$ y $\hat{C}_2$ tales que
     \begin{enumerate}
         \item El sesgo del estimador $\hat{\mathbf{x}}_{N, k}$, para la trayectoria $\mathbf{x}_k$, está acotado por $\hat{C}_1 N^{-1/2}$, esto es
     \begin{equation*}
@@ -753,7 +764,7 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
             & \leq \hat{C}_1 N^{-1/2}
         \end{aligned}
     \end{equation*}
-    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}_1$ existe con probabilidad a lo menos $1-\delta$. Para probar el punto 2. notar que
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}_1$ existe con probabilidad a lo menos $1-\delta$. Para probar el punto 2. notar que
     \begin{equation*}
         \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] = \E [\hat{\mathbf{x}}_{N, k}^\top \hat{\mathbf{x}}_{N, k}] - 2 \E [\hat{\mathbf{x}}_{N, k}^\top \mathbf{x}_k] + \E[\mathbf{x}_k^\top \mathbf{x}_k]
     \end{equation*}
@@ -781,7 +792,7 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
             & \leq \hat{C}_2 N^{-1/2}
         \end{aligned}
     \end{equation*}
-    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}_2$ existe con probabilidad a lo menos $1-\delta$. Con ello
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}_2$ existe con probabilidad a lo menos $1-\delta$. Con ello
     \begin{equation*}
         \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] - \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] \leq \hat{C}_2 N^{-1/2}
     \end{equation*}
@@ -1001,7 +1012,7 @@ En las figuras \ref{fig:linear_error_01}, \ref{fig:linear_error_001} y \ref{fig:
     \caption{Error en norma para el estado en función de $N$ para distintos valores de $\alpha$.}
 \end{figure}
 
-\subsection{Comparación para el modelo SIR con otros filtros}
+\subsection{Comparación para modelos epidemiológicos con otros filtros}
 
 Ahora se compara el filtro con otros filtros no lineales presentados en los preliminares, que vendrían siendo Extended Kalman Filter (EKF), Unscented Kalman Filter (UKF) y Particle Filters (PF), que, tal como se mencionó antes, son implementación propia para este trabajo. 
 
@@ -1093,11 +1104,11 @@ Se muestra ahora el caso en que $\sigma = 0.01$ fijo y varía el parámetro $\be
 
 Además, se midió el error en norma de los filtros para $50$ valores de $\beta$ entre $0.1$ y $2.5$ equiespaciados, manteniendo todo el resto de parámetros sin cambios. El resultado se puede observar en la figura \ref{fig:nonlinear_filters_sir_error_beta}, en donde kerKKF tiene un mejor desempeño a nivel general.
 
-\subsection{Estimación de parámetros del modelo SIR}
+\subsection{Estimación de parámetros de modelos epidemiológicos}
 
 A continuación se prueba la metodología para estimación de parámetros, que se compara con Markov Chain Monte Carlo, utilizando como \textit{samplers} Differential Evolution Metropolis (DEMetropolisZ) \cite{terBraak2008DifferentialChains}, que es un \textit{sampler} no basado en gradiente, y No-U-Turn Sampler (NUTS) \cite{Hoffman2014TheCarlo}, que está basado en gradiente y además es de los más utilizados cuando hay un sistema dinámico subyacente implementado en PyMC \cite{Patil2010PyMC:Python}.
 
-Para DEMetropolisZ se utilizarán 20000 iteraciones de \textit{warm up}, es decir, no se utilizarán para la estimación y 20000 para estimación como tal. Mientras que para NUTS se utilizarán 150 y 150, respectivamente.
+Para DEMetropolisZ se utilizarán 20000 iteraciones de \textit{warm up}, es decir, no se utilizarán para la estimación y 20000 para estimación como tal. Mientras que para NUTS se utilizarán 150 y 150, respectivamente. Para la aproximación de Koopman, en los tres sistemas donde se probará, se utilizará $N=200$. Se realizarán 300 iteraciones del algoritmo \ref{alg:ParamEstim}, de las cuales la primera mitad se tomará como \textit{warm up} y la segunda mitad se considerará para la estimación. Para los 3 algoritmos, se hará el mismo procedimiento 8 veces, pero en paralelo en un computador MacBook Air M1 de 8 núcleos.
 
 Se prueba la metodología de estimación de parámetros para el modelo SIR \eqref{eq:SIR}, esto es, lograr una estimación para $\beta$ y $\gamma$ en base a observaciones, tal como se encuentra en el algoritmo \ref{alg:ParamEstim}. Por lo que se considera el modelo con estados aumentados, que es
 
@@ -1116,9 +1127,7 @@ Se utilizan como parámetros reales $\beta=1.3$ y $\gamma=0.5$, se utiliza como 
     \mathbf{Q}_0 = \text{diag}(0.001, 0.001, 0.001, 1, 1).
 \end{equation*}
 
-Es decir, se entrega como condición inicial para los parámetros $0.1$ y se espera que el algoritmo converja a los parámetros reales. 
-
-Se considera que los estados observables son $S$ e $I$, es decir
+Es decir, se entrega como condición inicial para los parámetros $0.1$ y se espera que el algoritmo converja a los parámetros reales. Se considera que los estados observables son $S$ e $I$, es decir
 \begin{equation*}
     \mathbf{g}(S, I, R, \beta, \gamma) = (S, I)
 \end{equation*}
@@ -1127,9 +1136,9 @@ y se consideran ruidos normales aditivos, centrados y con matrices de covarianza
     \mathbf{Q} = \text{diag}(0.001, 0.001, 0.001, 1, 1), \quad \mathbf{R} = \text{diag}(0.001, 0.001).
 \end{equation*}
 
-Se simula el sistema a $20$ unidades de tiempo, $N=200$ como dimensión de aproximación de Koopman y para muestrear puntos desde el estado se utiliza una variable aleatoria cuyas primeras tres entradas vienen desde una Dirichlet de parámetro $(1,1,1)$ y las otras dos desde Uniformes en $[0.5, 1.5]$ y $[0.1, 0.5]$, respectivamente. 
+Se simula el sistema a $20$ unidades de tiempo y para muestrear puntos desde el estado se utiliza una variable aleatoria cuyas primeras tres entradas vienen desde una Dirichlet de parámetro $(1,1,1)$ y las otras dos desde Uniformes en $[0.5, 1.5]$ y $[0.1, 0.5]$, respectivamente. 
 
-Se realizan $300$ iteraciones para el procedimiento expuesto en el algoritmo \ref{alg:ParamEstim}. Este procedimiento se hace $8$ veces en paralelo, por lo que hay $8$ filtros, que se denotarán cadenas, que están estimando el parámetro en paralelo. De las $300$ iteraciones, la primera mitad se considerarán de \textit{warm up}, es decir, no se utilizarán para la estimación ya que en dichas iteraciones el algoritmo puede eventualmente aún estar muy lejos del parámetro real.
+Se realizan $300$ iteraciones para el procedimiento expuesto en el algoritmo \ref{alg:ParamEstim}. Este procedimiento se hace $8$ veces en paralelo, por lo que hay $8$ filtros, que se denotarán cadenas, que están estimando el parámetro en paralelo. 
 
 En la figura \ref{fig:param_estim_SIR} se muestra el resultado del filtro en la última iteración y la evolución del parámetro estimado en función de las iteraciones, todo esto solo para la primera cadena de manera ilustrativa. En la figura \ref{fig:density_param_estim_SIR} se muestran las densidades de probabilidad generadas por cada cadena, comparadas con el valor real del parámetro. Si estas se promedian, queda una densidad de probabilidad que es mucho más robusta para la estimación del parámetro, resultado que se puede observar en la figura \ref{fig:mean_density_param_estim_SIR}.
 
@@ -1182,7 +1191,7 @@ Como distribuciones asociadas a la dinámica y la observación se utiliza un rui
 \]
 dado que para la observación es necesaria una variable univariada.
 
-Se utiliza $N=500$ como dimensión de aproximación de Koopman y para muestrear desde el estado se utiliza una variable aleatoria cuyas primeras tres entradas provienen de una Dirichlet de parámetro $(1,1,1)$ y las otras tres de variables aleatorias uniformes en $[0.1, 1.0]$, $[0.1, 0.5]$ y $[0.1, 0.5]$, respectivamente. Se simula el sistema a $20$ unidades temporales y se utilizan $300$ iteraciones del procedimiento en el algoritmo \ref{alg:ParamEstim}, realizado $8$ veces en paralelo.
+Para muestrear desde el estado se utiliza una variable aleatoria cuyas primeras tres entradas provienen de una Dirichlet de parámetro $(1,1,1)$ y las otras tres de variables aleatorias uniformes en $[0.1, 1.0]$, $[0.1, 0.5]$ y $[0.1, 0.5]$, respectivamente. Se simula el sistema a $20$ unidades temporales.
 
 En la figura \ref{fig:nonlinear_filters_sir_rec_params} se observa la solución de kerKKF para el sistema, esto para la última iteración del algoritmo \ref{alg:ParamEstim} y en la primera cadena de las $8$ muestreadas, mientras que en la figura \ref{fig:nonlinear_filters_sir_rec_params_evolution} se puede ver la evolución del parámetro a través de las iteraciones, esto también para la primera cadena.
 
@@ -1203,12 +1212,14 @@ Por último, se prueba para el modelo SEIR, que tiene 4 estados y 4 parámetros 
         \delta_{k+1} &= \delta_k + \mathbf{w}_k^8.
     \end{aligned}
 \end{equation*}
-Se utiliza $N=100$, una simulación del sistema a $20$ unidades de tiempo suponiendo que solo se observan los susceptibles y los infectados, es decir,
+Se simula el sistema a $20$ unidades de tiempo suponiendo que solo se observan los susceptibles y los infectados, es decir,
 \begin{equation*}
     g(S, E, I, R, \alpha, \beta, \gamma, \delta) = (S, I).
 \end{equation*}
-Se samplean $8$ cadenas en paralelo en $8$ núcleos, con $300$ iteraciones de las cuáles la mitad se utiliza para \textit{warm up}.
 
+Se puede ver en las figuras \ref{fig:nonlinear_filters_seir_params_density} y \ref{fig:nonlinear_filters_seir_params_density_mean} las densidades de probabilidad que se generan al estimar parámetros. 
+
+Se observa el rendimiento de los 3 algoritmos, para los 3 sistemas, es bastante similar, solo que kerKKF entrega intervalos de confianza más pequeños. El aspecto más relevante, por lejos, es el hecho de que kerKKF es mucho más rápido que DEMetropolisZ y NUTS, siendo incluso más de 10 veces más rápido que NUTS para el modelo SEIR. Esto es un aspecto relevante a considerar dado que NUTS, muy utilizado en muchas aplicaciones de modelos epidemiológicos para estimar parámetros, usualmente demora horas para poder ejecutarse y debe llevarse a supercomputadores. Puede que esta nueva metodología sea más eficiente en este sentido y logre aligerar tareas de computo muy tediosas y disminuir las horas de espera.
 
 \begin{table}[h!]
     \centering
@@ -1217,7 +1228,7 @@ Se samplean $8$ cadenas en paralelo en $8$ núcleos, con $300$ iteraciones de la
     \hline
     \textbf{Parámetro} & \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
     $\beta$ & 1.3 & 1.5 (0.94, 2.06) & 1.42 (1.03, 1.81) & 1.3 (1.26, 1.33) \\ \hline
-    $\gamma$ & 0.5 & 0.63 (0.22, 1.04) & 0.48 (0.30, 0.66) & 0.44 (0.4, 0.47) \\ \hline
+    $\gamma$ & 0.5 & 0.63 (0.22, 1.04) & 0.48 (0.30, 0.66) & 0.44 (0.4, 0.48) \\ \hline
     \end{tabular}
     \label{tab:SIR_params}
 \end{table}
@@ -1228,9 +1239,9 @@ Se samplean $8$ cadenas en paralelo en $8$ núcleos, con $300$ iteraciones de la
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro}& \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    $\alpha$ & 0.2 & 0.19 (0.13, 0.25) & 0.21 (0.05, 0.36) & 0.24 (0.16, 0.32) \\ \hline
-    $\beta$ & 1.3 & 1.32 (1.15, 1.49) & 1.45 (0.99, 1.90) & 1.23 (1.13, 1.33) \\ \hline
-    $\gamma$ & 0.5 & 0.50 (0.43, 0.58) & 0.56 (0.36, 0.75) & 0.42 (0.38, 0.46) \\ \hline
+    $\alpha$ & 0.2 & 0.19 (0.13, 0.25) & 0.21 (0.05, 0.36) & 0.18 (0.16, 0.20) \\ \hline
+    $\beta$ & 1.3 & 1.32 (1.15, 1.49) & 1.45 (0.99, 1.90) & 1.38 (1.34, 1.42) \\ \hline
+    $\gamma$ & 0.5 & 0.50 (0.43, 0.58) & 0.56 (0.36, 0.75) & 0.45 (0.43, 0.47) \\ \hline
     \end{tabular}
     \label{tab:SIR_params}
 \end{table}
@@ -1241,10 +1252,10 @@ Se samplean $8$ cadenas en paralelo en $8$ núcleos, con $300$ iteraciones de la
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro}& \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    $\alpha$ & 0.2 & 0.55 (-0.055, 1.15) & 0.40 (-0.13, 0.94) & 0.25 (0.17, 0.33) \\ \hline
-    $\beta$ & 1.3 & 1.85 (1.41, 2.29) & 1.56 (0.94, 2.18) & 1.31 (1.19, 1.43)\\  \hline
-    $\gamma$ & 0.4 & 0.34 (0.18, 0.50) & 0.40 (0.09, 0.71) & 0.6 (0.52, 0.68)\\ \hline
-    $\delta$ & 0.5 & 0.66 (0.47, 0.84) & 0.57 (0.32, 0.81) & 0.45 (0.33, 0.57)\\ \hline
+    $\alpha$ & 0.2 & 0.55 (-0.055, 1.15) & 0.40 (-0.13, 0.94) & 0.18 (0.14, 0.22) \\ \hline
+    $\beta$ & 1.3 & 1.85 (1.41, 2.29) & 1.56 (0.94, 2.18) & 1.32 (1.26, 1.38)\\  \hline
+    $\gamma$ & 0.4 & 0.34 (0.18, 0.50) & 0.40 (0.09, 0.71) & 0.59 (0.55, 0.63)\\ \hline
+    $\delta$ & 0.5 & 0.66 (0.47, 0.84) & 0.57 (0.32, 0.81) & 0.37 (0.25, 0.49)\\ \hline
     \end{tabular}
     \label{tab:SIR_params}
 \end{table}
@@ -1255,9 +1266,9 @@ Se samplean $8$ cadenas en paralelo en $8$ núcleos, con $300$ iteraciones de la
     \begin{tabular}{|c|c|c|c|}
     \hline
     \textbf{Modelo} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    \textbf{SIR} & 60.9 & 222.5 & 82.3 \\ \hline
-    \textbf{SIR con pérdida de inmunidad} & 141.4 & 315.3 & 23.8 \\ \hline
-    \textbf{SEIR} & 209.9 & 755.4 & 26.9 \\ \hline
+    \textbf{SIR} & 60.9 & 222.5 & 65.7 \\ \hline
+    \textbf{SIR con pérdida de inmunidad} & 141.4 & 315.3 & 54.1 \\ \hline
+    \textbf{SEIR} & 209.9 & 755.4 & 61.5 \\ \hline
     \end{tabular}
     \label{tab:ex_times}
 \end{table}
