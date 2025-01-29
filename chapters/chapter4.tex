@@ -418,7 +418,7 @@ Si ahora se realizan las aproximaciones finito dimensionales, se obtiene:
 		\mathcal{P}_{N, k+1}^- & = \U^*_N \mathcal{P}_{N,k} \U_N + \mathcal{Q}_{N, k+1} \\
 		\K_{N,k+1} & = \mathcal{P}_{N, k+1}^- \G_N (\G^*_N \mathcal{P}_{N, k+1}^- \G_N + \mathcal{R}_{N, k+1})^{-1} \\
 		\mathcal{P}_{N, k+1} & = (I + \K_{N,k+1} \G_N^*) \mathcal{P}_{N,k+1}^- \\
-		\hat{\mu}_{N,k+1} &= \U^* \hat{\mu}_{N,k} + \K_{N,k+1} (\mathbf{y}_{k+1} - \G^*_N \hat{\mu}_{N,k+1}^-)
+		\hat{\mu}_{N,k+1} &= \U_N^* \hat{\mu}_{N,k} + \K_{N,k+1} (\mathbf{y}_{k+1} - \G^*_N \hat{\mu}_{N,k+1}^-)
 	\end{aligned}
 \end{equation*}
 
@@ -538,7 +538,7 @@ El primer paso para deducir la cota de error es dejar la discrepancia en norma d
 \end{proof}
 
 \begin{teo}
-    Sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$ y
+    Sea $\delta \in (0, 1)$, si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$ y
     \[
     8\|k\|^2_\infty \ln(4/\delta) \leq \frac{1}{2} (N+1)^{-7/2},
     \]
@@ -662,7 +662,7 @@ Por lo que la matriz de covarianza de error a posteriori aproximante se define c
 \end{equation*}
 Con esto se puede deducir de manera sencilla la cota de error deseada para la aproximación del filtro.
 \begin{teo}[Error de kerKKF]
-   Sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$ y
+   Sea $\delta \in (0, 1)$, si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, $\B \R^n \subset \H_X$, $\H_\X$ es equivalente en norma $H^{\nu + n/2}$ y
     \[
     8\|k\|^2_\infty \ln(4/\delta) \leq \frac{1}{2} (N+1)^{-7/2},
     \]
@@ -728,7 +728,7 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
 \end{proof}
 Con esta cota, en conjunto con otros desarrollos realizados en secciones anteriores, se puede probar el siguiente resultado sobre el sesgo y el error del estimador.
 \begin{teo}
-    Sea $\delta \in (0, 1)$, si $\H_\X$ es equivalente en norma $H^{\nu + n/2}$ y
+    Sea $\delta \in (0, 1)$, si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, $\B \R^n \subset \H_X$, $\H_\X$ es equivalente en norma $H^{\nu + n/2}$ y
     \[
     8\|k\|^2_\infty \ln(4/\delta) \leq \frac{1}{2} (N+1)^{-7/2},
     \]
@@ -738,7 +738,7 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
     \begin{equation*}
         \left \| \E \left [ \hat{\mathbf{x}}_{N, k} - \mathbf{x}_k \right] \right \| \leq \hat{C}_1 N^{-1/2}
     \end{equation*}
-        \item El estimador $\hat{\mathbf{x}}_{N, k}$ es un $\hat{C}_2 N^{-1/2}$-mínimo del problema de filtraje, esto es
+        \item El estimador $\hat{\mathbf{x}}_{N, k}$ es un $\Tilde{C}_2 N^{-1/2}$-mínimo del problema de filtraje, esto es
     \begin{equation*}
         \E \left [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) \right] \leq  \E \left [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) \right] + \Tilde{C}_k^2 N^{-1/2}
     \end{equation*}
@@ -810,7 +810,7 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
 Cabe notar que, en virtud del teorema \ref{teo:error_kalman}, el error del filtro se desglosa en 
 
 \begin{equation}
-    \text{Error filtro } \leq \text{ Error EDMD } + \text{ Error aproximando promedios }.
+    \text{Error filtro } \leq \text{ Error EDMD } + \text{ Error aproximando promedios}.
     \label{eq:error_explicacion}
 \end{equation}
 
@@ -858,7 +858,7 @@ Notar que, para cada hilo o subproceso, se genera una serie de tiempos, en los c
 \State \textbf{Salida:} $\mathbf{\hat{p}} \in \R^{(\text{iters}+1)\times n_p}$ estimación de los parámetros en cada iteración.
 \State $\hat{\mathbf{x}}_{0,:} \gets \hat{\mathbf{x}}_0$.
 \State $\hat{\mathbf{p}}_{0,:} \gets \hat{\mathbf{p}}_0$.
-\State Tomar como prior inicial para kerKKF $\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{0,:})$.
+\State Tomar como prior inicial para kerKKF $$\Tilde{\mathbf{x}} \gets (\hat{\mathbf{x}}_{0}, \hat{\mathbf{p}}_{0,:}).$$
 \State Tomar como covarianza inicial para kerKKF 
 \begin{equation*}
     \mathbf{P} = \begin{pmatrix}
@@ -920,7 +920,7 @@ es decir, se supone que se observan el primer y el segundo estado, siendo el ter
         CA^{n-1}
     \end{pmatrix},
 \end{equation*}
-donde $n$ es la dimensión del estado, en este caso $n=3$. 
+tenga rango completo, donde $n$ es la dimensión del estado, en este caso $n=3$. 
 
 Se corrobora que el cálculo de la matriz de observabilidad en este caso entrega
 \[
@@ -1217,13 +1217,13 @@ Se simula el sistema a $20$ unidades de tiempo suponiendo que solo se observan l
     g(S, E, I, R, \alpha, \beta, \gamma, \delta) = (S, I).
 \end{equation*}
 
-Se puede ver en las figuras \ref{fig:nonlinear_filters_seir_params_density} y \ref{fig:nonlinear_filters_seir_params_density_mean} las densidades de probabilidad que se generan al estimar parámetros. 
+Se puede ver en las figuras \ref{fig:nonlinear_filters_seir_params_density} y \ref{fig:nonlinear_filters_seir_params_density_mean} las densidades de probabilidad que se generan al estimar parámetros. Para poder estudiar el error en las trayectorias, se \textit{samplean} 30 muestras de parámetros desde las densidades de probabilidad generadas, con lo que se obtiene error promedio, desviación estándar para el error, error mínimo y error máximo, esto para cada modelo y cada método.
 
 Se observa el rendimiento de los 3 algoritmos, para los 3 sistemas, es bastante similar, solo que kerKKF entrega intervalos de confianza más pequeños. El aspecto más relevante, por lejos, es el hecho de que kerKKF es mucho más rápido que DEMetropolisZ y NUTS, siendo incluso más de 10 veces más rápido que NUTS para el modelo SEIR. Esto es un aspecto relevante a considerar dado que NUTS, muy utilizado en muchas aplicaciones de modelos epidemiológicos para estimar parámetros, usualmente demora horas para poder ejecutarse y debe llevarse a supercomputadores. Puede que esta nueva metodología sea más eficiente en este sentido y logre aligerar tareas de computo muy tediosas y disminuir las horas de espera.
 
 \begin{table}[h!]
     \centering
-    \caption{Estimación de parámetros del modelo SIR.} 
+    \caption{Estimación de parámetros del modelo SIR (IC 95\%).} 
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro} & \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
@@ -1235,7 +1235,7 @@ Se observa el rendimiento de los 3 algoritmos, para los 3 sistemas, es bastante 
 
 \begin{table}[h!]
     \centering
-    \caption{Estimación de parámetros del modelo SIR.} 
+    \caption{Estimación de parámetros del modelo SIR con recuperación (IC 95\%).} 
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro}& \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
@@ -1248,7 +1248,7 @@ Se observa el rendimiento de los 3 algoritmos, para los 3 sistemas, es bastante 
 
 \begin{table}[h!]
     \centering
-    \caption{Estimación de parámetros del modelo SEIR.} 
+    \caption{Estimación de parámetros del modelo SEIR (IC 95\%).} 
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro}& \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
@@ -1262,7 +1262,65 @@ Se observa el rendimiento de los 3 algoritmos, para los 3 sistemas, es bastante 
 
 \begin{table}[h!]
     \centering
-    \caption{Tiempos de ejecución para los distintos métodos y modelos, para estimación de parámetros.} 
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{Métrica} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF} \\
+    \hline
+    Error promedio & 0.170 & 0.350 & 0.210 \\
+    \hline
+    Desviación estándar & 0.087 & 0.207 & 0.050 \\
+    \hline
+    Error mínimo & 0.007 & 0.047 & 0.102 \\
+    \hline
+    Error máximo & 0.349 & 1.137 & 0.302 \\
+    \hline
+    \end{tabular}
+    \caption{Métricas para trayectorias \textit{sampleadas} del modelo SIR.}
+    \label{tab:metricas_traj_SIR}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Métrica} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF} \\
+\hline
+Error promedio & 0.240 & 0.570 & 0.270 \\
+\hline
+Desviación estándar & 0.109 & 0.231 & 0.115 \\
+\hline
+Error mínimo & 0.049 & 0.090 & 0.024 \\
+\hline
+Error máximo & 0.581 & 1.100 & 0.534 \\
+\hline
+\end{tabular}
+    \caption{Métricas para trayectorias \textit{sampleadas} del modelo SIR con pérdida de inmunidad.}
+    \label{tab:metricas_traj_SIR_rec}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Métrica} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF} \\
+\hline
+Error promedio & 0.660 & 2.330 & 0.580 \\
+\hline
+Desviación estándar & 0.500 & 8.432 & 0.147 \\
+\hline
+Error mínimo & 0.085 & 0.064 & 0.289 \\
+\hline
+Error máximo & 1.943 & 48.279 & 0.987 \\
+\hline
+\end{tabular}
+    \caption{Métricas para trayectorias \textit{sampleadas} del modelo SEIR.}
+    \label{tab:metricas_traj_SEIR}
+\end{table}
+
+
+\begin{table}[h!]
+    \centering
+    \caption{Tiempos de ejecución para los distintos métodos y modelos, para estimación de parámetros, en segundos.} 
     \begin{tabular}{|c|c|c|c|}
     \hline
     \textbf{Modelo} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline

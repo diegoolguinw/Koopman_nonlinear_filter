@@ -7,10 +7,10 @@ Se considera un sistema controlado-observado estocástico a tiempo discreto
 Donde:
 \begin{itemize}
 	\item $\mathbf{f}: \R \times \R^{n_x} \times \R^{n_u} \times \R^{n_w} \to \R^{n_x}$ es la función de dinámica.
-	\item $\mathbf{g}: \R \times \R^{n_x} \times \R^{n_u} \times \R^{n_v} \to \R^{n_y}$ es la función de observación
+	\item $\mathbf{g}: \R \times \R^{n_x} \times \R^{n_u} \times \R^{n_v} \to \R^{n_y}$ es la función de observación.
 \end{itemize}
 Siendo $n_x$ la dimensión del estado, $n_y$ la dimensión de la observación, $n_u$ la dimensión del \textit{input}, $n_w$ la dimensión del proceso estocástico en la dinámica y $n_v$ la dimensión del ruido en las observaciones. Se considera una condición inicial $\mathbf{x}_0$, por lo general desconocida sobre la que se coloca un \textit{prior} $X_0$. \\
-Se supondrá que tanto $\mathbf{v}_k$ como $\mathbf{w}_k$ son vectores aleatorios centrados tal que $\mathbf{w}_k \indep \mathbf{w}_m, \, \forall k \neq m$, $\mathbf{v}_k \indep \mathbf{v}_m, \, \forall k \neq m$ y $\mathbf{w}_k \indep \mathbf{v}_k, \, \forall k$. Diremos que $\mathbf{w}$ y $\mathbf{v}$ son la perturbación en la dinámica y ruido en la medición, respectivamente. \\
+Se supondrá que tanto $\mathbf{v}_k$ como $\mathbf{w}_k$ son vectores aleatorios centrados tal que $\mathbf{w}_k \indep \mathbf{w}_m, \, \forall k \neq m$, $\mathbf{v}_k \indep \mathbf{v}_m, \, \forall k \neq m$ y $\mathbf{w}_k \indep \mathbf{v}_k, \, \forall k$. Se dirá que $\mathbf{w}$ y $\mathbf{v}$ son la perturbación en la dinámica y ruido en la medición, respectivamente. \\
 El estudio de sistemas a tiempo continuo, formulados como
 \begin{align*}
 	\mathbf{x}'(t) &= \mathbf{f}(t, \mathbf{x}(t), \mathbf{u}(t), \mathbf{w}(t)) \\
@@ -37,7 +37,7 @@ El problema de filtraje se puede formular como un problema de optimización del 
 	(P) \quad
 	\begin{cases}
 		\begin{aligned}
-			\text{mín} \quad & \quad \sum_{k=0}^N \E \left [ (\hat{\mathbf{x}}_{k|k} - \mathbf{x}_k)^T(\hat{\mathbf{x}}_{k|k} - \mathbf{x}_k) | \mathbf{y}_{0:k}, \, \mathbf{u}_{0:k}  \right] \\ 
+			\text{mín} \quad & \quad \sum_{k=0}^N \E \left [ (\hat{\mathbf{x}}_{k|k} - \mathbf{x}_k)^T(\hat{\mathbf{x}}_{k|k} - \mathbf{x}_k) | \mathbf{y}_{1:k}, \, \mathbf{u}_{0:k}  \right] \\ 
 			\text{s.a} \quad & \quad \mathbf{x}_{k+1} = \mathbf{f}(t_k, \mathbf{x}_k, \mathbf{u}_k, \mathbf{w}_k) \\
 			\text{} \quad & \quad \mathbf{y}_k = \mathbf{g}(t_k, \mathbf{x}_k, \mathbf{u}_k, \mathbf{v}_k) \\
 			\text{} \quad & \quad \mathbf{x}_0 \sim X_0
@@ -56,12 +56,12 @@ Es entonces que el problema $(P)$ tiene como solución al estimador de mínimo e
 Para abordar el caso de sistemas dinámicos controlados-observados generales, es importante estudiar primero el caso lineal y con ruidos centrados y segundo momento finito, esto es
 \begin{equation}
 	\begin{cases}
-		\mathbf{x}_{k+1} &= \mathbf{A}_k \mathbf{x}_k + \mathbf{B}_k \mathbf{u}_k + \mathbf{v}_k \\
-		\mathbf{y}_k &= \mathbf{C}_k \mathbf{x}_k + \mathbf{D}_k \mathbf{u}_k  + \mathbf{w}_k
+		\mathbf{x}_{k+1} &= \mathbf{A}_k \mathbf{x}_k + \mathbf{B}_k \mathbf{u}_k + \mathbf{w}_k \\
+		\mathbf{y}_k &= \mathbf{C}_k \mathbf{x}_k + \mathbf{D}_k \mathbf{u}_k  + \mathbf{v}_k
 	\end{cases}
 	\label{eq:lin_disc}
 \end{equation}
-con $\mathbf{A}_k \in \R^{n_x \times n_x}$, $\mathbf{B}_k \in \R^{n_x \times n_u}$, $\mathbf{C}_k \in \R^{n_y \times n_x}$, $\mathbf{D}_k \in \R^{n_y \times n_u}$,  $\mathbf{v}_k \sim \mathcal{N}(0, \mathbf{Q}_k)$ y $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{R}_k)$, $\mathbf{Q}_k \in \R^{n_x \times n_x}$, $\mathbf{R}_k \in \R^{n_y \times n_y}$. matrices de covarianzas, se tiene un algoritmo muy utilizado en ingeniería y ciencia, con suficiente fundamentos matemáticos e implementaciones eficientes, denotado el filtro de Kalman en honor a Rudolf E. Kalman, quién propuso el algoritmo por primera vez en \cite{Kalman1960AProblems}. Los detalles del algoritmo se presentan en el pseudo-código del Algoritmo \ref{alg:KF}. \\
+con $\mathbf{A}_k \in \R^{n_x \times n_x}$, $\mathbf{B}_k \in \R^{n_x \times n_u}$, $\mathbf{C}_k \in \R^{n_y \times n_x}$, $\mathbf{D}_k \in \R^{n_y \times n_u}$,  $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{Q}_k)$ y $\mathbf{v}_k \sim \mathcal{N}(0, \mathbf{R}_k)$, $\mathbf{Q}_k \in \R^{n_x \times n_x}$, $\mathbf{R}_k \in \R^{n_y \times n_y}$ matrices de covarianzas. Se tiene un algoritmo muy utilizado en ingeniería y ciencia, con suficiente fundamentos matemáticos e implementaciones eficientes, denotado el filtro de Kalman en honor a Rudolf E. Kalman, quién propuso el algoritmo por primera vez en \cite{Kalman1960AProblems}. Los detalles del algoritmo se presentan en el pseudo-código del Algoritmo \ref{alg:KF}. \\
 \begin{algorithm}
 	\caption{Filtro de Kalman}\label{alg:KF}
 	\begin{algorithmic}[1]
@@ -177,7 +177,8 @@ Esta será la base para el resto de algoritmos. Para visualizar el comportamient
 \end{itemize}
 
 \subsection{Caso a tiempo discreto no lineal general}
-A diferencia del caso anterior, en el caso no lineal general hay muchos algoritmos propuestos, siendo los más clásicos las variantes del filtro de Kalman, como el \textit{Extended Kalman Filter} (EKF) y el \textit{Unscented Kalman Filter} (UKF), pero se sabe que resultan ser subóptimos \cite{Setoodeh2022NonlinearApplications}.\\ 
+En paralelo a los trabajos de Kalman para el caso lineal, Stratonovich estudió el caso no lineal general \cite{Stratonovich1959OptimumNoise, STRATONOVICH1965APPLICATIONBlunn.} en donde el problema se reduce a la solución de una ecuación diferencial estocástica cuya solución coincide con el resultado de Kalman para el tiempo discreto y Kalman y Bucy para tiempo continuo \cite{Kalman1961NewTheory}. Pero, para el caso más general posible Maurel y Michel \cite{Maurel1984DesFinie} probaron que las soluciones de la ecuación de Stratonovich poseen una representación infinito dimensional, lo que las hace imposible de representar en un computador, lo que obliga a buscar aproximaciones.
+Los primeros aprontes al caso no lineal fueron el \textit{Extended Kalman Filter} (EKF) \cite{Smith1962ApplicationVehicle, McElhoe1966AnVenus} y el \textit{Unscented Kalman Filter} (UKF) \cite{Julier2004UnscentedEstimation}, pero se sabe que resultan ser subóptimos \cite{Setoodeh2022NonlinearApplications}.\\ 
 A pesar de que dichos algoritmos reciben dinámicas no lineales, siguen suponiendo que el ruido es aditivo, centrado y Gaussiano. Se verá en secciones posteriores que esto no es un impedimento para poder ejecutarlos, pero una familia de métodos se han construido para el caso más general, cuyos representantes más famosos son los filtros de partículas.\\
 Con el motivo de no extender más este informe solo se expondrá el algoritmo de EKF. Para esta sección, se supondrá que la dinámica es de la forma
 \begin{equation}
@@ -275,7 +276,7 @@ El algoritmo del \textit{Unscented Kalman Filter} (UKF), pseudo-código del algo
 	\end{algorithmic}
 \end{algorithm}
 
-Los Filtros de Partículas (PF) o algoritmos de \textit{Sequential Monte Carlo} (SMC) \cite{Kemp2003AnMethods, Wills2023SequentialReview} son una familia de métodos que estiman el estado de sistemas dinámicos no lineales y/o no gaussianos mediante técnicas de muestreo tipo Monte Carlo. Estos algoritmos representan la distribución de probabilidad del estado mediante un conjunto de partículas, que son muestras aleatorias ponderadas según su probabilidad. La precisión de estos filtros depende críticamente del proceso de resampling, un paso fundamental que evita la degeneración de partículas al eliminar aquellas con pesos bajos y duplicar las más probables. Esto permite que los filtros de partículas mantengan una representación precisa de la distribución posterior en cada paso de tiempo, adaptándose dinámicamente a la complejidad del sistema.
+Los Filtros de Partículas (PF) o algoritmos de \textit{Sequential Monte Carlo} (SMC) \cite{Hammersley1954PoorCarlo, Kemp2003AnMethods, Wills2023SequentialReview} son una familia de métodos que estiman el estado de sistemas dinámicos no lineales y/o no gaussianos mediante técnicas de muestreo tipo Monte Carlo. Estos algoritmos representan la distribución de probabilidad del estado mediante un conjunto de partículas, que son muestras aleatorias ponderadas según su probabilidad. La precisión de estos filtros depende críticamente del proceso de resampling, un paso fundamental que evita la degeneración de partículas al eliminar aquellas con pesos bajos y duplicar las más probables. Esto permite que los filtros de partículas mantengan una representación precisa de la distribución posterior en cada paso de tiempo, adaptándose dinámicamente a la complejidad del sistema.
 Para el algoritmo se considerará que los modelos vienen representados por distribuciones de probabilidad, una de transición para la dinámica  \( p(\mathbf{x}_k | \mathbf{x}_{k-1}) \) y para la observación \( p(\mathbf{y}_k | \mathbf{x}_k) \).
 
 \begin{algorithm}[h!]
@@ -319,15 +320,15 @@ Un aspecto importante de los Filtros de Partículas es que su orden de convergen
 \section{Reproducing Kernel Hilbert Spaces}
 Esta sección se basa en \cite{Wendland2004ScatteredApproximation} y \cite{Berlinet2004ReproducingStatistics}, aunque una versión más moderna de los resultados se puede encontrar en \cite{Saitoh2016TheoryApplications}. Sea \( \X \) un espacio topológico, y denote \(\C^\X\) al espacio de todas las funciones de \( \X \) en los números complejos. 
 
-\begin{defn}[Reproducing Kernel Hilbert Space (RKHS)]  
+\begin{defn}[Reproducing Kernel Hilbert Space (RKHS) \cite{Mercer1909XVI.Equations}]  
 Un espacio de Hilbert \( \mathcal{H} \subset \C^\X \) se dice un RKHS si existe una función \( k: \X \times \X \to \C \), llamada \textit{kernel reproduciente}, tal que:
 \begin{enumerate}
-    \item \( k_p \equiv K(\cdot, p) \in \mathcal{H}, \, \forall p \in E \).
-    \item \( f(p) = \langle f, k_p \rangle_{\mathcal{H}}, \quad \forall p \in E, \, \forall f \in \mathcal{H}. \)
+    \item \( k_p \equiv K(\cdot, p) \in \mathcal{H}, \, \forall p \in \X \).
+    \item \( f(p) = \langle f, k_p \rangle_{\mathcal{H}}, \quad \forall p \in \X, \, \forall f \in \mathcal{H}. \)
 \end{enumerate}
 \end{defn}
 
-\noindent La segunda propiedad, conocida como \textit{propiedad reproduciente}, es fundamental en la teoría de los RKHS y da paso a muchas de las propiedades relevantes en estos espacios, como aquellas que se presentarán a continuación. Denotamos por \( \mathcal{H}_K(E) \) al espacio de Hilbert de funciones de \( E \) en \( \C \) cuyo kernel reproduciente es \( k \).
+\noindent La segunda propiedad, conocida como \textit{propiedad reproduciente}, es fundamental en la teoría de los RKHS y da paso a muchas de las propiedades relevantes en estos espacios, como aquellas que se presentarán a continuación. Denotamos por \( \mathcal{H}_K(\X) \) al espacio de Hilbert de funciones de \( \X \) en \( \C \) cuyo kernel reproduciente es \( k \).
 
 El siguiente lema proporciona una condición necesaria y suficiente para que un espacio de Hilbert dado posea un kernel reproduciente.
 
@@ -390,7 +391,7 @@ para \( (x_1, \dots, x_n) \in E^n \) y \( (y_1, \dots, y_m) \in \X^m \).
 \noindent El siguiente teorema permite transferir las propiedades de un RKHS a un espacio \( \ell^2 \), el cual resulta, en general, más sencillo de manipular.
 
 \begin{teo}
-Una función \( K: \X \times \X \to \C \) es un kernel reproduciente si y solo si existe una función \( \varphi: E \to \ell^2 (\Tilde{\X}) \), para algún espacio \( \ell^2(\Tilde{\X}) \), tal que para todo \( (x, y) \in \X \times \X \),
+Una función \( k: \X \times \X \to \C \) es un kernel reproduciente si y solo si existe una función \( \varphi: E \to \ell^2 (\Tilde{\X}) \), para algún espacio \( \ell^2(\Tilde{\X}) \), tal que para todo \( (x, y) \in \X \times \X \),
 \[
 k(x, y)= \langle \varphi(x), \varphi(y) \rangle_{\ell^2(\Tilde{\X})}.
 \]
@@ -514,23 +515,30 @@ La definición del operador de covarianza cruzada entre dos variables aleatorias
 	\end{proof}
 	
 	\begin{cor} $(C_{X})^* = C_X$.
+        \label{cor:CX_autoad}
 	\end{cor}
-	Dado que la integral es lineal
+    \begin{proof}
+        Dado que la integral es lineal
 	\begin{equation*}
 		(C_X)^* = \int_\X (\Phi_\X (x) \otimes \Phi_\X (x))^* d \mu_\X (x) = \int_\X \Phi_\X (x) \otimes \Phi_\X (x) d \mu_\X (x) = C_X
 	\end{equation*}
-	\begin{cor}
-		\begin{equation*}
-			(C_{XX^+})^* = C_{X^+X}, \quad (C_{XY})^* = C_{YX}
-		\end{equation*}
-	\end{cor}
-	Esto es directo ya que el operador adjunto y la esperanza son lineales:
-	\begin{equation*}
-		(C_{X X^+})^* = \E [(\Phi_\X (X) \otimes \Phi_\X (X^+))^*] = \E [\Phi_\X (X^+) \otimes \Phi_\X (X)] = C_{X^+X} 
-	\end{equation*}
-	\begin{equation*}
-		(C_{X Y})^* = \E [(\Phi_\X (X) \otimes \Phi_\Y (Y))^*] = \E [\Phi_\X (Y) \otimes \Phi_\X (X)] = C_{YX} 
-	\end{equation*}
+    \end{proof}
+	
+    \begin{cor}
+        \begin{equation*}
+            (C_{XX^+})^* = C_{X^+X}, \quad (C_{XY})^* = C_{YX}
+        \end{equation*}
+    \end{cor}
+    \begin{proof}
+        Esto es directo ya que el operador adjunto y la esperanza son lineales:
+\begin{equation*}
+    (C_{X X^+})^* = \E [(\Phi_\X (X) \otimes \Phi_\X (X^+))^*] = \E [\Phi_\X (X^+) \otimes \Phi_\X (X)] = C_{X^+X} 
+\end{equation*}
+\begin{equation*}
+    (C_{X Y})^* = \E [(\Phi_\X (X) \otimes \Phi_\Y (Y))^*] = \E [\Phi_\X (Y) \otimes \Phi_\X (X)] = C_{YX} 
+\end{equation*}
+    \end{proof}
+	
 La herramienta clave para poder trabajar con el embedding de la esperanza condicional en un espacio de Hilbert será el operador de embedding condicional, cuya correcta definición se revisará en una proposición posterior.
 \begin{defn}[Operador de embedding condicional]
     El operador de embedding condicional entre 2 distribuciones $X$ e $Y$, en $\X$ e $\Y$, respectivamente, como el operador $C_{X|Y} : \H_\X \to \H_\Y$ que satisface
