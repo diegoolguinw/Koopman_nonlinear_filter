@@ -1,225 +1,31 @@
-Los resultados expuestos en las secciones anteriores se pueden generalizar a tiempo continuo, entendiendo al filtro de Kalman en tiempo continuo como límite de filtros de Kalman en tiempo discreto. Esto ya fue probado en dimensión finita por \cite{Shaid1999TheFilter, Kelly2014Well-posednessTime, Lange2022DerivationCoefficients}.
+En sus inicios, este trabajo de tesis prometía crear un algoritmo que fuese competitivo, a nivel de resultados numéricos, con los que existen en la literatura, como EKF, UKF y PF. La idea subyacente era aprovechar el poder de la linealización provista por \textit{kernel} Extended Dynamic Mode Decomposition para hacer Filtro de Kalman sobre ese nuevo sistema, esperando que eso aproximara bien la solución del problema de filtraje original.
 
-Se considera la dinámica a tiempo continuo en un horizonte finito de tiempo $t \in [0, T]$
-\begin{align*}
-    \mathbf{x}'(t) & = \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)) \\
-    \mathbf{y}(t) & = \mathbf{g}(\mathbf{x}(t), \mathbf{v}(t))
-\end{align*}
-en donde $\mathbf{w}: \R \to \R^{n_\mathbf{w}}$, $\mathbf{v}: \R \to \R^{n_\mathbf{v}}$ son variables aleatorias tales que $\E[\mathbf{w}(t)] = 0$, $\E[\mathbf{v}(t)] = 0$ y tienen segundo momento finito en el sentido de que
-\begin{equation*}
-    \E[ \mathbf{w}(t)^\top \mathbf{w}(t) ] = \mathbf{Q}(t), \quad \E[ \mathbf{v}(t)^\top \mathbf{v}(t) ] = \mathbf{R}(t)
-\end{equation*}
-para ciertas funciones a valores matriciales $\mathbf{Q}: \R \to \R^{n_\mathbf{w} \times n_\mathbf{w}}$, $\mathbf{R}: \R \to \R^{n_\mathbf{v} \times n_\mathbf{v}}$.
+Una vez cumplido este objetivo, una profundización de los aspectos teóricos del filtro, junto con una exploración más amplia de la literatura y el estado del arte, permitieron vislumbrar una cota teórica para el error del filtro y sus consecuencias.
 
-Se consideran las siguientes dinámicas discretas, parametrizadas por el paso de tiempo $\Delta t$
-\begin{align*}
-    \mathbf{x}_{k+1} & = \Tilde{\mathbf{f}} (\mathbf{x}_k, \mathbf{w}_k) := \mathbf{x}_k + \Delta t \cdot \mathbf{f}(\mathbf{x}_k, \mathbf{w}_k )\\
-    \mathbf{y}_k & = \mathbf{g}(\mathbf{x}_k, \mathbf{v}_k)
-\end{align*}
-en donde 
-\begin{equation*}
-    t_k = k\Delta t, \,  \mathbf{x}_k := \mathbf{x}(t_k), \,  \mathbf{y}_k := \mathbf{y}(t_k), \, \mathbf{w}_k := \mathbf{w}(t_k), \, \mathbf{v}_k := \mathbf{v}(t_k).
-\end{equation*}
+Es así que esta investigación pasó de entregar una mera herramienta computacional, ya propuesta por otros autores, a una que además tiene cotas de error teóricas que, no solo no han sido demostradas a la fecha de entrega de este escrito, sino que no tantos métodos de filtraje tienen cotas de error y muchos están basados en heurísticas de las cuáles no se sabe en qué casos pueden fallar. Estas cotas de error componen la más importante innovación de este trabajo, posicionándose dentro de aquellos métodos simples de implementar con certificaciones teóricas.
 
-Se recuerda de secciones anteriores entonces el operador de Koopman asociado a $\Tilde{\mathbf{f}}$, que en este contexto quedará parametrizado por $\Delta t$,
-\[
-(\U_{\Delta t} \psi)(\mathbf{x}) = \E [\psi (\Tilde{\mathbf{f}} (\mathbf{x}, \cdot))] = \E [\psi (\mathbf{x} + \Delta t \cdot \mathbf{f} (\mathbf{x}, \cdot))].
-\]
-Esta definición motiva la del operador de Koopman en tiempo continuo.
+Es más, de este trabajo se desprende de manera importante una metodología de la cuál, dada una linealización del sistema con una cota de error, se puede desprender una cota de error para el filtro. Es en este contexto que entonces los objetos relevantes a estudiar son las distintas maneras de hacer Extended Dynamic Mode Decomposition, de donde \textit{kernel} Extended Dynamic Mode Decomposition, expuesta en este trabajo, resulta ser aquella con mayor estudio en la literatura y que resulta tener cotas de error, aunque sean recientes para este trabajo. Es esta clase de nuevos filtros basados en eDMD la que se ha denominado en este trabajo como Extended Dynamic Mode Decomposition Kalman Filters (EDMD-KF).
 
-\begin{defn}[Operador de Koopman estocástico, tiempo continuo]
-    Se define el operador $\Tilde{\U}_{\Delta t}: \H_\X \to \H_\X$ mediante
-    \[
-    (\Tilde{\U}_{\Delta t} \psi)(\mathbf{x}_0) = \E \left [\psi \left ( \mathbf{x}_0 + \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds \right ) \right ]
-    \]
-\end{defn}
+Además, el trabajar con \textit{kernels} permitió explorar la potencia de los RKHS para llevar las ideas estadísticas de dimensión finita, eventualmente no lineales, a otras lineales pero en dimensión infinita. Esto además revive su potencial para problemas de filtraje, lo que ya había sido explorado por Song y Fukumizu, junto con colaboradores.
 
-Intuitivamente, este operador desplaza la dinámica continua en un tiempo $\Delta t$. 
+Todo esto danza entorno a la literatura del operador de Koopman que, más viva que nunca, sigue entregando nuevas técnicas para su aproximación, lo que daría nuevas vías para la creación de nuevos filtros. Lo que no deja de impresionar es todo lo que la simple idea detrás del operador, una composición de funciones haya provocado.
 
-\begin{prop}[Phillip et al. \cite{Philipp2024ErrorOperator}]
-    $(\Tilde{\U}_{\Delta t})_{\Delta t \geq 0}$ es un $C_0$-semigrupo cuyo generador
-    \[
-    \Tilde{\mathcal{L}} \psi = \lim_{\Delta t \searrow 0} \frac{\Tilde{\U}_{\Delta t}\psi - \psi}{\Delta t}
-    \]
-    está bien definido en un denso de $\H_\X$, es cerrado y disipativo.
-\end{prop}
+Más allá del aspecto teórico, se observa a lo largo de los experimentos numéricos que el filtro vence, en cuánto a error de aproximar el estado subyacente y filtrar el ruido, a los otros filtros probados en el contexto de distintas dinámicas de contagios que, aunque cambie la cantidad de estados y las interacciones, todas tienen en común una interacción no lineal común entre una población susceptible y una infectada, que resulta ser cuadrática y que además se puede caracterizar en un único parámetro.
 
-\begin{lema}
-    Sea $k$ el kernel de Matérn de parámetro $\nu = 1/2$ y ancho de banda $\gamma$, es decir,
-    \[
-    k(x, y) = \text{exp} \left ( -\frac{\| x- y \|}{\gamma} \right ).
-    \]
-    Sea $\H_\X$ su espacio de Hilbert asociado, luego si $\psi \in \H_\X$ se tiene que $\psi$ es $1/2$-Hölder de constante $\sqrt{2/\gamma} \| \psi \|_{\H_\X}$, esto es,
-    \[
-    |\psi(x) - \psi(y)| \leq \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{\| x - y\|}, \quad \forall x, y \in \X.
-    \]
-    \label{lemma:matern_lipschitz}
-\end{lema}
-\begin{proof}
-    Sean $\psi \in \H_\X$, $x, y \in \X$. Primero, por propiedad reproduciente notar que se tiene
-    \[
-    | \psi(x) - \psi(y) |^2 = | \langle k(x, \cdot), \psi \rangle - \langle k(y, \cdot), \psi \rangle  |^2.
-    \]
-    Luego, por bilinealidad del producto interno
-    \[
-    | \psi(x) - \psi(y) |^2 = | \langle k(x, \cdot) - k(y, \cdot), \psi \rangle  |^2.
-    \]
-    Por desigualdad de Cauchy-Schwarz se tiene
-    \[
-    \begin{aligned}
-        | \psi(x) - \psi(y) |^2 &\leq \| \psi \|^2_{\H_\X} \| k(x, \cdot) - k(y, \cdot) \|^2_{\H_\X} \\
-        &\leq \| \psi \|^2_{\H_\X} \langle k(x, \cdot) - k(y, \cdot), k(x, \cdot) - k(y, \cdot) \rangle \\
-        &\leq \| \psi \|^2_{\H_\X} ( k(x, x) + k(y, y) - 2k(x,y) ).
-    \end{aligned}
-    \]
-    Dado que 
-    \[
-    k(x, y) = \text{exp} \left ( -\frac{\| x- y \|}{\gamma} \right ),
-    \]
-    se tiene que $k(x,x) = k(y,y) = 1$, con lo que
-    \[
-    | \psi(x) - \psi(y) |^2 \leq 2 \| \psi \|^2_{\H_\X} \left ( 1 - \text{exp} \left ( -\frac{\| x- y \|}{\gamma} \right ) \right ).
-    \]
-    Utilizando que $1 - e^{-x} \leq x$ para $x \geq 0$, se llega a
-    \[
-    | \psi(x) - \psi(y) |^2 \leq \frac{2}{\gamma} \| \psi \|^2_{\H_\X} \| x - y \|,
-    \]
-    lo que implica que
-    \[
-    | \psi(x) - \psi(y) | \leq \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{\| x - y \|}
-    \]
-    obteniendo el resultado.
-\end{proof}
+Esta ventaja en cuánto a precisión se acentúa en escenarios de alta incertidumbre, en donde los ruidos de dinámica y observación son altos. Esto incluso frente a Filtros de Partículas, los que probablemente son los predominantes en la literatura de Filtros con cotas de error. Queda pendiente de este trabajo comparar con los Ensemble Kalman Filters \cite{Evensen1994SequentialStatistics}, también basados en métodos tipo Monte Carlo.
 
-Esto tendrá como consecuencia una cota de error para el error que se comete al aproximar el operador de Koopman continuo por uno de dinámica discreta. 
+Incluso, este método, configurado y pensado de manera correcta, al utilizarse para estimar parámetros, logra obtener un rendimiento similar a \textit{samplers} como Differential Evolution Metropolis y NUTS, en el contexto de Markov Chain Monte Carlo, en cuanto a resultados, pero en tiempo incluso menor, lo que podría acelerar procesos de estimación de parámetros, que para muchos modelos demora del orden de horas.
 
-\begin{prop}
-    Bajo las hipótesis del lema \ref{lemma:matern_lipschitz}, se tiene que
-    \[
-    \| \Tilde{\U}_{\Delta t} - \U_{\Delta t} \| \leq 2 \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t }{\gamma}} 
-    \]
-    \label{prop:aprox_koop_cont_disc}
-\end{prop}
+Además, este trabajo logró mejorar la cota que presentaron Philipp et al. \cite{Philipp2024ErrorOperator}, lo que era uno de los mejores resultados encontrados a la fecha, provista por un equipo completo dedicado a encontrar cotas para el EDMD.
 
-\begin{proof}
-    Sean $\psi \in \H_\X$, $\mathbf{x}_0 \in \X$, entonces
-    \[
-    \begin{aligned}
-        \| (\Tilde{\U}_{\Delta t}\psi)(\mathbf{x}_0) - (\U_{\Delta t} \psi)(\mathbf{x}_0) \| &= \left  \| \E \left [\psi \left ( \mathbf{x}_0 + \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds \right ) \right ] - \E [\psi(\mathbf{x}_0 + \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)))] \right \| \\
-        &\leq \E \left [ \left \| \psi \left ( \mathbf{x}_0 + \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds \right ) - \psi(\mathbf{x}_0 + \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t))) \right \| \right ] \\
-        &\leq \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ \left \| \mathbf{x}_0 + \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds - \mathbf{x}_0 - \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)))\right \|} \right ] \\
-        &= \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ \left \| \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds - \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)))\right \|} \right ] \\
-        &= \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ \left \| \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds - \Delta t \cdot \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)) \right \|} \right ] \\
-        &= \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ \left \| \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(s), \mathbf{w}(s)) ds - \int_0^{\Delta t} \mathbf{f}(\mathbf{x}(t), \mathbf{w}(t)) ds \right \|} \right ] \\
-        &\leq \E \left [ \sqrt{\frac{2}{\gamma}} \| \psi \|_{\H_\X} \sqrt{ 2 \| \mathbf{f} \|_\infty \Delta t } \right ] \\
-        &= 2 \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t}{\gamma}} \| \psi \|_{\H_\X}  
-     \end{aligned}
-    \]
-    Al ser esta cota uniforme en $\mathbf{x}_0$ se concluye que
-    \[
-    \| \Tilde{\U}_{\Delta t}\psi - \U_{\Delta t} \psi \| \leq 2 \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t}{\gamma}} \| \psi \|_{\H_\X}\] 
-    con lo que
-    \[
-    \| \Tilde{\U}_{\Delta t} - \U_{\Delta t} \| \leq 2 \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t}{\gamma}}. \] 
-\end{proof}
+A pesar de ello, lo hecho durante este trabajo tiene ciertos aspectos por completar y que deben trabajarse en el futuro, por ejemplo, la observabilidad, que es crucial en el concepto del Filtro de Kalman lineal en dimensión finita. En dimensión infinita y en sistemas estocásticos se han explorado ideas que generalicen estas nociones, como la observabilidad en distribución \cite{Massiani2024Data-DrivenSystems} que está relacionada también con los \textit{kernels}, en específico con los \textit{kernels} característicos \cite{Sriperumbudur2010OnMeasures, Sriperumbudur2011UniversalityMeasures}, que es una clase \textit{kernels} que incluye a los \textit{kernels} universales, de los cuáles Matérn forma parte.
 
-Primero, se deduce la dinámica continua del embedding
-\[
-\mu_{k+1} = \U^*_{\Delta t} \mu_k + \zeta_k = \E [X^+ | X = \mathbf{x}_k] + \Phi_\X (\mathbf{x}_{k+1}) - \E [X^+ | X = \mathbf{x}_k]  = \Phi_\X (\mathbf{x}_{k+1})
-\]
-con lo que
-\[
-\frac{\mu_{k+1} - \mu_k}{\Delta t} = \frac{\U^*_{\Delta t} \mu_k - \mu_k + \zeta_k}{\Delta t} = \frac{\Tilde{\U}^*_{\Delta t} \mu_k - \mu_k + \Tilde{\U}^*_{\Delta t} \mu_k - \U^*_{\Delta t} \mu_k + \zeta_k}{\Delta t}
-\]
-haciendo $\Delta t \searrow 0$ se obtiene
-\[
-\mu'(t) = \Tilde{\mathcal{L}}^* \mu(t) + \Tilde{\zeta} (t)
-\]
-con $\mu(t) = \Phi_\X (\mathbf{x}(t))$ y $\Tilde{\zeta}(t)$ algún proceso centrado con operador de covarianza $\mathcal{Q}(t)$.
-Entonces se genera el siguiente sistema a tiempo continuo
-\begin{equation*}
-    \begin{aligned}
-        \mu'(t) &= \Tilde{\mathcal{L}}^* \mu(t) + \Tilde{\zeta}(t) \\
-        \mathbf{y}(t) &= \mathcal{G}^* \mu(t) + \nu (t)
-    \end{aligned}
-\end{equation*}
-siendo $\nu$ un proceso centrado con función de covarianza $\mathcal{R}:[0, T] \to \R^{p \times p}$ que se supondrá invertible.
+El aspecto de la observabilidad, en un contexto similar con Koopman, ya ha sido estudiado por Surana y colaboradores \cite{Surana2016LinearFramework}, por lo que seguir esas direcciones puede ser útil en el futuro. La observabilidad conlleva a la estabilización de sistemas, lo que es crítico para el buen funcionamiento del filtro para sistemas lineales, incluso para sistemas de dimensión infinita \cite{Afshar2024ExtendedSystems}.
 
-Luego, tiene el siguiente filtro de Kalman-Bucy asociado
+En el aspecto práctico, el filtro aún tiene hiperparámetros que deben tener una metodología para elegirse y que tenga un sustento teórico. En primer lugar se encuentra el \textit{kernel}, en donde Matérn no es la única opción, sino que también existen opciones como \textit{kernels} de soporte compacto, como los propuestos por Wendland \cite{Wendland1995PiecewiseDegree}, y que también generan como RKHS un espacio de Sobolev.
 
-\begin{equation*}
-    \hat{\mu}'(t) = \Tilde{\mathcal{L}}^*\hat{\mu}(t)  + \K(t) \big( \mathbf{y}(t) - \mathcal{G}^*\hat{\mu}(t) \big),
-\end{equation*}
-\begin{equation*}
-    \mathcal{P}'(t) = \Tilde{\mathcal{L}}^*\mathcal{P}(t) + \mathcal{P}(t)\Tilde{\mathcal{L}} - \mathcal{P}(t)\mathcal{G}\mathcal{R}^{-1}\mathcal{G}^*\mathcal{P}(t) + \mathcal{Q}(t).
-\end{equation*}
-\begin{equation*}
-    \mathcal{K}(t) = \mathcal{P}(t)\mathcal{G}\mathcal{R}^{-1}(t).
-\end{equation*}
+Para el caso del \textit{kernel} de Matérn, falta elegir los hiperparámetros $\nu$ y $\gamma$. Sobre el primero, lo único que se sabe es que cuando $\nu \to \infty$ el \textit{kernel} de Matérn converge al \textit{kernel} Gaussiano \cite{Rasmussen2005GaussianLearning}, que se sabe no tiene tan buenas propiedades aproximantes, lo que parece apuntar a $\nu$ pequeño, coincidiendo con los buenos resultados numéricos presentados. Mientras tanto, para el otro parámetro, el ancho de banda $\gamma$, se puede seleccionar maximizando la verosimilitud con respecto a un conjunto de datos de entrenamiento \cite{Rasmussen2005GaussianLearning}.
 
-Para $\Delta t > 0$ se propone aproximar la solución por la solución del siguiente sistema
+Además de ello, el procedimiento expuesto en este trabajo depende fuertemente de multiplicación es inversión de matrices, lo que implica muchas operaciones $O(N^3)$, mientras que se gana una precisión de $O(N^{-1/2})$. Una alternativa a la aproximación por \textit{kernel} Extended Dynamic Decomposition es aquella realizada por neural Dynamic Mode Decomposition (nDMD) \cite{Xiong2024KoopmanEquations, Frion2023LeveragingData, Terao2021ExtendedEquations}, lo que puede reducir el costo de las operaciones realizadas posterior al entrenamiento de la red. Incluso, una idea similar a la expuesta en \cite{Li2022Data-DrivenNetworks, Liu2024NeuralSystems, Garmaev2024DeepModelling} puede asemejarse a lo que sería un análogo del filtro propuesto en esta tesis, pero aproximando el operador de Koopman vía redes neuronales. 
 
-\begin{equation*}
-    \hat{\mu}'_{N, \Delta t}(t) = \Tilde{\mathcal{L}}_{N, \Delta t}^* \hat{\mu}_{N}(t)  + \K_{N, \Delta t}(t) \big( \mathbf{y}(t) - \mathcal{G}_N^*\hat{\mu}_{N, \Delta t}(t) \big),
-\end{equation*}
-\begin{equation*}
-    \mathcal{P}_{N, \Delta t}'(t) = \Tilde{\mathcal{L}}_{N, \Delta t}^*\mathcal{P}_{N, \Delta t}(t) + \mathcal{P}_{N, \Delta t}(t)\Tilde{\mathcal{L}}_{N, \Delta t} - \mathcal{P}_{N, \Delta t}(t)\mathcal{G}_N\mathcal{R}_N^{-1}\mathcal{G}_N^*\mathcal{P}_{N, \Delta t}(t) + \mathcal{Q}_N(t).
-\end{equation*}
-\begin{equation*}
-    \mathcal{K}_{N, \Delta t}(t) = \mathcal{P}_{N, \Delta t}(t)\mathcal{G}_N\mathcal{R}_N^{-1}(t).
-\end{equation*}
-\begin{equation*}
-    \Tilde{\mathcal{L}}_{N, \Delta t} = \frac{\U_N - I}{\Delta t}
-\end{equation*}
-
-\begin{prop}
-    Bajo las hipótesis del lema y del teorema \ref{teo:error_koop}, tomando $\gamma = N^{3/4}$, $\Delta t = N^{-1/4}$, se tiene que, para $\delta \in (0, 1)$, con probabilidad $1-\delta$ existe una constante $\Tilde{C}$ tal que
-    \[
-    \| \Tilde{\mathcal{L}}_{N, \Delta t} - \Tilde{\mathcal{L}}\| \leq \Tilde{C} N^{-1/4}
-    \]
-\end{prop}
-\begin{proof}
-    La demostración pasa por 3 aproximaciones intermedias
-    \[
-    \begin{aligned}
-        \| \Tilde{\mathcal{L}} - \Tilde{\mathcal{L}}_{N, \Delta t}\| &= \left \| \Tilde{\mathcal{L}} - \left ( \frac{\Tilde{\U}_{\Delta t} - I}{\Delta t} \right ) + \left ( \frac{\Tilde{\U}_{\Delta t} - I}{\Delta t} \right ) - \left ( \frac{\U_{\Delta t} - I}{\Delta t} \right ) + \left ( \frac{\U_{\Delta t} - I}{\Delta t} \right ) - \left ( \frac{\U_N - I}{\Delta t} \right )  \right \| \\
-        &\leq \left \| \Tilde{\mathcal{L}} - \left ( \frac{\Tilde{\U}_{\Delta t} - I}{\Delta t} \right ) \right \| + \left \| \left ( \frac{\Tilde{\U}_{\Delta t} - I}{\Delta t} \right ) - \left ( \frac{\U_{\Delta t} - I}{\Delta t} \right ) \right \| + \left \| \left ( \frac{\U_{\Delta t} - I}{\Delta t} \right ) - \left ( \frac{\U_N - I}{\Delta t} \right )  \right \| \\
-        & \leq C \Delta t + \frac{1}{\Delta t} \left \|  \Tilde{\U}_{\Delta t} - \U_{\Delta t}  \right \| + \frac{1}{\Delta t} \left \| \U_{\Delta t} - \U_N \right \|.
-    \end{aligned}
-    \]
-    Aplicando la proposición \ref{prop:aprox_koop_cont_disc} se tiene
-        \[
-    \begin{aligned}
-        \| \Tilde{\mathcal{L}} - \Tilde{\mathcal{L}}_{N, \Delta t}\|
-        & \leq C \Delta t + \frac{1}{\Delta t} \sqrt{\frac{\| \mathbf{f} \|_\infty \Delta t}{\gamma}} + \frac{1}{\Delta t} C N^{-1/2} \\
-        & = C \Delta t + \frac{1}{\sqrt{\Delta t}} \sqrt{\frac{\| \mathbf{f} \|_\infty}{\gamma}} + \frac{1}{\Delta t} C N^{-1/2}.
-    \end{aligned}
-    \]
-    Utilizando $\gamma = N^{3/4}$ y $\Delta t = N^{-1/4}$ se obtiene
-    \[
-    \begin{aligned}
-        \| \Tilde{\mathcal{L}} - \Tilde{\mathcal{L}}_{N, \Delta t}\|
-        & = C N^{-1/4} + \frac{1}{\sqrt{N^{-1/4}}} \sqrt{\frac{\| \mathbf{f} \|_\infty}{N^{3/4}}} + \frac{1}{N^{-1/4}} C N^{-1/2} \\
-        & \leq C N^{-1/4} + \sqrt{\frac{\| \mathbf{f} \|_\infty}{N^{1/2}}} + C N^{-1/4} \\
-        & \leq C N^{-1/4} + \sqrt{\| \mathbf{f} \|_\infty} N^{-1/4} + C N^{-1/4} \\
-        & = \Tilde{C} N^{-1/4}
-    \end{aligned}
-    \]
-\end{proof}
-
-Entonces, se puede ver que
-\[
-\begin{aligned}
-    \| \mathcal{P}_{N, \Delta t}(t) - \mathcal{P}(t) \| &= \left \| \mathcal{P}_{N, \Delta t}(0) - \mathcal{P}(0) + \int_0^t (\mathcal{P}'_{N, \Delta t}(s) - \mathcal{P}'(s))ds \right \| \\
-    &\leq \| \mathcal{P}_{N, \Delta t}(0) - \mathcal{P}(0) \| + \int_0^t \| \mathcal{P}'_{N, \Delta t}(s) - \mathcal{P}'(s) \| ds \\
-    &\leq C_1 N^{-1/2} + \int_0^t C_2(s) N^{-1/2} \|  \mathcal{P}_{N, \Delta t}(s) - \mathcal{P}(s) \| ds
-\end{aligned}
-\]
-entonces por Gronwall-Bellman
-\[
-    \| \mathcal{P}_{N, \Delta t}(t) - \mathcal{P}(t) \| \leq C_1 N^{-1/2} \text{exp} \left ( N^{-1/4} \int_0^t C_2 (s) ds \right )
-\]
-con esta cota y haciendo lo análogo para $\hat{\mu}(t)$ se obtiene
-\[
-    \| \hat{\mu}_{N, \Delta t}(t) - \hat{\mu}(t) \| \leq C_3 N^{-1/2} \text{exp} \left ( N^{-1/4} \int_0^t C_4 (s) ds \right )
-\]
+Un inconveniente es que todas las ideas expuestas antes no presentan ninguna cota de error, como sí se hizo en este trabajo, por lo que faltaría avanzar en poder entregar una cota de error para nDMD, de lo que se desprendería de manera directa, con lo hecho en el capítulo 4, una cota de error para el filtro en función de la cantidad de neuronas de la capa oculta de la red.

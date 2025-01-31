@@ -23,6 +23,7 @@
 
 \newcommand{\indep}{\perp \!\!\! \perp}
 \newcommand{\U}{\mathcal{U}}
+\floatname{algorithm}{Algoritmo}
 
 % INFORMACIÓN DEL DOCUMENTO
 \def\documenttitle {Algoritmo de filtraje no lineal basado en operador de Koopman, aplicado a modelos en epidemiología}
@@ -42,7 +43,7 @@
 
 % INTEGRANTES, PROFESORES Y FECHAS
 \def\documentauthor {Diego Andrés Olguín Wende}
-\def\documentdate {2025}
+\def\documentdate {Marzo 2025}
 
 \def\portrait {
 	\begin{center}
@@ -61,11 +62,11 @@
 		\vspace{0.3cm} \\
 		MIEMBROS DE LA COMISIÓN: \\
             JOAQUÍN FONTBONA TORRES \\
-		GONZALO RUZ \\
+		GONZALO RUZ HEREDIA \\
 		BENJAMÍN HERRMANN PRIESNITZ \\
 		\vspace{0.3cm} \\
 		Este trabajo ha sido parcialmente financiado por los proyectos: \\
-		Fondecyts 1201982 y 1240200, \\ Fondo Conjunto de Cooperación Chile-México 2022: \\'Modelamiento matemático de procesos epidémicos incorporando \\ estructura poblacional, regional y grupos de riesgo'\\ y CMM ANID Basal FB210005. \\
+		Fondecyts 1201982 y 1240200, \\ Fondo Conjunto de Cooperación Chile-México 2022: \\ `Modelamiento matemático de procesos epidémicos incorporando \\ estructura poblacional, regional y grupos de riesgo'\\ y CMM ANID Basal FB210005. \\
 		\vspace{0.3cm} \\
 		\MakeUppercase{\universitylocation} \\
 		\MakeUppercase{\documentdate}
@@ -98,18 +99,24 @@
 
 % RESUMEN O ABSTRACT
 \begin{abstractd}
-	Resumen
+	\input{chapters/abstract}
 \end{abstractd}
 
 % DEDICATORIA
 \begin{dedicatory}
-	Dedicatoria \\
-	\textbf{Saludos}
+    A Rosa y Emilio, \\
+    por enseñarme lo bello de la realidad,\\
+    a Matías y Evelyn, \\
+    por enseñarme lo bello de soñar,\\
+    y a mi yo de niño,\\
+    que nunca dejó de creer que\\
+    los sueños se hacen realidad.
+
 \end{dedicatory}
 
 % AGRADECIMIENTOS
 \begin{acknowledgments}
-	Agradecimientos
+	\input{chapters/acknowledgments}
 \end{acknowledgments}
 
 % TABLA DE CONTENIDOS - ÍNDICE
@@ -133,17 +140,13 @@
 \chapter{Kernel Extended Dynamic Mode Decomposition}
 \input{chapters/chapter3.tex}
 
-% Capítulo 4: Algoritmo de filtraje en tiempo discreto y estimación de parámetros
-\chapter{Algoritmo de filtraje en tiempo discreto}
+% Capítulo 4: Algoritmo de filtraje no lineal en tiempo discreto y estimación de parámetros
+\chapter{Algoritmo de filtraje no lineal en tiempo discreto y estimación de parámetros}
 \input{chapters/chapter4.tex}
 
-% Capítulo 5: Algoritmo de filtraje en tiempo continuo
-% \chapter{Algoritmo de filtraje en tiempo continuo}
-% \input{chapters/chapter5.tex}
-
-% Capítulo 6: Discusiones y conclusiones
+% Capítulo 5: Discusiones y conclusiones
 \chapter{Discusiones, conclusiones y trabajo futuro}
-\input{chapters/chapter6.tex}
+\input{chapters/chapter5.tex}
 
 \begin{appendixd}
     \input{chapters/annexes}
