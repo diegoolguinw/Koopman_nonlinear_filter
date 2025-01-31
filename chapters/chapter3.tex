@@ -1338,9 +1338,9 @@ es la función beta multivariable, y $\Gamma(\cdot)$ es la función gamma. En la
     \label{fig:Dirichlet_samples}
 \end{figure}
 
-Se visualizará la aproximación por kEDMD para los modelos SIR y SIRS, con la misma configuración en común, salvo, obviamente, el parámetro $\alpha$ correspondiente al segundo modelo. Se utilizó \textit{kernel} de Matérn de parámetro $\nu=1/2$ y ancho de banda $\gamma=10^{-3}$. Se utiliza una distribución Dirichlet de parámetro $(1,1,1)$ como variable aleatoria asociada al espacio de estados y ruido aditivo centrado y Gaussiano de matriz de covarianza $10^{-7} I_{3 \times 3}$, de estas distribuciones se \textit{samplearán} $N=1000$ puntos. Se toma como condición inicial $\mathbf{x}_0 = (0.9, 0.1, 0.0)$ y los resultados obtenidos se pueden ver en las figuras \ref{fig:Comp_traj_SIR} y \ref{fig:Comp}. 
+Se visualizará la aproximación por kEDMD para los modelos SIR y SIRS, con la misma configuración en común, salvo, obviamente, el parámetro $\alpha$ correspondiente al segundo modelo. Se utilizó \textit{kernel} de Matérn de parámetro $\nu=1/2$ y ancho de banda $\gamma=10^{-3}$. Se utiliza una distribución Dirichlet de parámetro $(1,1,1)$ como variable aleatoria asociada al espacio de estados y ruido aditivo centrado y Gaussiano de matriz de covarianza $10^{-7} I_{3 \times 3}$, de estas distribuciones se \textit{samplearán} $N=1000$ puntos. Se toma como condición inicial $\mathbf{x}_0 = (0.9, 0.1, 0.0)$ y los resultados obtenidos se pueden ver en las figuras \ref{fig:Comp_traj_SIR} y \ref{fig:Comp_traj_SIRS}. 
 
-Similar a lo hecho en el caso lineal, en la figura \ref{fig:ErrorSIR} se compara la diferencia en norma entre la trayectoria original y la trayectoria linealizada, con la mejor curva de la forma $C \cdot N^{a}$, para observar si los errores andan en el orden de decaimiento en \eqref{eq:kEDMD_bound}.
+Similar a lo hecho en el caso lineal, en las figuras \ref{fig:ErrorSIR} y \ref{fig:ErrorSIRS} se comparan las diferencias en norma entre las trayectorias originales y las trayectoria linealizadas, con la mejor curva de la forma $C \cdot N^{a}$, para observar si los errores andan en el orden de decaimiento en \eqref{eq:kEDMD_bound}.
 
 Se observa nuevamente que la discrepancia entre las trayectorias en efecto anda del orden de la cota expuesta en este capítulo, incluso con decaimientos aún más rápidos.
 

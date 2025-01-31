@@ -583,18 +583,18 @@ Esto da paso directo a poder hacer inducción para poder dejar todo en función 
 \[
 \delta > 2 \text{exp} \left ( -\frac{Nc_1^2}{8\|k\|_\infty}\right )
 \]
-con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, entonces con probabilidad al menos $(1 - \delta)^4$ se tiene que existen constantes $C_k^1$ y $C_k^2$, dependientes de $\delta$, tales que
+con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, entonces con probabilidad al menos $(1 - \delta)^4$ se tiene que existen constantes $C_{k,\delta}^1$ y $C_{k,\delta}^2$, tales que
 	\begin{equation*}
 		\begin{aligned}
-			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{k}^1 N^{-1/2}
+			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{k, \delta}^1 N^{-1/2}
 		\end{aligned}
 	\end{equation*}
 	\begin{equation*}
 		\begin{aligned}
-			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{k}^2 N^{-1/2} 
+			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{k, \delta}^2 N^{-1/2} 
 		\end{aligned}
 	\end{equation*}
-	En donde las constantes $C_k^j$ son positivas y dependen de $k$ solo a través de $\| \U \| $, $\| \G \| $, $\| \mathcal{Q}_{j} \| $, $\| \mathcal{R}_{j} \| $, $\| \S_{k}^{-1} \| $, $\| \hat{\mu}_{j} \| $ y $\| \mathcal{P}_{j} \| $, con $j \in \{ 0, \dots, k-1\}$.
+	En donde las constantes $C_{k,\delta}^j = \Tilde{C}_k^j C_\delta$, con $C_\delta$ la constante definida en el teorema \ref{teo:error_koop_sqrt_N_def} y las $\Tilde{C}_k^j$ son positivas y dependen de $k$ solo a través de $\| \U \| $, $\| \G \| $, $\| \mathcal{Q}_{j} \| $, $\| \mathcal{R}_{j} \| $, $\| \S_{k}^{-1} \| $, $\| \hat{\mu}_{j} \| $ y $\| \mathcal{P}_{j} \| $, con $j \in \{ 0, \dots, k-1\}$.
     \label{teo:teo_kerKKF_2}
 \end{teo}
 
@@ -623,48 +623,48 @@ Ahora se procede con la demostración de la Proposición \ref{teo:teo_kerKKF_2}.
 			& + c_{5,k}^2 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + c_{6,k}^2 \| \mathcal{P}_{k-1} - \mathcal{P}_{N, k-1} \|.
 		\end{aligned}
 	\end{equation*}
-	Por teorema \ref{teo:error_koop_sqrt_N_def} entonces se concluye que con probabilidad $(1-\delta)^4$ existen constantes $C^1_{1, k}$ y $C^2_{1, k}$, dependientes de $\delta$, tales que
+	Por teorema \ref{teo:error_koop_sqrt_N_def} entonces se concluye que con probabilidad $(1-\delta)^4$ existen constantes $C^1_{1, k, \delta}$ y $C^2_{1, k, \delta}$, dependientes de $\delta$, tales que
 	\begin{equation*}
 		\begin{aligned}
-			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{1,k}^1 N^{-1/2} + C_{2,k}^1 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k}^1 \| \mathcal{P}_{k-1}  - \mathcal{P}_{N, k-1}  \|,
+			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{1,k, \delta}^1 N^{-1/2} + C_{2,k, \delta}^1 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k, \delta}^1 \| \mathcal{P}_{k-1}  - \mathcal{P}_{N, k-1}  \|,
 		\end{aligned}
 	\end{equation*}
 	\begin{equation*}
 		\begin{aligned}
-			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{1,k}^2 N^{-1/2} + C_{2,k}^2 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k}^2 \| \mathcal{P}_{k-1} - \mathcal{P}_{N,k-1} \|.
+			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{1,k, \delta}^2 N^{-1/2} + C_{2,k, \delta}^2 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k, \delta}^2 \| \mathcal{P}_{k-1} - \mathcal{P}_{N,k-1} \|.
 		\end{aligned}
 	\end{equation*}
 	Para propagar el error hasta la condición inicial se procede por inducción. Para ello primero el caso base $k=1$ que se tiene directo por el teorema \ref{teo:error_kalman} aplicado a $k=1$.\\
 	Se supone entonces que para $k \in \N$ se cumple 
 	\begin{equation*}
 		\begin{aligned}
-			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{1,k}^1 N^{-1/2} + C_{2,k}^1 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k}^1 \| \mathcal{P}_{0}  - \mathcal{P}_{N, 0}  \|
+			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{1,k,\delta}^1 N^{-1/2} + C_{2,k,\delta}^1 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k,\delta}^1 \| \mathcal{P}_{0}  - \mathcal{P}_{N, 0}  \|
 		\end{aligned}
 	\end{equation*}
 	\begin{equation*}
 		\begin{aligned}
-			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{1,k}^2 N^{-1/2} + C_{2,k}^2 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k}^2 \| \mathcal{P}_{0} - \mathcal{P}_{N, 0} \|
+			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{1,k,\delta}^2 N^{-1/2} + C_{2,k,\delta}^2 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k,\delta}^2 \| \mathcal{P}_{0} - \mathcal{P}_{N, 0} \|
 		\end{aligned}
 	\end{equation*}
 	Ahora se prueba para $k+1$, que basta hacerlo para $\| \hat \mu_{k+1} - \hat \mu_{N,k+1}  \|$, para la otra cota análoga. Por el desarrollo anterior, se tiene que
 	\begin{equation*}
 	\begin{aligned}
-		\| \hat \mu_{k+1} - \hat \mu_{N,k+1}  \| \leq & \, C_{1,k+1}^1 N^{-1/2} + c_{5,k+1}^1 \| \hat \mu_{1, k} - \hat \mu_{2, k} \| + c_{6,k+1}^1 \| \mathcal{P}_{k}  - \mathcal{P}_{N, k}  \| 
+		\| \hat \mu_{k+1} - \hat \mu_{N,k+1}  \| \leq & \, C_{1,k+1,\delta}^1 N^{-1/2} + c_{5,k+1}^1 \| \hat \mu_{1, k} - \hat \mu_{2, k} \| + c_{6,k+1}^1 \| \mathcal{P}_{k}  - \mathcal{P}_{N, k}  \| 
 	\end{aligned}
 	\end{equation*}
 	Ocupando la hipótesis inductiva
 	\begin{equation*}
 	\begin{aligned}
-		\leq & \, C_{1,k}^1 N^{-1/2} \\
-		& + c_{5,k+1}^1 (C_{1,k}^1 N^{-1/2} + C_{2,k}^1 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k}^1 \| \mathcal{P}_{0}  - \mathcal{P}_{N, 0}  \|) \\
-		& + c_{6,k+1}^1 (C_{1,k}^2 N^{-1/2} + C_{2,k}^2 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k}^2 \| \mathcal{P}_{0} - \mathcal{P}_{N, 0} \|) \\
-		= & \, C_{1,k+1}^1 N^{-1/2} + C_{2,k+1}^1 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k+1}^1 \| \mathcal{P}_{0} - \mathcal{P}_{N, 0} \|
+		\leq & \, C_{1,k,\delta}^1 N^{-1/2} \\
+		& + c_{5,k+1}^1 (C_{1,k}^1 N^{-1/2} + C_{2,k,\delta}^1 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k,\delta}^1 \| \mathcal{P}_{0}  - \mathcal{P}_{N, 0}  \|) \\
+		& + c_{6,k+1}^1 (C_{1,k,\delta}^2 N^{-1/2} + C_{2,k,\delta}^2 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k,\delta}^2 \| \mathcal{P}_{0} - \mathcal{P}_{N, 0} \|) \\
+		= & \, C_{1,k+1,\delta}^1 N^{-1/2} + C_{2,k+1,\delta}^1 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k+1,\delta}^1 \| \mathcal{P}_{0} - \mathcal{P}_{N, 0} \|
 	\end{aligned}
 	\end{equation*}
-	Usando el lema \ref{lema:oper_sqrt_N} se obtiene que existe una constante $C_{k+1}^1$ tal que
+	Usando el lema \ref{lema:oper_sqrt_N} se obtiene que existe una constante $C_{k+1,\delta}^1$ tal que
 	\begin{equation*}
 		\begin{aligned}
-			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{k+1}^1 N^{-1/2}
+			\| \hat \mu_{k+1} - \hat \mu_{N,k+1}  \| \leq & \, C_{k+1,\delta}^1 N^{-1/2}
 		\end{aligned}
 	\end{equation*}
 \end{proof}
@@ -706,12 +706,12 @@ Con esto se puede deducir de manera sencilla la cota de error deseada para la ap
 \[
 \delta > 2 \text{exp} \left ( -\frac{Nc_1^2}{8\|k\|_\infty}\right )
 \]
-con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, entonces con probabilidad al menos $(1 - \delta)^4$ se tiene que existen constantes $\Tilde{C}^1_k$, $\Tilde{C}^2_k$ tales que
+con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, entonces con probabilidad al menos $(1 - \delta)^4$ se tiene que existen constantes $\Tilde{C}^1_{k,\delta}$, $\Tilde{C}^2_{k,\delta}$ tales que
     \begin{equation*}
-        \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \Tilde{C}^1_k N^{-1/2}
+        \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \Tilde{C}^1_{k,\delta} N^{-1/2}
     \end{equation*}
     \begin{equation*}
-        \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq \Tilde{C}^2_k N^{-1/2}
+        \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq \Tilde{C}^2_{k,\delta} N^{-1/2}
     \end{equation*}
     \label{teo:error_kerKKF_fin}
 \end{teo}
@@ -725,11 +725,11 @@ con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G 
             & \leq \| \B^* \| \| \hat{\mu}_{k} -  \hat{\mu}_{N, k}\| + \|\B^* - \B^*_{N}  \| \|\hat{\mu}_{N,k} \|.
         \end{aligned}
     \end{equation*}
-    Entonces, por teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} se tiene que con probabilidad $(1-\delta)^4$ existe constantes $C$, $C_k^1$ tales que 
+    Entonces, por teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} se tiene que con probabilidad $(1-\delta)^4$ existen constantes $C_\delta$, $C_{k,\delta}^1$ tales que 
     \begin{equation*}
-         \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \| \B \| C_k^1 N^{-1/2} + \| \hat{\mu}_{N, k} \| C N^{-1/2} = \Tilde{C}_{k}^1 N^{-1/2}
+         \| \hat{\mathbf{x}}_k - \hat{\mathbf{x}}_{N, k} \| \leq \| \B \| C_{k,\delta}^1 N^{-1/2} + \| \hat{\mu}_{N, k} \| C_\delta N^{-1/2} = \Tilde{C}_{k,\delta}^1 N^{-1/2}
     \end{equation*}
-    donde se ha utilizado $\| \B^* \| \leq \| \B \|$, $\| \B^* - \B^*_N \| \leq \| \B - \B_N \|$ y denotado $\Tilde{C}_{k}^1 = \| \B \| C_k^1 + \| \hat{\mu}_{N, k} \| C N^{-1/2}$. Ahora para la matriz de covarianza de error a posteriori
+    donde se ha utilizado $\| \B^* \| \leq \| \B \|$, $\| \B^* - \B^*_N \| \leq \| \B - \B_N \|$ y denotado $\Tilde{C}_{k}^1 = \| \B \| C_k^1 + \| \hat{\mu}_{N, k} \| C_\delta N^{-1/2}$. Ahora para la matriz de covarianza de error a posteriori
     \begin{equation*}
         \begin{aligned}
             \| \mathbf{P}_k - \mathbf{P}_{N, k} \| & = \| \B^*\mathcal{P}_k \B - \B^*_N \mathcal{P}_{N, k} \B_N \| \\
@@ -742,25 +742,25 @@ con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G 
             & \leq \| \B - \B_N  \| \| \mathcal{P}_k \B \| + \| \B_N \| \left ( \| \B - \B_N \| \| \mathcal{P}_k \| + \| \mathcal{P}_k - \mathcal{P}_{N, k} \| \| \B_N \| \right ).
         \end{aligned}
     \end{equation*}
-    Usando nuevamente los teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} se tiene que probabilidad $(1-\delta)^4$ existen constantes $C$, $C_k^2$ tales que 
+    Usando nuevamente los teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} se tiene que probabilidad $(1-\delta)^4$ existen constantes $C_\delta$, $C_{k,\delta}^2$ tales que 
     \begin{equation*}
-        \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq C_k^2 \| \mathcal{P}_k \B \| N^{-1/2} + \| \B_N \| \left ( C \| \mathcal{P}_k \| + C_k^2 \| \B_N \| \right ) N^{-1/2}
+        \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq C_{k,\delta}^2 \| \mathcal{P}_k \B \| N^{-1/2} + \| \B_N \| \left ( C_\delta \| \mathcal{P}_k \| + C_{k,\delta}^2 \| \B_N \| \right ) N^{-1/2}
     \end{equation*}
     y además
     \begin{equation*}
-        \| \B_N \| = \| \B_N - \B + \B \| \leq \| \B_N - \B \| + \| \B \| \leq C N^{-1/2} + \| \B \| 
+        \| \B_N \| = \| \B_N - \B + \B \| \leq \| \B_N - \B \| + \| \B \| \leq C_\delta N^{-1/2} + \| \B \| 
     \end{equation*}
     con lo que se obtiene
     \begin{equation*}
         \begin{aligned}
-            \| \mathbf{P}_k - \mathbf{P}_{N, k} \| & \leq C_k^2 \| \mathcal{P}_k \B \| N^{-1/2} + (C N^{-1/2} + \| \B \|) \left ( C \| \mathcal{P}_k \| + C_k^2 (C N^{-1/2} + \| \B \|) \right ) N^{-1/2} \\
-            & \leq \left ( C_k^2 \| \mathcal{P}_k \B \| + (C N^{-1/2} + \| \B \|) \left ( C \| \mathcal{P}_k \| + C_k^2 (C N^{-1/2} + \| \B \|) \right ) \right ) N^{-1/2} \\
-            & \leq \left ( C_k^2 \| \mathcal{P}_k \B \| + (C + \| \B \|) \left ( C \| \mathcal{P}_k \| + C_k^2 (C  + \| \B \|) \right ) \right ) N^{-1/2}
+            \| \mathbf{P}_k - \mathbf{P}_{N, k} \| & \leq C_{k,\delta}^2 \| \mathcal{P}_k \B \| N^{-1/2} + (C_\delta N^{-1/2} + \| \B \|) \left ( C_\delta \| \mathcal{P}_k \| + C_{k,\delta}^2 (C_\delta N^{-1/2} + \| \B \|) \right ) N^{-1/2} \\
+            & \leq \left ( C_{k,\delta}^2 \| \mathcal{P}_k \B \| + (C_\delta N^{-1/2} + \| \B \|) \left ( C_\delta \| \mathcal{P}_k \| + C_{k,\delta}^2 (C_\delta N^{-1/2} + \| \B \|) \right ) \right ) N^{-1/2} \\
+            & \leq \left ( C_{k,\delta}^2 \| \mathcal{P}_k \B \| + (C_\delta + \| \B \|) \left ( C_\delta \| \mathcal{P}_k \| + C_{k,\delta}^2 (C_\delta  + \| \B \|) \right ) \right ) N^{-1/2}
         \end{aligned}
     \end{equation*}
-    con lo que denotando $\Tilde{C}_k^2 = C_k^2 \| \mathcal{P}_k \B \| + (C + \| \B \|) \left ( C \| \mathcal{P}_k \| + C_k^2 (C  + \| \B \|) \right )$ se tiene que 
+    con lo que denotando $\Tilde{C}_{k,\delta}^2 = C_{k,\delta}^2 \| \mathcal{P}_k \B \| + (C_\delta + \| \B \|) \left ( C_\delta \| \mathcal{P}_k \| + C_{k,\delta}^2 (C_\delta + \| \B \|) \right )$ se tiene que 
     \begin{equation*}
-        \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq \Tilde{C}_k^2 N^{-1/2}
+        \| \mathbf{P}_k - \mathbf{P}_{N, k} \| \leq \Tilde{C}_{k,\delta}^2 N^{-1/2}
     \end{equation*}
     completando el resultado.
 \end{proof}
@@ -770,15 +770,15 @@ Con esta cota, en conjunto con otros desarrollos realizados en secciones anterio
 \[
 \delta > 2 \text{exp} \left ( -\frac{Nc_1^2}{8\|k\|_\infty}\right )
 \]
-con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, entonces con probabilidad al menos $(1 - \delta)^4$ se tiene que existen constantes $\hat{C}_1$ y $\hat{C}_2$ tales que
+con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, entonces con probabilidad al menos $(1 - \delta)^4$ se tiene que existen constantes $\hat{C}^1_{k,\delta}$ y $\hat{C}^2_{\delta}$ tales que
     \begin{enumerate}
-        \item El sesgo del estimador $\hat{\mathbf{x}}_{N, k}$, para la trayectoria $\mathbf{x}_k$, está acotado por $\hat{C}_1 N^{-1/2}$, esto es
+        \item El sesgo del estimador $\hat{\mathbf{x}}_{N, k}$, para la trayectoria $\mathbf{x}_k$, está acotado por $\hat{C}^1_{k,\delta} N^{-1/2}$, esto es
     \begin{equation*}
-        \left \| \E \left [ \hat{\mathbf{x}}_{N, k} - \mathbf{x}_k \right] \right \| \leq \hat{C}_1 N^{-1/2}
+        \left \| \E \left [ \hat{\mathbf{x}}_{N, k} - \mathbf{x}_k \right] \right \| \leq \hat{C}^1_{k,\delta} N^{-1/2}
     \end{equation*}
-        \item El estimador $\hat{\mathbf{x}}_{N, k}$ es un $\Tilde{C}_2 N^{-1/2}$-mínimo del problema de filtraje, esto es
+        \item El estimador $\hat{\mathbf{x}}_{N, k}$ es un $\hat{C}^2_{k,\delta} N^{-1/2}$-mínimo del problema de filtraje, esto es
     \begin{equation*}
-        \E \left [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) \right] \leq  \E \left [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) \right] + \Tilde{C}_k^2 N^{-1/2}
+        \E \left [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) \right] \leq  \E \left [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) \right] + \hat{C}^2_{k,\delta} N^{-1/2}
     \end{equation*}
     \end{enumerate}
 \end{teo}
@@ -799,10 +799,10 @@ con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G 
             & = \| \E [ \B^*_N \hat{\mu}_{N,k} - \B^*_N \hat{\mu}_{k} ] + \E [\B^*_N \hat{\mu}_{k} - \B^* \hat{\mu}_k ] \| \\
             & \leq  \E [ \| \B^*_N \hat{\mu}_{N,k} - \B^*_N \hat{\mu}_{k} \| ] + \E [\| \B^*_N \hat{\mu}_{k} - \B^* \hat{\mu}_k \|] \\
             & \leq \E [\| \B^*_N \| \| \hat{\mu}_{N,k} - \hat{\mu}_{k}\|] + \E[\| \B^*_N - \B^* \| \| \hat{\mu}_k \|] \\
-            & \leq \hat{C}_1 N^{-1/2}
+            & \leq \hat{C}^1_{k,\delta} N^{-1/2}
         \end{aligned}
     \end{equation*}
-    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}_1$ existe con probabilidad a lo menos $(1-\delta)^4$. Para probar el punto 2. notar que
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}^1_{k,\delta}$ existe con probabilidad a lo menos $(1-\delta)^4$. Para probar el punto 2. notar que
     \begin{equation*}
         \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] = \E [\hat{\mathbf{x}}_{N, k}^\top \hat{\mathbf{x}}_{N, k}] - 2 \E [\hat{\mathbf{x}}_{N, k}^\top \mathbf{x}_k] + \E[\mathbf{x}_k^\top \mathbf{x}_k]
     \end{equation*}
@@ -827,18 +827,22 @@ con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G 
             0 & \leq \E [(\hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_{k})^\top (\hat{\mathbf{x}}_{N, k} + \hat{\mathbf{x}}_{k})] + 2 \E [(\hat{\mathbf{x}}_{k} - \hat{\mathbf{x}}_{N, k})^T \mathbf{x}_k] \\
             & \leq \E [\| \hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_k \| \| \hat{\mathbf{x}}_{N, k} + \hat{\mathbf{x}}_k \|] + 2 \E [\| \hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_k \| \| \mathbf{x}_k \| ] \\
             & \leq \E [\| \hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_k \| ( \| \hat{\mathbf{x}}_{N, k} \| + \| \hat{\mathbf{x}}_k \|)] + 2 \E [\| \hat{\mathbf{x}}_{N, k} - \hat{\mathbf{x}}_k \| \| \mathbf{x}_k \| ] \\
-            & \leq \hat{C}_2 N^{-1/2}
+            & \leq \hat{C}^2_{k,\delta} N^{-1/2}
         \end{aligned}
     \end{equation*}
-    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}_2$ existe con probabilidad a lo menos $(1-\delta)^4$. Con ello
+    donde se han utilizado nuevamente los teoremas \ref{teo:error_koop_sqrt_N_def} y \ref{teo:teo_kerKKF_2} para decir que dicha constante $\hat{C}^2_{k,\delta}$ existe con probabilidad a lo menos $(1-\delta)^4$. Con ello
     \begin{equation*}
-        \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] - \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] \leq \hat{C}_2 N^{-1/2}
+        \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] - \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] \leq \hat{C}^2_{k,\delta} N^{-1/2}, \quad \forall k \in \{ 0, \dots, T \},
     \end{equation*}
-    obteniendo que
+    denotando
+    \[
+    \hat{C}^2_\delta := \sup_{k \in \{ 0, \dots,T\} } \hat{C}^2_{k,\delta},
+    \]
+    se obtiene que
     \begin{equation*}
-        \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] \leq \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] + \hat{C}_2 N^{-1/2}
+        \E [ (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{N, k} - \mathbf{x}_k) ] \leq \E [ (\hat{\mathbf{x}}_{k} - \mathbf{x}_k)^\top (\hat{\mathbf{x}}_{k} - \mathbf{x}_k) ] + \hat{C}^2_{k,\delta} N^{-1/2}
     \end{equation*}
-    por lo que $\hat{\mathbf{x}}_{N, k}$ es $\hat{C}_2 N^{-1/2}$-mínimo del problema de filtraje.
+    por lo que $\hat{\mathbf{x}}_{N, k}$ es $\hat{C}^2_{\delta} N^{-1/2}$-mínimo del problema de filtraje.
 \end{proof}
 
 \section{Consecuencias}
