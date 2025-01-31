@@ -694,7 +694,6 @@ donde:
 \end{itemize}
 
 A partir de este modelo, es posible incluir un factor de pérdida de inmunidad o SIRS, cuya dinámica está dada por:
-
 \begin{equation}
     \begin{aligned}
     S_{k+1} &= S_k -\beta S_k I_k + \alpha R_k, \\
@@ -703,7 +702,6 @@ A partir de este modelo, es posible incluir un factor de pérdida de inmunidad o
     \end{aligned}
     \label{eq:SIRS}
 \end{equation}
-
 donde el nuevo parámetro \(\alpha\) representa la tasa de pérdida de inmunidad tras la recuperación.
 
 Otra extensión consiste en incluir una nueva subdivisión de la población: los individuos expuestos o latentes, que han sido infectados pero aún no son infecciosos. En este caso, se introduce un nuevo estado \(E\) y un parámetro \(\delta\), que cuantifica la tasa a la cual la población expuesta pasa a ser infecciosa. El modelo SEIR en tiempo discreto queda definido por:

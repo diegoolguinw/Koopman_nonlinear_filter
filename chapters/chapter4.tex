@@ -6,13 +6,13 @@ Por otra parte, trabajos pioneros en la línea de observabilidad e identificaci�
 
 Por otro lado, hay enfoques que aplican la \textit{kernel Bayes Rule} a sistemas dinámicos y filtraje, donde se incluyen los trabajos de Song, Fukumizu y colaboradores \cite{Fukumizu2004DimensionalitySpaces, Fukumizu2013KernelKernels, Fukumizu2015NonparametricEmbedding, Song2009HilbertSystems, Song2013KernelModels}, lo que aparece de manera natural al demostrar la utilidad de los operadores para representar esperanzas condicionales.
 
-Aunque el algoritmo propuesto en este capítulo no constituye una contribución original en términos de su estructura, sí lo es la justificación de su funcionamiento y convergencia bajo el supuesto de contar con un muestreo suficiente de puntos. En este contexto, se demuestra que la aproximación vía \textit{kernel} Dynamic Mode Decomposition converge al operador de Koopman en un espacio de dimensión infinita. 
+Aunque el algoritmo propuesto en este capítulo no constituye una contribución original en términos de su estructura, sí lo es la justificación de su funcionamiento y convergencia bajo el supuesto de contar con un muestreo suficiente de puntos. En este contexto, se demuestra, en base a las cotas probadas anteriormente para la aproximación vía \textit{kernel} Dynamic Mode Decomposition, que un filtro subóptimo representado en dimensión finita converge al óptimo en dimensión infinita. 
 
 El objetivo principal de este capítulo es demostrar que, bajo ciertas hipótesis, la tasa de convergencia del algoritmo es del orden de $N^{-1/2}$, lo que lo posiciona como un competidor viable frente a otros algoritmos de filtraje presentes en la literatura, tales como los filtros de partículas, discutidos previamente en la sección de preliminares.
 
 Para ello, se propone primero descomponer el error del Filtro de Kalman aplicado a dos sistemas lineales, formulando este error en función de los datos provenientes de los sistemas. Este análisis, hasta la fecha de redacción de este trabajo, no se encuentra documentado en la literatura y, por lo tanto, constituye una contribución original de esta investigación.
 
-Posteriormente, se construye el filtro propuesto, denominado \textit{kernel Koopman Kalman Filter} (kerKKF), siguiendo una metodología análoga a la empleada en el Filtro de Kalman para sistemas lineales con mínimos cuadrados recursivos \cite{Kalman1960AProblems, Triantafyllopoulos2021BayesianBeyond}, y particularmente a como se formula en \cite{Gebhard2019} para la construcción de la denominada \textit{kernel Bayes Rule}.
+Posteriormente, se construye el filtro propuesto, denominado \textit{kernel Koopman Kalman Filter} (kerKKF), siguiendo una metodología análoga a la empleada en el Filtro de Kalman para sistemas lineales con mínimos cuadrados recursivos \cite{Kalman1960AProblems, Triantafyllopoulos2021BayesianBeyond}, y particularmente a como se formula en \cite{Gebhard2019} para la construcción de la denominada \textit{kernel Kalman Rule}.
 
 Finalmente, utilizando los resultados obtenidos en el capítulo anterior junto con la descomposición del error, se demuestra la cota de error propuesta. El desempeño del filtro es evaluado en diferentes sistemas mediante una implementación en Python desarrollada específicamente para este trabajo.
 
@@ -207,7 +207,7 @@ donde
 \end{equation*}
 es una variable aleatoria infinita dimensional cuyo operador de covarianza está acotado y se denota por 
 \[
-\mathcal{Q}_k := \int_\X \Phi_\X (x') \otimes \Phi_\X(x') d \rho_f (x',x). 
+\mathcal{Q}_k := \int_\X \Phi_\X (x) \otimes \Phi_\X(x) d \rho_f (\mathbf{x}_k,x). 
 \]
 Además, esta variable aleatoria tiene media nula, esto ya que
 \begin{equation*}
@@ -252,7 +252,9 @@ con lo que
 \end{proof}
 
 \begin{obs}
-    En lo que sigue se supondrá que se cumple \ref{eq:condi_g}. Un ejemplo de esto es cuando $\mathbf{g}$ es aditiva y el ruido tiene matriz de covarianza definida positiva, esto es, si
+    En lo que sigue se supondrá que se cumple \ref{eq:condi_g}, lo que hará que se satisfaga la hipótesis del teorema \ref{teo:error_kalman} sobre la invertibilidad de los $\mathcal{S}_k$ al ser suma de una matriz simétrica semidefinida positiva y una matriz simétrica definida positiva, argumento que también se verá en la deducción del operador de ganancia de Kalman. 
+    
+    Un ejemplo en donde esto se cumple es cuando $\mathbf{g}$ es aditiva y el ruido tiene matriz de covarianza definida positiva, esto es, si
     \[
     \mathbf{g}(\mathbf{x}, \mathbf{v}) = \Tilde{\mathbf{g}}(\mathbf{x}) + \mathbf{v}
     \]
@@ -310,7 +312,7 @@ Por lo que se debe agregar un factor de proyección, que indique la dirección a
 \begin{equation*}
 	\hat{\mu}_{k+1} = \hat{\mu}_{k+1}^- + \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-).
 \end{equation*}
-En Gebhardt et al. \cite{Gebhard2019} se deduce que $\hat{\mu}_k$ es un estimador insesgado de $\mu_k$, para todo $k$ y además una expresión para el operador de ganancia, que se deja a continuación por completitud de la deducción del filtro, en donde se ha ajustado la notación.
+En Gebhardt et al. \cite{Gebhard2019} se deduce que $\hat{\mu}_k$ es un estimador insesgado de $\mu_k$, para todo $k$ y además una expresión para el operador de ganancia, que se deja a continuación por completitud de la deducción del filtro, en donde se ha ajustado la notación a lo presentado anteriormente.
 
 \begin{prop}[Sobre la actualización, Adaptación de Gebhardt et al. \cite{Gebhard2019}]
 \label{prop:unbias_kalman_operator}
@@ -336,27 +338,24 @@ En Gebhardt et al. \cite{Gebhard2019} se deduce que $\hat{\mu}_k$ es un estimado
                 &= ( I - \K_k C_{Y|X} ) \varepsilon_k^- + \K_{k} \nu_k
 \end{align*}
 
-Primero se probará que $\E[\varepsilon_k^-] = 0$, esto por inducción. En primer lugar, para $k=0$ se tiene por construcción, con lo que el caso el caso base queda probado. Suponiendo que se cumple para $k \in \N$, se propone probarlo para $k+1$.
-
-Notando que 
+Primero se probará que $\E[\varepsilon_k^-] = 0$, esto por inducción. En primer lugar, para $k=0$ se tiene por construcción, con lo que el caso el caso base queda probado. Suponiendo que se cumple para $k \in \N$, se propone probarlo para $k+1$. Notando que 
 \begin{equation*}
-    \varepsilon_{k+1}^- = \hat{\mu}_{k+1}^- - \mu_{k+1} = C_{X^+|X} \hat{\mu}_k - C_{X^+|X} \mu_k - \zeta_k
+    \varepsilon_{k+1}^- = \hat{\mu}_{k+1}^- - \mu_{k+1} = C_{X^+|X} \hat{\mu}_k - C_{X^+|X} \mu_k - \zeta_k,
 \end{equation*}
 se tiene que
 \begin{equation*}
-    \E[\varepsilon_{k+1}^-] = C_{X^+|X} \E [\hat{\mu}_k] - \E[\zeta_k] = C_{X^+|X} \E[\varepsilon^+_k]
+    \E[\varepsilon_{k+1}^-] = C_{X^+|X} \E [\hat{\mu}_k] - \E[\zeta_k] = C_{X^+|X} \E[\varepsilon^+_k],
 \end{equation*}
 ya que las variables aleatorias $\zeta_k$ son centradas. Con ello
 \begin{equation*}
-    \E[\varepsilon^+_k] = ( I - \K_k C_{Y|X} ) \E[\varepsilon_k^-] + \K_{k} \E[\nu_k] = 0
+    \E[\varepsilon^+_k] = ( I - \K_k C_{Y|X} ) \E[\varepsilon_k^-] + \K_{k} \E[\nu_k] = 0,
 \end{equation*}
 ya los $\nu_k$ son centrados y por la hipótesis de inducción $\E[\varepsilon_k^-] = 0$. Luego por principio de inducción queda probado que $\E[\varepsilon_k^-] = 0$, para todo $k$.  Haciendo la misma manipulación de antes, se prueba que $\E[\varepsilon^+_k] = 0$, para todo $k$, con lo que el estimado $\hat{\mu}_k$ es insesgado para $\mu_k$.
 
 Ahora para el operador de ganancia se debe recordar que en el problema de filtraje se busca minimizar la pérdida cuadrática esperada asociada a la estimación de la trayectoria, la que viene dada por
 \begin{equation*}
-    \E[(\hat{\mu}_{k} - \mu_{k})^* (\hat{\mu}_{k} - \mu_{k}) ] = \E [ (\varepsilon_k^+)^* \varepsilon_k^+ ]
+    \E[(\hat{\mu}_{k} - \mu_{k})^* (\hat{\mu}_{k} - \mu_{k}) ] = \E [ (\varepsilon_k^+)^* \varepsilon_k^+ ].
 \end{equation*}
-
 Dado que el estimador es insesgado, esto se puede reformular como la minimización de la traza de la covarianza de error a posteriori $\mathcal{P}_k$, es decir
 \begin{align*}
 \min_{\K_k} \mathbb{E}[(\varepsilon_k^+)^* \varepsilon_k^+] &= \min_{\K_k} \text{Tr} \mathbb{E}[\varepsilon_k^+(\varepsilon_k^+)^*] \\
@@ -379,7 +378,7 @@ Con esta perspectiva, el operador de covarianza posterior puede reformularse com
 \begin{equation*}
 \mathcal{P}_k = (I - \K_k C_{Y|X})\mathcal{P}^-_{k}(I - \K_k C_{Y|X})^* + \K_k \mathcal{R}_k \K_k^*,
 \end{equation*}
-donde $\mathcal{R}_k = \mathbb{E}[\nu_k\nu_k^*]$ es la covarianza del ruido asociado a la observación. Tomando la derivada de la traza del operador de covarianza e igualándola a cero se obtiene
+donde $\mathcal{R}_k = \mathbb{E}[\nu_k\nu_k^*]$ es la covarianza del ruido asociado a la observación. Tomando la derivada de la traza del operador de covarianza con respecto del operador de ganancia e igualándola a cero se obtiene
 \begin{align*}
 2(I - \K_k C_{Y|X})\mathcal{P}^-_{k}(-C_{Y|X}^*) + 2\K_k \mathcal{R}_k &= 0,
 \end{align*}
@@ -391,7 +390,7 @@ que es equivalente a
 
 Con esto
 \begin{align*}
-\K_k C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \K_k \mathcal{R}_k &= \K^-_{k}C_{Y|X}^* \\
+\K_k C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \K_k \mathcal{R}_k &= \K^-_{k}C_{Y|X}^*, \\
 \K_k(C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^* + \mathcal{R}_k) &= \mathcal{P}^-_{k}C_{Y|X}^* .
 \end{align*}
 Aquí la decisión $\H_\Y = \R^p$ cobra sentido, ya que entonces, dado que $\mathcal{R}_k$ es una matriz simétrica definida positiva, es invertible, como $C_{Y|X}\mathcal{P}^-_{k}C_{Y|X}^*$ es una matriz simétrica semidefinida positiva, entonces el término que acompaña a $\K_k$ es invertible y por tanto
@@ -422,74 +421,71 @@ se llega a que
 \end{equation*}
 \end{proof}
 
-Entonces, con expresiones cerradas para el operador de ganancia de Kalman y los operadores de covarianza de error, las ecuaciones para cada iteración se expresan de la siguiente manera:
+Entonces, con expresiones cerradas para el operador de ganancia de Kalman y los operadores de covarianza de error, las ecuaciones para cada iteración se expresan como
 \begin{equation*}
 	\begin{aligned}
-		\hat{\mu}_{k+1}^- & = C_{X^+|X} \hat{\mu}_{k} \\
-		\mathcal{P}_{k+1}^- & = C_{X^+|X} \mathcal{P}_k (C_{X^+|X})^* + \mathcal{Q}_{k+1} \\
-		\S_{k+1} & = C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1} \\
-		\K_{k+1} & = \mathcal{P}_{k+1}^- (C_{Y|X})^* \S_{k+1}^{-1} \\
-		\mathcal{P}_{k+1} & = (I - \K_{k+1} C_{Y|X}) \mathcal{P}_{k+1}^- \\
-		\hat{\mu}_{k+1} &= C_{X^+|X} \hat{\mu}_k + \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-)
+		\hat{\mu}_{k+1}^- & = C_{X^+|X} \hat{\mu}_{k}, \\
+		\mathcal{P}_{k+1}^- & = C_{X^+|X} \mathcal{P}_k (C_{X^+|X})^* + \mathcal{Q}_{k+1}, \\
+		\S_{k+1} & = C_{Y|X} \mathcal{P}_{k+1}^- (C_{Y|X})^* + \mathcal{R}_{k+1}, \\
+		\K_{k+1} & = \mathcal{P}_{k+1}^- (C_{Y|X})^* \S_{k+1}^{-1}, \\
+		\mathcal{P}_{k+1} & = (I - \K_{k+1} C_{Y|X}) \mathcal{P}_{k+1}^-, \\
+		\hat{\mu}_{k+1} &= C_{X^+|X} \hat{\mu}_k + \K_{k+1} (\mathbf{y}_{k+1} - C_{Y|X} \hat{\mu}_{k+1}^-),
 	\end{aligned}
 \end{equation*}
-con las condiciones iniciales:
+con las condiciones iniciales
 \begin{equation*}
 	\hat{\mu}_0 = \E [\Phi_\X (\mathbf{x}_0)], \quad \mathcal{P}_{0} = \text{Cov}(\Phi_\X (\mathbf{x}_0) - \hat{\mu}_0).
 \end{equation*}
-
 Ahora, expresando todo en términos del operador de Koopman, gracias a que
 \begin{equation*}
-	C_{X^+|X} = \U^*, \quad C_{Y|X} = \G^*
+	C_{X^+|X} = \U^*, \quad C_{Y|X} = \G^*,
 \end{equation*}
-se obtiene:
+se obtiene que
 \begin{equation*}
 	\begin{aligned}
-		\hat{\mu}_{k+1}^- & = \U^* \hat{\mu}_{k} \\
-		\mathcal{P}_{k+1}^- & = \U^* \mathcal{P}_k \U + \mathcal{Q}_{k+1} \\
-		\S_{k+1} & = \G^* \mathcal{P}_{k+1}^- \G + \mathcal{R}_{k+1} \\
-		\K_{k+1} & = \mathcal{P}_{k+1}^- \G \S_{k+1}^{-1} \\
-		\mathcal{P}_{k+1} & = (I + \K_{k+1} \G^*) \mathcal{P}_{k+1}^- \\
-		\hat{\mu}_{k+1} &= \U^* \hat{\mu}_k + \K_{k+1} (\mathbf{y}_{k+1} - \G^* \hat{\mu}_{k+1}^-)
+		\hat{\mu}_{k+1}^- & = \U^* \hat{\mu}_{k}, \\
+		\mathcal{P}_{k+1}^- & = \U^* \mathcal{P}_k \U + \mathcal{Q}_{k+1}, \\
+		\S_{k+1} & = \G^* \mathcal{P}_{k+1}^- \G + \mathcal{R}_{k+1}, \\
+		\K_{k+1} & = \mathcal{P}_{k+1}^- \G \S_{k+1}^{-1}, \\
+		\mathcal{P}_{k+1} & = (I + \K_{k+1} \G^*) \mathcal{P}_{k+1}^-, \\
+		\hat{\mu}_{k+1} &= \U^* \hat{\mu}_k + \K_{k+1} (\mathbf{y}_{k+1} - \G^* \hat{\mu}_{k+1}^-).
 	\end{aligned}
 \end{equation*}
-
-Si ahora se realizan las aproximaciones finito dimensionales, se obtiene:
+Ahora se proponen las siguiente aproximaciones que poseen representación en dimensión finita en base a lo visto en el capítulo anterior
 \begin{equation*}
 	\begin{aligned}
-		\hat{\mu}_{N, k+1}^- & = \U^*_N \hat{\mu}_{N, k} \\
-		\mathcal{P}_{N, k+1}^- & = \U^*_N \mathcal{P}_{N,k} \U_N + \mathcal{Q}_{N, k+1} \\
-		\K_{N,k+1} & = \mathcal{P}_{N, k+1}^- \G_N (\G^*_N \mathcal{P}_{N, k+1}^- \G_N + \mathcal{R}_{N, k+1})^{-1} \\
-		\mathcal{P}_{N, k+1} & = (I + \K_{N,k+1} \G_N^*) \mathcal{P}_{N,k+1}^- \\
-		\hat{\mu}_{N,k+1} &= \U_N^* \hat{\mu}_{N,k} + \K_{N,k+1} (\mathbf{y}_{k+1} - \G^*_N \hat{\mu}_{N,k+1}^-)
+		\hat{\mu}_{N, k+1}^- & = \U^*_N \hat{\mu}_{N, k}, \\
+		\mathcal{P}_{N, k+1}^- & = \U^*_N \mathcal{P}_{N,k} \U_N + \mathcal{Q}_{N, k+1}, \\
+		\K_{N,k+1} & = \mathcal{P}_{N, k+1}^- \G_N (\G^*_N \mathcal{P}_{N, k+1}^- \G_N + \mathcal{R}_{N, k+1})^{-1}, \\
+		\mathcal{P}_{N, k+1} & = (I + \K_{N,k+1} \G_N^*) \mathcal{P}_{N,k+1}^-, \\
+		\hat{\mu}_{N,k+1} &= \U_N^* \hat{\mu}_{N,k} + \K_{N,k+1} (\mathbf{y}_{k+1} - \G^*_N \hat{\mu}_{N,k+1}^-).
 	\end{aligned}
 \end{equation*}
-
 En donde $\mathcal{Q}_{N,k+1}$, $\mathcal{R}_{N,k+1}$ son los estimadores insesgados de $\mathcal{Q}_{k+1}$ y $\mathcal{R}_{k+1}$, respectivamente, es decir:
 \begin{equation}
-	\mathcal{Q}_{N,k+1} = \frac{1}{N-1}\sum_{j=1}^N (z_{1,j} - \bar{z}_1)^2, \quad \mathcal{R}_{N,k+1} = \frac{1}{N-1}\sum_{j=1}^N (z_{2,j} - \bar{z}_2)^2
+	\mathcal{Q}_{N,k+1} = \frac{1}{N-1}\sum_{j=1}^N (z_{1,j} - \bar{z}_1)^2, \quad \mathcal{R}_{N,k+1} = \frac{1}{N-1}\sum_{j=1}^N (z_{2,j} - \bar{z}_2)^2,
 	\label{eq: emp_covars}
 \end{equation}
 donde $\{ z_{1,j} \}_{j=1}^N \sim \zeta_k^N$, $\{ z_{2,j} \}_{j=1}^N \sim \nu_k^N$ y 
 \begin{equation*}
-	\bar{z}_i = \frac{1}{N} \sum_{j=1}^N z_{i,j}
+	\bar{z}_i = \frac{1}{N} \sum_{j=1}^N z_{i,j}.
 \end{equation*}
 Si $X_0$ es la distribución dada para la condición inicial y $\{ x_j \}_{j=1}^N \sim X_0$, entonces la inicialización viene dada por:
 \begin{equation}
-	\hat{\mu}_{N,0} = \frac{1}{N} \sum_{j=1}^N \Phi_\X(x_{k}), \quad \mathcal{P}_{N,0} = \frac{1}{N-1} \sum_{j=1}^N (\Phi_\X(x_{k}) - \hat{\mu}_{N,0})^2
+	\hat{\mu}_{N,0} = \frac{1}{N} \sum_{j=1}^N \Phi_\X(x_{k}), \quad \mathcal{P}_{N,0} = \frac{1}{N-1} \sum_{j=1}^N (\Phi_\X(x_{k}) - \hat{\mu}_{N,0})^2.
 	\label{eq: mean_element_covar}
 \end{equation}
 
 Es con todo esto que se concluye la deducción del filtro, tanto en dimensión infinita como su representante en dimensión infinita, para este último se puede encontrar su pseudo-código en el algoritmo \ref{alg:kerKKF}.
 
 \begin{algorithm}[h]
-\caption{Cov($W, N, \nu$)}\label{alg:AppCov}
+\caption{Cov($W, N, h$)}\label{alg:AppCov}
 \begin{algorithmic}[1]
-\State \textbf{Entrada:} $W$ ley de una variable \textit{sampleable} con soporte en un conjunto $\Omega$, $N \geq 2$ cantidad de muestras a tomar, $\nu:\Omega \to \R^d$ función.
-\Ensure $\hat{\Sigma} \in \R^{d \times d}$ estimación de matriz de covarianzas de $\nu(W)$.
+\State \textbf{Entrada:} $W$ ley de una variable \textit{sampleable} con soporte en un conjunto $\Omega$, $N \geq 2$ cantidad de muestras a tomar, $h:\Omega \to \R^d$ función.
+\Ensure $\hat{\Sigma} \in \R^{d \times d}$ estimación de matriz de covarianzas de $h(W)$.
 \State $\{ \mathbf{w}_i \}_{i=1}^N \sim W^N$ \Comment{$N$ muestras independientes de $W$} 
-\State $\hat{\nu} = \frac{1}{N} \sum_{i=1}^N \nu (\mathbf{w}_i)$ \Comment{Promedio empírico}
-\State $\hat{\Sigma} = \frac{1}{N-1} \sum_{i=1}^N (\nu (\mathbf{w}_i) - \hat{\nu})^T(\nu (\mathbf{w}_i) - \hat{\nu})$  \Comment{Covarianza muestral insesgada}
+\State $\hat{h} = \frac{1}{N} \sum_{i=1}^N h (\mathbf{w}_i)$ \Comment{Promedio empírico}
+\State $\hat{\Sigma} = \frac{1}{N-1} \sum_{i=1}^N (h (\mathbf{w}_i) - \hat{h})^T(h (\mathbf{w}_i) - \hat{h})$  \Comment{Covarianza muestral insesgada}
 \end{algorithmic}
 \end{algorithm}
 
@@ -561,7 +557,7 @@ El primer paso para deducir la cota de error es dejar la discrepancia en norma d
 \end{prop}
 
 \begin{proof}
-    Esto es directo del teorema \ref{teo:error_kalman}, ocupando
+    Esto es directo del teorema \ref{teo:error_kalman}, notando que los $\mathcal{S}_k$ son invertibles al ser $\mathcal{R}_k$ una matriz simétrica definida positiva. Ocupando
     \begin{equation*}
         A_{1,k} = \U, \quad A_{2,k} = \U_N 
     \end{equation*}
@@ -580,12 +576,14 @@ El primer paso para deducir la cota de error es dejar la discrepancia en norma d
     Es decir, no se tiene el error por diferencia en las observaciones, ya que se considera que ambos sistemas tienen las mismas observaciones.
 \end{proof}
 
+Esto da paso directo a poder hacer inducción para poder dejar todo en función de un único orden de decaimiento del error, para lo que se utilizará el resultado probado en el capítulo anterior para la convergencia de kEDMD. 
+
 \begin{teo}
     Sean $\delta \in (0, 1)$ y $N \in \N$ tales que
 \[
 \delta > 2 \text{exp} \left ( -\frac{Nc_1^2}{8\|k\|_\infty}\right )
 \]
-con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, entonces con probabilidad al menos $(1 - \delta)^4$ se tiene que existen constantes $C_i^j$, dependientes de $\delta$, para $i \in \{1, 2, 3\}$, $j \in \{1, 2\}$ tales que
+con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, entonces con probabilidad al menos $(1 - \delta)^4$ se tiene que existen constantes $C_k^1$ y $C_k^2$, dependientes de $\delta$, tales que
 	\begin{equation*}
 		\begin{aligned}
 			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{k}^1 N^{-1/2}
@@ -596,7 +594,7 @@ con $c_1$ la constante de inyectividad de $C_X$. Si $\U \H_X \subset \H_X$, $\G 
 			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{k}^2 N^{-1/2} 
 		\end{aligned}
 	\end{equation*}
-	En donde las constantes $C_i^j$ son positivas y dependen de $k$ solo a través de $\| \U \| $, $\| \G \| $, $\| \mathcal{Q}_{j} \| $, $\| \mathcal{R}_{j} \| $, $\| \S_{k}^{-1} \| $, $\| \hat{\mu}_{j} \| $ y $\| \mathcal{P}_{j} \| $, con $j \in \{ 0, \dots, k-1\}$.
+	En donde las constantes $C_k^j$ son positivas y dependen de $k$ solo a través de $\| \U \| $, $\| \G \| $, $\| \mathcal{Q}_{j} \| $, $\| \mathcal{R}_{j} \| $, $\| \S_{k}^{-1} \| $, $\| \hat{\mu}_{j} \| $ y $\| \mathcal{P}_{j} \| $, con $j \in \{ 0, \dots, k-1\}$.
     \label{teo:teo_kerKKF_2}
 \end{teo}
 
@@ -625,15 +623,15 @@ Ahora se procede con la demostración de la Proposición \ref{teo:teo_kerKKF_2}.
 			& + c_{5,k}^2 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + c_{6,k}^2 \| \mathcal{P}_{k-1} - \mathcal{P}_{N, k-1} \|.
 		\end{aligned}
 	\end{equation*}
-	Por teorema \ref{teo:error_koop_sqrt_N_def} entonces se concluye que con probabilidad $(1-\delta)^4$ existen constantes $C^1_{1, k}$ y $C^2_{1, k}$ tales que
+	Por teorema \ref{teo:error_koop_sqrt_N_def} entonces se concluye que con probabilidad $(1-\delta)^4$ existen constantes $C^1_{1, k}$ y $C^2_{1, k}$, dependientes de $\delta$, tales que
 	\begin{equation*}
 		\begin{aligned}
-			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{1,k}^1 N^{-1/2} + C_{2,k}^1 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k}^1 \| \mathcal{P}_{k-1}  - \mathcal{P}_{N, k-1}  \|
+			\| \hat \mu_{k} - \hat \mu_{N,k}  \| \leq & \, C_{1,k}^1 N^{-1/2} + C_{2,k}^1 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k}^1 \| \mathcal{P}_{k-1}  - \mathcal{P}_{N, k-1}  \|,
 		\end{aligned}
 	\end{equation*}
 	\begin{equation*}
 		\begin{aligned}
-			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{1,k}^2 N^{-1/2} + C_{2,k}^2 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k}^2 \| \mathcal{P}_{k-1} - \mathcal{P}_{N,k-1} \|
+			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{1,k}^2 N^{-1/2} + C_{2,k}^2 \| \hat \mu_{k-1} - \hat \mu_{N, k-1} \| + C_{3,k}^2 \| \mathcal{P}_{k-1} - \mathcal{P}_{N,k-1} \|.
 		\end{aligned}
 	\end{equation*}
 	Para propagar el error hasta la condición inicial se procede por inducción. Para ello primero el caso base $k=1$ que se tiene directo por el teorema \ref{teo:error_kalman} aplicado a $k=1$.\\
@@ -648,7 +646,7 @@ Ahora se procede con la demostración de la Proposición \ref{teo:teo_kerKKF_2}.
 			\| \mathcal{P}_{k} - \mathcal{P}_{N,k}  \| \leq & \, C_{1,k}^2 N^{-1/2} + C_{2,k}^2 \| \hat \mu_{0} - \hat \mu_{N, 0} \| + C_{3,k}^2 \| \mathcal{P}_{0} - \mathcal{P}_{N, 0} \|
 		\end{aligned}
 	\end{equation*}
-	Ahora se prueba para $k+1$, que basta hacerlo para $\| \hat \mu_{k+1} - \hat \mu_{N,k+1}  \|$, para la otra cota análoga.
+	Ahora se prueba para $k+1$, que basta hacerlo para $\| \hat \mu_{k+1} - \hat \mu_{N,k+1}  \|$, para la otra cota análoga. Por el desarrollo anterior, se tiene que
 	\begin{equation*}
 	\begin{aligned}
 		\| \hat \mu_{k+1} - \hat \mu_{N,k+1}  \| \leq & \, C_{1,k+1}^1 N^{-1/2} + c_{5,k+1}^1 \| \hat \mu_{1, k} - \hat \mu_{2, k} \| + c_{6,k+1}^1 \| \mathcal{P}_{k}  - \mathcal{P}_{N, k}  \| 
@@ -926,7 +924,7 @@ En el algoritmo \ref{alg:ParamEstim} se puede observar el pseudo-código para la
 
 \section{Resultados numéricos}
 
-A continuación se presentan los resultados numéricos para los aspectos presentados del filtro creado. Esto se hace en Python, como hay un factor estocástico importante en los experimentos se fija la semilla aleatoria en 42. Se implementan además los filtros de Kalman, Extended Kalman, Unscented Kalman y Filtro de Partículas con Importance Resampling, todas son implementaciones propias y están basadas en \cite{Setoodeh2022NonlinearApplications}.
+A continuación se presentan los resultados numéricos para los aspectos presentados del filtro creado. Se implementan además los filtros de Kalman, Extended Kalman, Unscented Kalman y Filtro de Partículas con Importance Resampling, todas son implementaciones propias y están basadas en \cite{Setoodeh2022NonlinearApplications}.
 
 \subsection{Comparación el filtro de Kalman en el caso lineal}
 
@@ -1146,7 +1144,7 @@ Además, se midió el error en norma de los filtros para $50$ valores de $\beta$
 
 A continuación se prueba la metodología para estimación de parámetros, que se compara con Markov Chain Monte Carlo, utilizando como \textit{samplers} Differential Evolution Metropolis (DEMetropolisZ) \cite{terBraak2008DifferentialChains}, que es un \textit{sampler} no basado en gradiente, y No-U-Turn Sampler (NUTS) \cite{Hoffman2014TheCarlo}, que está basado en gradiente y además es de los más utilizados cuando hay un sistema dinámico subyacente implementado en PyMC \cite{Patil2010PyMC:Python}.
 
-Para DEMetropolisZ se utilizarán 20000 iteraciones de \textit{warm up}, es decir, no se utilizarán para la estimación y 20000 para estimación como tal. Mientras que para NUTS se utilizaron 150 y 150, respectivamente. Para la aproximación de Koopman, en los tres sistemas donde se probó, se utilizará $N=100$. Se realizaron 300 iteraciones del algoritmo \ref{alg:ParamEstim}, de las cuales la primera mitad se tomó como \textit{warm up} y la segunda mitad se considerará para la estimación. Para los 3 algoritmos, se hará el mismo procedimiento 8 veces, pero en paralelo en un computador MacBook Air M1 de 8 núcleos.
+Para DEMetropolisZ se utilizarán 20000 iteraciones de \textit{warm up}, es decir, no se utilizarán para la estimación y 20000 para estimación como tal. Mientras que para NUTS se utilizaron 150 y 150, respectivamente. Para la aproximación de Koopman, en los tres sistemas donde se probó, se utilizará $N=100$. Se realizaron 300 iteraciones del algoritmo \ref{alg:ParamEstim}, de las cuales la primera mitad se tomó como \textit{warm up} y la segunda mitad se considerará para la estimación. Para los 3 algoritmos, se hará el mismo procedimiento 8 veces en paralelo.
 
 Se prueba la metodología de estimación de parámetros para el modelo SIR \eqref{eq:SIR}, esto es, lograr una estimación para $\beta$ y $\gamma$ en base a observaciones, tal como se encuentra en el algoritmo \ref{alg:ParamEstim}. Por lo que se considera el modelo con estados aumentados, que es
 
@@ -1265,8 +1263,8 @@ Se observa el rendimiento de los 3 algoritmos, para los 3 sistemas, es bastante 
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro} & \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    $\beta$ & 1.3 & 1.5 (0.94, 2.06) & 1.42 (1.03, 1.81) & 1.3 (1.26, 1.33) \\ \hline
-    $\gamma$ & 0.5 & 0.63 (0.22, 1.04) & 0.48 (0.30, 0.66) & 0.44 (0.4, 0.48) \\ \hline
+    $\beta$ & 1.3 & 1.59 (0.96, 2.22) & 1.43 (1.06, 1.80) & 1.3 (1.26, 1.33) \\ \hline
+    $\gamma$ & 0.5 & 0.69 (0.23, 1.16) & 0.48 (0.30, 0.67) & 0.44 (0.4, 0.48) \\ \hline
     \end{tabular}
     \label{tab:SIR_params}
 \end{table}
@@ -1277,9 +1275,9 @@ Se observa el rendimiento de los 3 algoritmos, para los 3 sistemas, es bastante 
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro}& \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    $\alpha$ & 0.2 & 0.19 (0.13, 0.25) & 0.21 (0.05, 0.36) & 0.18 (0.16, 0.20) \\ \hline
-    $\beta$ & 1.3 & 1.32 (1.15, 1.49) & 1.45 (0.99, 1.90) & 1.38 (1.34, 1.42) \\ \hline
-    $\gamma$ & 0.5 & 0.50 (0.43, 0.58) & 0.56 (0.36, 0.75) & 0.45 (0.43, 0.47) \\ \hline
+    $\alpha$ & 0.2 & 0.31 (-0.25, 0.88) & 0.21 (0.046, 0.37) & 0.18 (0.16, 0.20) \\ \hline
+    $\beta$ & 1.3 & 1.4 (0.88, 1.92) & 1.46 (0.99, 1.91) & 1.38 (1.34, 1.42) \\ \hline
+    $\gamma$ & 0.5 & 0.57 (0.22, 0.93) & 0.56 (0.36, 0.76) & 0.45 (0.43, 0.47) \\ \hline
     \end{tabular}
     \label{tab:SIRS_params}
 \end{table}
@@ -1290,10 +1288,11 @@ Se observa el rendimiento de los 3 algoritmos, para los 3 sistemas, es bastante 
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     \textbf{Parámetro}& \textbf{Real} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    $\alpha$ & 0.2 & 0.55 (-0.055, 1.15) & 0.40 (-0.13, 0.94) & 0.18 (0.14, 0.22) \\ \hline
-    $\beta$ & 1.3 & 1.85 (1.41, 2.29) & 1.56 (0.94, 2.18) & 1.32 (1.26, 1.38)\\  \hline
-    $\gamma$ & 0.4 & 0.34 (0.18, 0.50) & 0.40 (0.09, 0.71) & 0.59 (0.55, 0.63)\\ \hline
-    $\delta$ & 0.5 & 0.66 (0.47, 0.84) & 0.57 (0.32, 0.81) & 0.37 (0.25, 0.49)\\ \hline
+    $\alpha$ & 0.2 & 0.44 (-0.096, 0.97) & 0.36 (-0.12, 0.84) & 0.18 (0.14, 0.22) \\ \hline
+    $\beta$ & 1.3 & 1.76 (1.18, 2.34) & 1.55 (0.96, 2.15) & 1.32 (1.26, 1.38)\\  \hline
+    $\gamma$ & 0.4 & 0.5 (0.35, 0.65) & 0.46 (0.14, 0.77)
+ & 0.59 (0.55, 0.63)\\ \hline
+    $\delta$ & 0.5 & 0.42 (0.19, 0.65) & 0.46 (0.27, 0.64) & 0.37 (0.25, 0.49)\\ \hline
     \end{tabular}
     \label{tab:SEIR_params}
 \end{table}
@@ -1362,9 +1361,9 @@ Error máximo & 1.943 & 48.279 & 0.987 \\
     \begin{tabular}{|c|c|c|c|}
     \hline
     \textbf{Modelo} & \textbf{DEMetropolisZ} & \textbf{NUTS} & \textbf{kerKKF}  \\ \hline
-    \textbf{SIR} & 60.9 & 222.5 & 34.3 \\ \hline
-    \textbf{SIRS} & 141.4 & 315.3 & 30.7 \\ \hline
-    \textbf{SEIR} & 209.9 & 755.4 & 33.9 \\ \hline
+    \textbf{SIR} & 113.3 & 222.5 & 34.3 \\ \hline
+    \textbf{SIRS} & 132.0 & 315.3 & 30.7 \\ \hline
+    \textbf{SEIR} & 160.78 & 755.4 & 33.9 \\ \hline
     \end{tabular}
     \label{tab:ex_times}
 \end{table}

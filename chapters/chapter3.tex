@@ -1316,8 +1316,8 @@ Mientras que en la figura \ref{fig:ErrorLin} se observa que en realidad el orden
     \label{fig:ErrorLin}
 \end{figure}
 \subsection{kEDMD para modelos utilizados en epidemiología}
-Para esta sección se ilustrarán los resultados de kEDMD para modelos epidemiológicos que no consideran nacimientos ni muertes, es decir, su población total se mantiene constante en el tiempo. Estos modelos reciben el nombre de compartimentales, ya que cada parte de la población se encuentra en un único compartimento y toda la población está en alguno de ellos. Para estos casos se supondrá que la población está normalizada, esto es, que cada compartimento está en $[0, 1]$.\\
-Esto último permite decir que el espacio de estados de este modelo es, sin considerar los eventuales factores estocásticos, un $(n-1)$-simplex, siendo $n$ la cantidad de compartimentos considerados, que se define como el conjunto
+Para esta sección se ilustrarán los resultados de kEDMD para modelos epidemiológicos de tipo SIR y SIRS. Se supondrá que la población está normalizada, esto es, que cada estado está en $[0, 1]$.\\
+Dado que no se consideran nacimientos ni muertes, se puede decir que el espacio de estados de este modelo es, sin considerar los eventuales factores estocásticos, un $(n-1)$-simplex, siendo $n$ la cantidad de compartimentos considerados, que se define como el conjunto
 \begin{equation*}
     \Delta_{n-1} = \left \{ x \in \R^n : \sum_{i=1}^n x_i = 1, \, x_i \geq 0, \, \forall i \in \{1, \dots, n\} \right \}.
 \end{equation*}
