@@ -14,7 +14,7 @@ Más allá del aspecto teórico, se observa a lo largo de los experimentos numé
 
 Esta ventaja en cuánto a precisión se acentúa en escenarios de alta incertidumbre, en donde los ruidos de dinámica y observación son altos. Esto incluso frente a Filtros de Partículas, los que probablemente son los predominantes en la literatura de Filtros con cotas de error. Queda pendiente de este trabajo comparar con los Ensemble Kalman Filters \cite{Evensen1994SequentialStatistics}, también basados en métodos tipo Monte Carlo.
 
-Incluso, este método, configurado y pensado de manera correcta, al utilizarse para estimar parámetros, logra obtener un rendimiento similar a \textit{samplers} como Differential Evolution Metropolis y NUTS, en el contexto de Markov Chain Monte Carlo, en cuanto a resultados, pero en tiempo incluso menor, lo que podría acelerar procesos de estimación de parámetros, que para muchos modelos demora del orden de horas.
+Incluso, este método, configurado y pensado de manera correcta, al utilizarse para estimar parámetros, logra obtener un mejor rendimiento que \textit{samplers} como Differential Evolution Metropolis y muy similares a los de NUTS, en el contexto de Markov Chain Monte Carlo, en cuanto a resultados, pero en tiempo incluso menor, lo que podría acelerar procesos de estimación de parámetros, que para muchos modelos demora del orden de horas.
 
 Además, este trabajo logró mejorar la cota que presentaron Philipp et al. \cite{Philipp2024ErrorOperator}, lo que era uno de los mejores resultados encontrados a la fecha, provista por un equipo completo dedicado a encontrar cotas para el EDMD.
 
