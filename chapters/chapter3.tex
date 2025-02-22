@@ -39,7 +39,7 @@ Sea $\B_\X$ la $\sigma$-álgebra de Borel definida sobre $\X$ y $\B_{\R^p}$ la c
 \]
 
 En este contexto, $\rho_f$ representa la medida inducida por la dinámica del sistema, mientras que $\rho_g$ corresponde a la medida inducida por las observaciones.  
-Se asume que el espacio de estados $\X$ es compacto y que existe un conjunto compacto $\Y \subseteq \R^p$ tal que  
+Se asume que el espacio de estados $\X$ es compacto con frontera Lipschitz y que existe un conjunto compacto $\Y \subseteq \R^p$ con frontera Lipschitz tal que  
 \[
 \rho_f (\mathbf{x}, \X) = 1, \quad \rho_g (\mathbf{x}, \Y) = 1, \quad \forall \mathbf{x} \in \X.
 \]
@@ -48,7 +48,6 @@ Sea entonces $\B_\Y$ la $\sigma$-álgebra $\B_{\R^p}$ restringida a $\Y$. Se int
 \[
 \rho_f (\mathbf{x}, dx) = d \rho_f (\mathbf{x}, \cdot)(x), \quad \rho_g (\mathbf{x}, dy) = d \rho_g (\mathbf{x}, \cdot)(y).
 \]
-
 Adicionalmente, se consideran funciones de densidad  
 \[
 p_f : \X \times \X \to \R_+, \quad p_g : \X \times \Y \to \R_+,
@@ -70,16 +69,15 @@ Un ejemplo concreto de este marco es el siguiente: considérese el caso en que l
 \[
     \mathbf{f}(\mathbf{x}_k, \mathbf{w}_k) = \Tilde{\mathbf{f}}(\mathbf{x}_k) + \mathbf{w}_k,
 \]
-donde $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{Q}_k)$, con $\mathbf{Q}_k$ definida positiva, y donde $\mu_\X$ es la medida de Lebesgue en $\X$. En este caso, la medida $\rho_f (\mathbf{x}_k, \cdot)$ sigue una distribución normal:  
+donde $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{Q}_k)$, con $\mathbf{Q}_k$ definida positiva, y donde $\mu_\X$ es la medida de Lebesgue, normalizada, en $\X$. En este caso, la medida $\rho_f (\mathbf{x}_k, \cdot)$ sigue una distribución normal:  
 \[
     \rho_f (\mathbf{x}_k, \cdot) \sim \mathcal{N}(\Tilde{\mathbf{f}}(\mathbf{x}_k), \mathbf{Q}_k).
 \]
     
 En consecuencia, la densidad $p_f$ asociada toma la forma  
 \[
-p_f(x, y) = (2 \pi \det \mathbf{Q}_k )^{-1/2} \exp \left( -\frac{1}{2} (\Tilde{\mathbf{f}}(x) - y)^\top \mathbf{Q}_k^{-1} (\Tilde{\mathbf{f}}(x) - y) \right),
+p_f(x, y) = (2 \pi \det \mathbf{Q}_k )^{-1/2} \exp \left( -\frac{1}{2} (\Tilde{\mathbf{f}}(x) - y)^\top \mathbf{Q}_k^{-1} (\Tilde{\mathbf{f}}(x) - y) \right).
 \]
-la cual es acotada, incluso si $\Tilde{\mathbf{f}}$ no lo es.  
 \end{obs}
 
 Para garantizar la validez de los resultados en \cite{Philipp2024ErrorOperator}, se asumirán las siguientes hipótesis de compatibilidad:
@@ -93,9 +91,9 @@ Para garantizar la validez de los resultados en \cite{Philipp2024ErrorOperator},
     \[
         \int_{\Y \times \Y} k_\Y(x,y) \psi_\Y (x) \psi_\Y (y) d \mu_\Y (x) d \mu_\Y (y) = 0, 
     \]
-    entonces $\psi_\X = 0$ y $\psi_\Y = 0$ casi seguro.
+    entonces $\psi_\X = 0$ y $\psi_\Y = 0$ casi seguramente.
     
-    \item[c)] Si $\psi_\X \in \H_\X$ y $\psi_\Y \in \H_\Y$ son tales que $\psi_\X(x) = 0$ para todo $x \in \X$ $\mu_\X$-casi seguro, y $\psi_\Y(y) = 0$ para todo $y \in \Y$ $\mu_\Y$-casi seguro, entonces $\psi_\X \equiv 0$ y $\psi_\Y \equiv 0$.
+    \item[c)] Si $\psi_\X \in \H_\X$ y $\psi_\Y \in \H_\Y$ son tales que $\psi_\X(x) = 0$ para todo $x \in \X$ $\mu_\X$-casi seguramente, y $\psi_\Y(y) = 0$ para todo $y \in \Y$ $\mu_\Y$-casi seguramente, entonces $\psi_\X \equiv 0$ y $\psi_\Y \equiv 0$.
     
     \item[d)] Se asumen las siguientes relaciones entre $\rho_f$ y $\rho_g$ con respecto a $\mu_\X$ y $\mu_\Y$:
     \[
@@ -108,7 +106,7 @@ Para garantizar la validez de los resultados en \cite{Philipp2024ErrorOperator},
 
 Un ejemplo de un \textit{kernel} que satisface las hipótesis a) y b) es el \textit{kernel} de Matérn. La propiedad a) es garantizada por los resultados presentados en la sección anterior, mientras que la propiedad b) se deriva de la universalidad del \textit{kernel} en $L^2$. 
 
-La hipótesis c) se satisface si $\mu_\X$ y $\mu_\Y$ tienen densidad respecto a la medida de Lebesgue, y la hipótesis d) se cumple en el caso estocástico cuando las funciones $p_f$ y $p_g$ son acotadas. 
+La hipótesis c) se satisface si $\mu_\X$ y $\mu_\Y$ tienen densidad respecto a la medida de Lebesgue, y la hipótesis d) se cumple en el caso estocástico cuando las funciones $p_f$ y $p_g$ son acotadas, tal como se verá en la proposición a continuación.
 
 \begin{prop}
     Si $p_f \in L^{\infty} (\X \times \X)$ y $p_g \in L^{\infty} (\X \times \Y)$, entonces:
@@ -143,7 +141,7 @@ Para $\rho_g$, de manera similar, se tiene que:
         \end{aligned}
     \]
 \end{proof}
-En el caso en que la dinámica y la observación sean deterministas, esto es equivalente a que $\mathbf{f}(\mathbf{x}, \mathbf{w}) = \Tilde{\mathbf{f}}(\mathbf{x})$ y $\mathbf{g}(\mathbf{x}, \mathbf{v}) = \Tilde{\mathbf{g}}(\mathbf{x})$, con lo que $\rho (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ y $\xi (x, \cdot) = \delta_{\Tilde{\mathbf{g}}(x)}(\cdot)$. En este caso, es necesario asumir mayor regularidad sobre las funciones involucradas.
+En el caso en que la dinámica y la observación sean deterministas, esto es equivalente a que $\mathbf{f}(\mathbf{x}, \mathbf{w}) = \Tilde{\mathbf{f}}(\mathbf{x})$ y $\mathbf{g}(\mathbf{x}, \mathbf{v}) = \Tilde{\mathbf{g}}(\mathbf{x})$, con lo que $\rho (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ y $\xi (x, \cdot) = \delta_{\Tilde{\mathbf{g}}(x)}(\cdot)$ y por tanto no se satisfacen las hipótesis de la proposición anterior. En este caso, es necesario asumir mayor regularidad sobre las funciones involucradas.
 
 \begin{prop}
     Si $\rho (x, \cdot) = \delta_{\Tilde{\mathbf{f}}(x)}(\cdot)$ y $\xi (x, \cdot) = \delta_{\Tilde{\mathbf{g}}(x)}(\cdot)$, y $\tilde{\mathbf{f}}$ y $\tilde{\mathbf{g}}$, según corresponda, son difeomorfismos de clase $C^1$ tales que:
@@ -251,12 +249,12 @@ En este punto se tomará la elección de tomar $k_\Y$ como el \textit{kernel} da
 \begin{defn}[Operadores de covarianza cruzada]
     El operador de covarianza cruzada asociado a la dinámica es $C_{X X^+} : \H_\X \to \H_\X$, dado por:
 	\begin{equation*}
-		C_{X X^+} \psi = \int_\X \int_\X \langle \psi, \Phi_\X (y) \rangle \Phi_\X (x) d\rho_f (x, \cdot)(y) d \mu_\X (x).
+		C_{X X^+} \psi = \E[\Phi_\X (X) \otimes \Phi_\X (X^+)] \psi = \int_\X \int_\X \langle \psi, \Phi_\X (y) \rangle \Phi_\X (x) d\rho_f (x, \cdot)(y) d \mu_\X (x).
 	\end{equation*}
     
-    El operador de covarianza cruzada asociado a la observación es $C_{\Y \X} : \H_\X \to \R^p$, dado por:
+    El operador de covarianza cruzada asociado a la observación es $C_{YX} : \H_\X \to \R^p$, dado por:
 	\begin{equation*}
-		C_{Y X} \psi = \int_\X \int_\Y \langle \psi, \Phi_\X (x) \rangle \Phi_\Y (y) d\rho_g (x, \cdot)(y) d \mu_\X (x).
+		C_{Y X} \psi = \E[\Phi_\Y (Y) \otimes \Phi_\X (X)] \psi = \int_\X \int_\Y \langle \psi, \Phi_\X (x) \rangle \Phi_\Y (y) d\rho_g (x, \cdot)(y) d \mu_\X (x).
 	\end{equation*}
 \end{defn}
 
@@ -267,7 +265,16 @@ En este punto se tomará la elección de tomar $k_\Y$ como el \textit{kernel} da
 	\end{equation*}
 \end{defn}
 
-Finalmente, será necesario asumir que $\U \H_\X \subset \H_\X$ y $\G \R^p \subset \H_\X$. Esto se cumple, por ejemplo, si $\H_\X$ es un espacio de Sobolev, como en el caso de que $k_\X$ sea un \textit{kernel} de Matérn. En este contexto, Köhne et al. \cite{Kohne2024L-errorDecomposition} prueban que esto se tiene cuando las funciones asociadas son difeomorfismos. A efectos de este trabajo fue necesario extender dicho resultado al caso estocástico, lo que se refleja en los siguientes dos resultados.
+Finalmente, será necesario asumir que $\U \H_\X \subset \H_\X$ y $\G \R^p \subset \H_\X$. Esto se cumple, por ejemplo, si $\H_\X$ es un espacio de Sobolev, como en el caso de que $k_\X$ sea un \textit{kernel} de Matérn. En este contexto, Köhne et al. \cite{Kohne2024L-errorDecomposition} prueban que esto se tiene cuando las funciones asociadas son difeomorfismos. A efectos de este trabajo fue necesario extender dicho resultado al caso estocástico, lo que se refleja en los siguientes dos resultados. Para la demostración será necesario un teorema de interpolación de espacios de Sobolev de Brenner y Scott \cite{Brenner2008TheMethods}.
+
+\begin{lema}
+    \label{lema:interpolacion}
+    Sea $\X$ un compacto con frontera Lipschitz y $H^s(\X)$ el espacio de Sobolev asociado a $\X$ con integrabilidad $p=2$ y regularidad $s$, luego para $s, k > 0$ se tiene que
+    \[
+        H^{s+\theta \cdot k} (\X) = [H^s (\X), H^{s+k} (\X)]_\theta.
+    \]
+    En particular, si $\psi \in H^{s}(\X)$ y $\psi \in H^{s+k}(\X)$, entonces $\psi \in H^{s+\ell}$ para todo $\ell \in [0, k]$.
+\end{lema}
 
 \begin{prop}[Invarianza Sobolev para Koopman]
 	Sea $s \geq 0$, $k =\lceil s \rceil $ y $H^s(\X)$ el espacio de Sobolev sobre $\X$. Si $p_f \in C^{k,k} (\X \times \X)$ y $p_g \in C^{k,k} (\X \times \Y)$, entonces:
@@ -291,20 +298,20 @@ Finalmente, será necesario asumir que $\U \H_\X \subset \H_\X$ y $\G \R^p \subs
 	\end{equation*}
 	Así, se concluye que $\U h \in H^m (\X)$ y:
 	\begin{equation*}
-		\| \U \|_{H^m \to H^m} \leq \mu_\X (\X) \sum_{|\alpha| \leq k} \| \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}}.
+		\| \U \|_{H^m (\X) \to H^m (\X)} \leq \mu_\X (\X) \sum_{|\alpha| \leq k} \| \partial^\alpha_x p_{\mathbf{f}} \|_{C^{k,k}}.
 	\end{equation*}
         Es así que
         \[
-        \U H^m \subseteq H^m, \, \forall m \in \{ 0, \dots, k \}.
+        \U H^m (\X) \subseteq H^m (\X), \, \forall m \in \{ 0, \dots, k \}.
         \]
 
-        De un resultado de interpolación \cite{Brenner2008TheMethods} se sabe que para $\ell \in [0, k]$ real se tiene que $H^\ell$ resulta ser la interpolación entre $H^0 = L^2$ y $H^k$, esto es, para $\theta \in [0, 1]$ se tiene
+        Del lema \ref{lema:interpolacion} se sabe que para $\ell \in [0, k]$ real se tiene que $H^\ell (\X)$ resulta ser la interpolación entre $H^0 (\X) = L^2 (\X)$ y $H^k (\X)$, esto es, para $\theta \in [0, 1]$ se tiene
         \[
-        H^\ell = [H^0, H^k]_\theta = H^{(1-\theta) \cdot 0 + \theta \cdot k} = H^{\theta k}.
+        H^\ell (\X) = [H^0 (\X), H^k (\X)]_\theta = H^{(1-\theta) \cdot 0 + \theta \cdot k} (\X) = H^{\theta k} (\X).
         \]
         Con ello, se tiene que
         \[
-        \U H^\ell \subseteq H^\ell, \, \forall \ell \in [0, k],
+        \U H^\ell (\X) \subseteq H^\ell (\X), \, \forall \ell \in [0, k],
         \]
         en particular, se tiene para todo $\ell \in [0, s]$ dado que $k = \lceil s \rceil$. El caso de $\G$ se demuestra de manera análoga.
 \end{proof}
@@ -313,11 +320,26 @@ Esto lleva directamente a un resultado para la invarianza de Koopman a través d
 
 \begin{cor} 
 \label{cor:inv_koop}
-    Si $\H_\X$ es equivalente a un espacio de Sobolev $H^s$ y $p_f \in C^{k,k} (\X \times \X)$ y $p_g \in C^{k,k} (\X \times \Y)$, entonces:
+    Si $\H_\X$ es equivalente en norma a un espacio de Sobolev $H^s$ y $p_f \in C^{k,k} (\X \times \X)$ y $p_g \in C^{k,k} (\X \times \Y)$, entonces:
 	\begin{equation*}
-		\U H^s (\X) \subseteq H^s (\X), \quad \G \R^p \subseteq H^s (\X).
+		\U \H_\X \subseteq \H_\X, \quad \G \R^p \subseteq \H_\X.
 	\end{equation*}
 \end{cor}
+
+\begin{proof}
+    Sea $\psi \in \H_\X$, luego como $\H_\X$ es equivalente en norma a $H^s (\X)$ existe una constante $C_s$ tal que
+    \[
+    \begin{aligned}
+        \|\U \psi\|_{\H_\X} & \leq C_s \| \U\psi \|_{H^s(\X)} \\
+        & \leq C_s \|\U\|_{H^s(\X) \to \H^s(\X)} \|\psi\|_{H^s(\X)} \\
+        & \leq C_s^2 \|\U\|_{H^s(\X) \to \H^s(\X)} \|\psi\|_{H_\X}.
+    \end{aligned}
+    \]
+    Con lo que además se concluye que
+    \[
+    \| \U \|_{\H_\X \to \H_\X} \leq C_s^2 \|\U\|_{H^s(\X) \to \H^s(\X)}.
+    \]
+\end{proof}
 
 Bajo la condición de invarianza anterior, ya fue visto en \cite{Philipp2023ErrorFramework} que el operador de Koopman se relaciona de manera directa con los operadores de covarianza en RKHS. Pero, en este contexto se explotará la forma del operador en conjunto con las propiedades de los adjuntos para probar un resultado similar, lo que será de mucha utilidad posteriormente.
 
@@ -559,8 +581,6 @@ Sean $\xi_1, \dots, \xi_n$ variables aleatorias independientes en un espacio de 
 \]
 \end{cor}
 
-Además, será relevante la cota inferior que posee la norma de $C_X$, que está asociado con la inyectividad del mismo. Para ello primero es importante ver que $C_X$ es un operador compacto y autoadjunto, aunque se puede probar que $C_X$ es de clase Hilbert-Schmidt.
-
 Ahora un lema probado por Philipp et al. \cite{Philipp2024ErrorOperator} será relevante para las proposiciones venideras.
 
 \begin{lema}
@@ -601,7 +621,7 @@ Primero se procede de la misma forma en que lo hicieron Philipp et al. \cite{Phi
     Por lo que
     \[ \| \E[ \Phi_\X (x_j) \otimes \Phi_\X (x_j)] \| \leq  \E[ \| \Phi_\X (x_j) \otimes \Phi_\X (x_j) \| ] \leq \sqrt{\| k \|_\infty}, \] 
     \[
-    \| E[ \Phi_\X (x_j) \otimes \Phi_\X (x_j^+)] \| \leq E[ \| \Phi_\X (x_j) \otimes \Phi_\X (x_j^+)\|]  \leq \sqrt{\| k \|_\infty},
+    \| \E[ \Phi_\X (x_j) \otimes \Phi_\X (x_j^+)] \| \leq \E[ \| \Phi_\X (x_j) \otimes \Phi_\X (x_j^+)\|]  \leq \sqrt{\| k \|_\infty},
     \]
      \[
     \| \E [\Phi_\X (x_j) \otimes \Phi_\Y (y_j)] \| \leq \E [\| \Phi_\X (x_j) \otimes \Phi_\Y (y_j) \|]  \leq \sqrt{\| k \|_\infty},
@@ -609,16 +629,16 @@ Primero se procede de la misma forma en que lo hicieron Philipp et al. \cite{Phi
      \[ \| \E[ \Phi_\X (x_j) \otimes \phi (x_j)] \| \leq  \E[ \| \Phi_\X (x_j) \otimes \phi (x_j) \| ] \leq \sqrt{\| k \|_\infty}. \] 
      Obteniendo que
      \[
-     \| \Phi_\X (x_j) \otimes \Phi_\X (x_j) - C_X \| \leq 2 \sqrt{\| k \|_\infty},
+     \| \Phi_\X (x_j) \otimes \Phi_\X (x_j) - C_X \| \leq \| \Phi_\X (x_j) \otimes \Phi_\X (x_j) \| + \| C_X \| \leq 2 \sqrt{\| k \|_\infty},
      \]
      \[
-     \| \Phi_\X (x_j) \otimes \Phi_\X (x_j^+) - C_{XX^+} \| \leq 2 \sqrt{\| k \|_\infty},
+     \| \Phi_\X (x_j) \otimes \Phi_\X (x_j^+) - C_{XX^+} \| \leq \| \Phi_\X (x_j) \otimes \Phi_\X (x_j^+) \| + \| C_{XX^+} \| \leq 2 \sqrt{\| k \|_\infty},
      \]
      \[
-     \| \Phi_\X (x_j) \otimes \Phi_\Y (y_j) - C_{XY} \| \leq 2 \sqrt{\| k \|_\infty},
+     \| \Phi_\X (x_j) \otimes \Phi_\Y (y_j) - C_{XY} \| \leq \| \Phi_\X (x_j) \otimes \Phi_\Y (y_j) \| + \| C_{XY} \| \leq 2 \sqrt{\| k \|_\infty},
      \]
     \[
-     \| \Phi_\X (x_j) \otimes \phi (x_j) - C_{XX} \| \leq 2 \sqrt{\| k \|_\infty}.
+     \| \Phi_\X (x_j) \otimes \phi (x_j) - C_{XX} \| \leq \| \Phi_\X (x_j) \otimes \phi (x_j) \| + \| C_{XX} \| \leq 2 \sqrt{\| k \|_\infty}.
      \]
 
      Sea $\varepsilon > 0$ y $N \in \N$, se denota
@@ -668,7 +688,7 @@ Algo que se usará de manera recurrente es la inyectividad de $C_X$, específica
 \end{lema}
 
 
-A continuación se presenta la cota para aproximación de los operadores de Koopman, que busca dar una cota de error de orden $O(N^{-1/2})$, con el objetivo de competir con otras cotas existentes en la literatura para filtros no lineales.
+A continuación se presenta la cota para aproximación de los operadores de Koopman que es un aporte original de este trabajo, que busca dar una cota de error de orden $O(N^{-1/2})$, con el objetivo de competir con otras cotas existentes en la literatura para filtros no lineales.
 
 \begin{teo}[Cota para kEDMD]
 \label{teo:error_koop_sqrt_N_def}
@@ -702,7 +722,6 @@ C_\delta = \left ( \frac{2}{c_1} + \frac{\sqrt{\| k \|_{\infty}}}{c_1^2}
         & \leq \| C_X^{-1} C_{XX^+} \psi - C_X^{-1} C_{XX^+}^N \psi \| + \| C_X^{-1} C_{XX^+}^N \psi - \left (C_X^N \right )^{-1} C_{XX^+}^N \psi \|.
     \end{aligned}
     \]
-
     Viendo el primer término:
     \[ \| C_X^{-1} C_{XX^+} \psi - C_X^{-1} C_{XX^+}^N \psi \|, \]
     sean
@@ -717,7 +736,6 @@ C_\delta = \left ( \frac{2}{c_1} + \frac{\sqrt{\| k \|_{\infty}}}{c_1^2}
     \[
     \| C_X^{-1} C_{XX^+} \psi - C_X^{-1} C_{XX^+}^N \psi \| = \|\hat{\psi} - \hat{\psi}_N \|.
     \]
-
     Por inyectividad de $C_X$, existe $c_1$ tal que
     \[
     c_1 \| \hat{\psi} - \hat{\psi}_N  \| \leq \| C_X \hat{\psi} - C_X \hat{\psi}_N \| = \| \Tilde{\psi} - \Tilde{\psi}_N \| \leq \| C_{XX^+} - C_{XX^+}^N \| \| \psi \| \leq \varepsilon \| \psi \|,
@@ -765,6 +783,7 @@ C_\delta = \left ( \frac{2}{c_1} + \frac{\sqrt{\| k \|_{\infty}}}{c_1^2}
     \[
     \| \hat{\psi} - \hat{\psi}_N \| \leq \frac{\varepsilon}{c_1} \| \hat{\psi}_N \|.
     \]
+    
     Por otro lado, 
     \[
     C_X^N \hat{\psi}_N = C_X \hat{\psi}_N + (C_X^N - C_X) \hat{\psi}_N,
@@ -953,8 +972,6 @@ Es más, cuando $N \to \infty$ se tiene que el lado derecho tiende a $0$, mientr
     \label{teo:error_koop_sqrt_N_hip}
 \end{teo}
 
-Para la demostración es necesario un teorema de Santin et al. que cuantifica el orden de decaimiento de los valores propios del operador $C_X$, que será clave para el teorema final de esta sección.
-
 \begin{proof}
     Se verá la demostración solo para $\U$, ya que para $\G$ y $\B$ es análogo. Del teorema \ref{teo:error_koop}, bajo las hipótesis mencionadas, para $\delta \in (0, 1)$ se tiene que con probabilidad al menos $1-\delta$
     \[
@@ -1028,7 +1045,7 @@ El teorema anterior se fundamenta en dos hipótesis: la invarianza de Koopman y 
 
 Sin embargo, la hipótesis sobre la simplicidad de los valores propios de \( C_X \) resulta más restrictiva. Philipp et al. no proporcionan ejemplos específicos donde esta condición se cumpla. Además, se sabe que, en ciertos casos, como en el caso de \textit{kernel} de Matérn, los valores propios de \( C_X \) están relacionados con los del operador de Laplace-Beltrami asociado al espacio de estados \( \X \) \cite{Whittle1963StochasticDimensions, Borovitskiy2020MaternManifolds}. Este hecho sugiere que existen numerosos escenarios en los cuales la simplicidad de los valores propios podría no cumplirse.
 
-Por completitud, se dejan ciertas proposiciones que apuntan a eliminar la hipótesis sobre los valores propios de $C_X$, aunque la cota de Philipp et al. no vaya a ser la utilizada en secciones anteriores.
+Por completitud, se deja una proposición que apunta a eliminar la hipótesis sobre los valores propios de $C_X$, aunque la cota de Philipp et al. no vaya a ser la utilizada en secciones posteriores.
 
 \begin{prop}
     Sea $A: \H_\X \to \H_\X$ un operador compacto y autoadjunto, y sea $N \in \N$ tal que existe un valor propio $\lambda_j$, con $j < N$, cuya multiplicidad es $m > 1$. Entonces, para todo $\varepsilon \in (0, \lambda_{m+j} - \lambda_{m+j+1})$, existe un operador $B^\varepsilon: \H_\X \to \H_\X$ de rango $m$ tal que $A + B^\varepsilon$ posee los primeros $N$ valores propios simples, con las mismas funciones propias, y además $\| B^\varepsilon \| \leq C \cdot \varepsilon$, para alguna constante $C > 0$.
@@ -1093,7 +1110,7 @@ Previo a la demostración, la intuición detrás de esta proposición es que el 
     \| B^\varepsilon \| \leq \sum_{k=j}^{m+j} \varepsilon_k  = \sum_{k=j}^{m+j} \frac{\varepsilon (k-j)}{m^2 j^2} \leq \varepsilon \sum_{k=j}^{m+j} \frac{1}{m j^2} = \frac{\varepsilon}{j^2} \leq \varepsilon \sum_{j \geq 1} \frac{1}{j^2} = C \cdot \varepsilon.
     \]
 
-    Cabe señalar que este factor $1/j^2$ no es estrictamente necesario para una única ventana de valores propios no simples, aunque facilita la extensión de la demostración a una cantidad infinita de ventanas con dicha característica.
+    Cabe señalar que este factor $1/j^2$ no es estrictamente necesario para una única ventana de valores propios no simples, aunque facilita la extensión de la demostración a una cantidad infinita de ventanas con dicha característica, en donde el término de la suma pasaría a ser, eventualmente, una serie lacunaria.
 \end{proof}
 
 \begin{lema}
@@ -1115,7 +1132,7 @@ Previo a la demostración, la intuición detrás de esta proposición es que el 
         & \to 0,
     \end{aligned}
     \]
-    donde se ha aplicado la propiedad reproductora para establecer que
+    donde se ha aplicado la propiedad reproduciente para establecer que
     \[
     \psi_n (x) - \psi (x) = \langle \psi_n - \psi, \Phi_\X (x) \rangle,
     \]
@@ -1141,7 +1158,7 @@ Previo a la demostración, la intuición detrás de esta proposición es que el 
 \end{teo}
 
 \begin{proof}
-    Ahora se elimina la hipótesis de la simplicidad de los valores propios de $C_X$, que es compacto y autoadjunto. Si se supone que existe un valor propio con multiplicidad mayor que $1$, entonces por la proposición \ref{prop:val_prop_sim}, se tiene que existe $B^\varepsilon$ de rango finito que cumple que $C_X + B^\varepsilon$ tiene los primeros $N+1$ valores propios simples, con las mismas funciones propias y $\| B^\varepsilon \| \leq C \varepsilon$. 
+    Se elimina la hipótesis de la simplicidad de los valores propios de $C_X$, que es compacto y autoadjunto. Si se supone que existe un valor propio con multiplicidad mayor que $1$, entonces por la proposición \ref{prop:val_prop_sim}, se tiene que existe $B^\varepsilon$ de rango finito que cumple que $C_X + B^\varepsilon$ tiene los primeros $N+1$ valores propios simples, con las mismas funciones propias y $\| B^\varepsilon \| \leq C \varepsilon$. 
 
     Se define un nuevo aproximante de Koopman como
     \[
@@ -1197,23 +1214,19 @@ Previo a la demostración, la intuición detrás de esta proposición es que el 
     \[
     (c_1 - C\varepsilon)  \|\hat{\psi}_\varepsilon\| \leq \| (B^\varepsilon + C_X)\hat{\psi}_\varepsilon\| = \| \Tilde{\psi} \|
     \]
-    
     Tomando $\varepsilon$ tal que $c_1 - C \varepsilon > 0$ se tiene que
     \[
     \|\hat{\psi}_\varepsilon\| \leq \frac{1}{c_1 - C\varepsilon} \| \Tilde{\psi} \| = \frac{1}{c_1 - C\varepsilon} \| C_{XX^+} \psi \| \leq \frac{1}{c_1 - C\varepsilon} \| C_{XX^+} \| \| \psi \|
     \]
-
-     Y así
+    Y así
     \[
      \| \U\psi - \U^\varepsilon\psi \| = \| \hat{\psi} - \hat{\psi}_\varepsilon \| \leq \frac{C \cdot \varepsilon}{c_1 - C \cdot \varepsilon} \| C_{XX^+} \| \| \psi \| \leq \frac{C \cdot \varepsilon}{c_1} \| C_{XX^+} \| \| \psi \| = c_2 \| \psi \|.
     \]
 
     De manera análoga, existe una constante $c_3$ tal que 
-
     \[
     \| \U^\varepsilon_N - \U_N \| \leq c_3 \cdot \varepsilon.
     \]
-    
     Luego, al igual que antes se tiene
     \[
     \begin{aligned}

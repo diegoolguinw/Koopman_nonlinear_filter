@@ -333,7 +333,7 @@ Un espacio de Hilbert \( \mathcal{H} \subset \C^\X \) se dice un RKHS si existe 
 \end{enumerate}
 \end{defn}
 
-\noindent La segunda propiedad, conocida como \textit{propiedad reproduciente}, es fundamental en la teoría de los RKHS y da paso a muchas de las propiedades relevantes en estos espacios, como aquellas que se presentarán a continuación. Denotamos por \( \mathcal{H}_K(\X) \) al espacio de Hilbert de funciones de \( \X \) en \( \C \) cuyo \textit{kernel} reproduciente es \( k \).
+\noindent La segunda propiedad, conocida como \textit{propiedad reproduciente}, es fundamental en la teoría de los RKHS y da paso a muchas de las propiedades relevantes en estos espacios, como aquellas que se presentarán a continuación. Denotamos por \( \mathcal{H}_k(\X) \) al espacio de Hilbert de funciones de \( \X \) en \( \C \) cuyo \textit{kernel} reproduciente es \( k \).
 
 El siguiente lema proporciona una condición necesaria y suficiente para que un espacio de Hilbert dado posea un \textit{kernel} reproduciente.
 
@@ -410,7 +410,7 @@ donde \( \Gamma \) es la función Gamma y \( B_\nu \) es la función modificada 
 
 \end{defn}
 
-El \textit{kernel} de Matérn tiene una estrecha relación con los espacios de Sobolev fraccionarios, por lo que se introducen conceptos claves, como la definición de dicho espacio en $\R^d$ y la condición de cono interior.
+El \textit{kernel} de Matérn tiene una estrecha relación con los espacios de Sobolev fraccionarios, por lo que se introducen conceptos claves, como la definición de dicho espacio en $\R^n$ y la condición de cono interior.
 
 \begin{defn}[Espacio de Sobolev fraccionario \cite{Adams2003SobolevSpaces}] Se define el espacio de Sobolev de regularidad $s > 0$ como
 \[
@@ -431,6 +431,10 @@ El siguiente teorema entrega una condición clave para los desarrollos de este t
 \begin{teo}[\cite{Wendland2004ScatteredApproximation, Tuo2016AProperties}]
 Si \( \mathcal{X} \) es un conjunto compacto que satisface la condición del cono interior y \( k \) es el \textit{kernel} de Matérn con parámetro \( \nu > 0 \), entonces para \( s = \nu + n/2 \) se cumple que \( \mathcal{H}_k (\mathcal{X}) \) es equivalente en norma a \( H^s (\mathcal{X}) \).
 \end{teo}
+
+\begin{cor}
+    Si \( \mathcal{X} \) es un conjunto compacto con frontera Lipschitz y \( k \) es el \textit{kernel} de Matérn con parámetro \( \nu > 0 \), entonces para \( s = \nu + n/2 \) se cumple que \( \mathcal{H}_k (\mathcal{X}) \) es equivalente en norma a \( H^s (\mathcal{X}) \).
+\end{cor}
 
 \begin{prop}
     Si $\nu = 1/2$, se tiene que
@@ -560,9 +564,9 @@ El siguiente teorema indica la existencia y forma del operador de \textit{embedd
 
 El estudio de sistemas dinámicos, tanto en tiempo continuo como en tiempo discreto, ha sido un área de investigación ampliamente desarrollada en diversas ramas de la matemática, la ciencia y la ingeniería. En este trabajo se abordará su estudio, tanto desde una perspectiva teórica como computacional, a través del operador de Koopman.  
 
-Desde un punto de vista matemático, uno de los trabajos pioneros en esta dirección fue el de Koopman en 1931 \cite{Koopman1931HamiltonianSpace}, en el cual se introdujo la noción del operador de Koopman para sistemas dinámicos con espectro discreto. Posteriormente, esta teoría fue generalizada por Koopman y von Neumann en 1932 \cite{Koopman1932DynamicalSpectra}.  
+Desde un punto de vista matemático, el trabajo pionero fue el de Koopman en 1931 \cite{Koopman1931HamiltonianSpace}, en el cual se introdujo la noción del operador de Koopman para sistemas dinámicos con espectro discreto. Posteriormente, esta teoría fue generalizada por Koopman y von Neumann en 1932 \cite{Koopman1932DynamicalSpectra}.  
 
-En tiempos recientes, el operador de Koopman ha resurgido en la literatura como una herramienta clave para el análisis de sistemas dinámicos no lineales. Este renovado interés ha sido impulsado principalmente por los trabajos de Mezić y Budišić junto a otros colaboradores \cite{Budisic2009AnObservables, Budisic2012GeometryFlows, Budisic2012AppliedKoopmanism}, línea que continuó Mezić en conjunto con múltiples coautores \cite{Rowley2009SpectralFlows, Susuki2011NonlinearDynamics, Mezic2013AnalysisOperator, Mauroy2013IsostablesDynamics, Lan2013LinearizationSpectrum, Korda2018OnOperator, Korda2018LinearControl, Arbabi2017ErgodicOperator, Arbabi2017StudyDecomposition, Mauroy2020TheControl, Korda2020OptimalControl, Korda2020Data-drivenOperator, Mezic2020SpectrumGeometry, Mezic2022OnOperator, Mezic2024ACases}.  
+En tiempos recientes, el operador de Koopman ha resurgido en la literatura como una herramienta clave para el análisis de sistemas dinámicos no lineales. Este renovado interés ha sido impulsado principalmente por los trabajos de Mezić y Budišić junto a otros colaboradores \cite{Budisic2009AnObservables, Budisic2012GeometryFlows, Budisic2012AppliedKoopmanism} dando pie a lo que muchos autores reconocen como `Koopmanismo', línea que continuó Mezić en conjunto con múltiples coautores \cite{Rowley2009SpectralFlows, Susuki2011NonlinearDynamics, Mezic2013AnalysisOperator, Mauroy2013IsostablesDynamics, Lan2013LinearizationSpectrum, Korda2018OnOperator, Korda2018LinearControl, Arbabi2017ErgodicOperator, Arbabi2017StudyDecomposition, Mauroy2020TheControl, Korda2020OptimalControl, Korda2020Data-drivenOperator, Mezic2020SpectrumGeometry, Mezic2022OnOperator, Mezic2024ACases}.  
 
 Aprovechando la linealidad del operador de Koopman—aunque a costa de trabajar en espacios de dimensión infinita—se han desarrollado técnicas para aproximarlo mediante matrices finito-dimensionales, permitiendo así reformular problemas no lineales en términos computacionales accesibles. En este contexto, destacan los trabajos de Schmid \cite{Schmid2008DynamicData}, quien introdujo el \textit{Dynamic Mode Decomposition} (DMD), y de Williams \cite{Williams2015ADecomposition}, quien propuso el \textit{Extended Dynamic Mode Decomposition} (EDMD).  
 
