@@ -7,9 +7,9 @@
 
 **Autor: Diego Olguín Wende.**
 
-**Profesor guía: Héctor Ramírez.**
+**Profesor guía: Héctor Ramírez Cabrera.**
 
-**Profesor co-guía: Axel Osses.**
+**Profesor co-guía: Axel Osses Alvarado.**
 
 **Comisión:**
 
