@@ -13,7 +13,7 @@
 
 **Comisión:**
 
-* **Joaquín Fontobona Torres (presidente).**
+* **Joaquín Fontobona Torres (Presidente).**
 * **Gonzalo Ruz Heredia.**
 * **Benjamín Herrmann Priesnitz.**
 
