@@ -13,9 +13,9 @@
 
 **Comisión:**
 
-* **Integrante 1 (presidente).**
-* **Integrante 2.**
-* **Integrante 3.**
+* **Joaquín Fontobona Torres (presidente).**
+* **Gonzalo Ruz Heredia.**
+* **Benjamín Herrmann Priesnitz.**
 
 Este repositorio contiene el código y los notebooks utilizados en esta tesis. A continuación, se describen los diferentes archivos y notebooks, así como las dependencias necesarias para ejecutar el proyecto.
 
@@ -24,12 +24,12 @@ Este repositorio contiene el código y los notebooks utilizados en esta tesis. A
 * Capítulo 1: Introducción.
 * Capítulo 2: Preliminares.
 * Capítulo 3: Kernel Extended Dynamic Mode Decomposition [[**Notebook**](notebooks/chapter3.ipynb)].
-* Capítulo 4: Algoritmo de filtraje no lineal en tiempo discreto y estimación de parámetros [[**Notebook 1**](notebooks/chapter4_1.ipynb)] [[**Notebook 1**](notebooks/chapter4_2.ipynb)] [[**Notebook 1**](notebooks/chapter4_3.ipynb)].
+* Capítulo 4: Algoritmo de filtraje no lineal en tiempo discreto y estimación de parámetros [[**Notebook 1**](notebooks/chapter4_1.ipynb)] [[**Notebook 2**](notebooks/chapter4_2.ipynb)] [[**Notebook 3**](notebooks/chapter4_3.ipynb)].
 * Capítulo 5: Discusiones, conclusiones y trabajo futuro.
 
 ## Dependencias
 
-Para ejecutar el código de este repositorio, necesitas tener instaladas las siguientes bibliotecas de Python:
+Para ejecutar el código de este repositorio, se necesita tener instaladas las siguientes bibliotecas de Python:
 
 - Numpy
 - Matplotlib
@@ -44,7 +44,10 @@ Para ejecutar el código de este repositorio, necesitas tener instaladas las sig
 - PyMC
 - nbformat
 
-Puedes instalar todas las dependencias utilizando el siguiente comando:
+Se puede instalar todas las dependencias utilizando Anaconda:
 
 ```sh
-pip install numpy matplotlib scipy pandas plotly kaleido sklearn kkkf nbformat
+conda create -c conda-forge -n kerkkf_env "pymc>=5"
+conda activate kerkkf_env
+conda install pip
+pip install numpy matplotlib seaborn scipy pandas plotly kaleido sklearn kkf tqdm nbformat
