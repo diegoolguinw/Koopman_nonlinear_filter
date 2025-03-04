@@ -24,10 +24,8 @@ Este repositorio contiene el código y los notebooks utilizados en esta tesis. A
 * Capítulo 1: Introducción.
 * Capítulo 2: Preliminares.
 * Capítulo 3: Kernel Extended Dynamic Mode Decomposition [[**Notebook**](notebooks/chapter3.ipynb)].
-* Capítulo 4: Algoritmo de filtraje en tiempo discreto [[**Notebook**](a)].
-* Capítulo 5: Algoritmo de filtraje en tiempo continuo [[**Notebook**](a)].
-* Capítulo 6: Capítulo 6 [[**Notebook**](a)].
-* Capítulo 7: Capítulo 7 [[**Notebook**](a)].
+* Capítulo 4: Algoritmo de filtraje no lineal en tiempo discreto y estimación de parámetros [[**Notebook 1**](notebooks/chapter4_1.ipynb)] [[**Notebook 1**](notebooks/chapter4_2.ipynb)] [[**Notebook 1**](notebooks/chapter4_3.ipynb)].
+* Capítulo 5: Discusiones, conclusiones y trabajo futuro.
 
 ## Dependencias
 
