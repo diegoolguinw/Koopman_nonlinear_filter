@@ -160,6 +160,8 @@ En el caso en que la dinámica y la observación sean deterministas, esto es equ
 \begin{proof}
 
 La demostración sigue un razonamiento similar al expuesto en \cite{Kohne2024L-errorDecomposition}. Para un conjunto $A \in \B$, se observa que $\rho_f (x, A) = \delta_{\Tilde{\mathbf{f}}(x)}(A) = \mathds{1}_A (\Tilde{\mathbf{f}}(x))$. Por lo tanto:
+\begingroup
+\allowdisplaybreaks
     \begin{equation*}
         \begin{aligned}
             \int_\X \rho_f (x, A) d\mu (x) &= \int_\X \mathds{1}_A (\Tilde{\mathbf{f}}(x)) d \mu_\X (x) \\
@@ -169,6 +171,7 @@ La demostración sigue un razonamiento similar al expuesto en \cite{Kohne2024L-e
             &= L_f \mu_\X (A).
         \end{aligned}
     \end{equation*}
+\endgroup
     El caso de $\rho_g$ se demuestra de manera análoga.
 \end{proof}
 
@@ -210,7 +213,7 @@ Dado que los operadores $\mathcal{P}_\mathbf{f}$ y $\mathcal{P}_\mathbf{g}$ est�
 \end{equation*}
 donde $\U^*$ y $\G^*$ denotan los operadores adjuntos de $\U$ y $\G$, respectivamente.
 
-En este punto se tomará la elección de tomar $k_\Y$ como el \textit{kernel} dado por el producto interno en $\R^p$, con lo que su \textit{feature map} canónico es la función identidad en dicho espacio y $\H_\Y = \R^p$. En lo que sigue, se retomarán las definiciones de la sección anterior, pero específicas en este contexto.
+En este punto se tomará la elección de tomar $k_\Y$ como el \textit{kernel} dado por el producto interno en $\R^p$, con lo que su \textit{feature map} canónico es la función identidad en dicho espacio y $\H_\Y = (\R^p)^*$, que dado que es isométricamente isomorfo a $\R^p$, se considerará como este último cuando sea conveniente. En lo que sigue, se retomarán las definiciones de la sección anterior, pero específicas en este contexto.
 
 \begin{defn}[Feature map canónico]
 	Se definen los \textit{feature maps} canónicos de los \textit{kernels} $\Phi_\X : \X \to \H_\X$ y $\Phi_\Y : \Y \to \R^p$ como:
@@ -265,7 +268,7 @@ En este punto se tomará la elección de tomar $k_\Y$ como el \textit{kernel} da
 	\end{equation*}
 \end{defn}
 
-Finalmente, será necesario asumir que $\U \H_\X \subset \H_\X$ y $\G \R^p \subset \H_\X$. Esto se cumple, por ejemplo, si $\H_\X$ es un espacio de Sobolev, como en el caso de que $k_\X$ sea un \textit{kernel} de Matérn. En este contexto, Köhne et al. \cite{Kohne2024L-errorDecomposition} prueban que esto se tiene cuando las funciones asociadas son difeomorfismos. A efectos de este trabajo fue necesario extender dicho resultado al caso estocástico, lo que se refleja en los siguientes dos resultados. Para la demostración será necesario un teorema de interpolación de espacios de Sobolev de Brenner y Scott \cite{Brenner2008TheMethods}.
+Finalmente, será necesario asumir que $\U \H_\X \subset \H_\X$ y $\G (\R^p)^* \subset \H_\X$. Esto se cumple, por ejemplo, si $\H_\X$ es un espacio de Sobolev, como en el caso de que $k_\X$ sea un \textit{kernel} de Matérn. En este contexto, Köhne et al. \cite{Kohne2024L-errorDecomposition} prueban que esto se tiene cuando las funciones asociadas son difeomorfismos. A efectos de este trabajo fue necesario extender dicho resultado al caso estocástico, lo que se refleja en los siguientes dos resultados. Para la demostración será necesario un teorema de interpolación de espacios de Sobolev de Brenner y Scott \cite{Brenner2008TheMethods}.
 
 \begin{lema}
     \label{lema:interpolacion}
@@ -279,7 +282,7 @@ Finalmente, será necesario asumir que $\U \H_\X \subset \H_\X$ y $\G \R^p \subs
 \begin{prop}[Invarianza Sobolev para Koopman]
 	Sea $s \geq 0$, $k =\lceil s \rceil $ y $H^s(\X)$ el espacio de Sobolev sobre $\X$. Si $p_f \in C^{k,k} (\X \times \X)$ y $p_g \in C^{k,k} (\X \times \Y)$, entonces:
 	\begin{equation*}
-		\U H^s (\X) \subseteq H^s (\X), \quad \G \R^p \subseteq H^s (\X).
+		\U H^s (\X) \subseteq H^s (\X), \quad \G (\R^p)^* \subseteq H^s (\X).
 	\end{equation*}
 \end{prop}
 
@@ -322,7 +325,7 @@ Esto lleva directamente a un resultado para la invarianza de Koopman a través d
 \label{cor:inv_koop}
     Si $\H_\X$ es equivalente en norma a un espacio de Sobolev $H^s$ y $p_f \in C^{k,k} (\X \times \X)$ y $p_g \in C^{k,k} (\X \times \Y)$, entonces:
 	\begin{equation*}
-		\U \H_\X \subseteq \H_\X, \quad \G \R^p \subseteq \H_\X.
+		\U \H_\X \subseteq \H_\X, \quad \G (\R^p)^* \subseteq \H_\X.
 	\end{equation*}
 \end{cor}
 
@@ -331,13 +334,13 @@ Esto lleva directamente a un resultado para la invarianza de Koopman a través d
     \[
     \begin{aligned}
         \|\U \psi\|_{\H_\X} & \leq C_s \| \U\psi \|_{H^s(\X)} \\
-        & \leq C_s \|\U\|_{H^s(\X) \to \H^s(\X)} \|\psi\|_{H^s(\X)} \\
-        & \leq C_s^2 \|\U\|_{H^s(\X) \to \H^s(\X)} \|\psi\|_{H_\X}.
+        & \leq C_s \|\U\|_{H^s(\X) \to H^s(\X)} \|\psi\|_{H^s(\X)} \\
+        & \leq C_s^2 \|\U\|_{H^s(\X) \to H^s(\X)} \|\psi\|_{\H_\X}.
     \end{aligned}
     \]
     Con lo que además se concluye que
     \[
-    \| \U \|_{\H_\X \to \H_\X} \leq C_s^2 \|\U\|_{H^s(\X) \to \H^s(\X)}.
+    \| \U \|_{\H_\X \to \H_\X} \leq C_s^2 \|\U\|_{H^s(\X) \to H^s(\X)}.
     \]
 \end{proof}
 
@@ -347,7 +350,7 @@ Bajo la condición de invarianza anterior, ya fue visto en \cite{Philipp2023Erro
 \label{teo:cov_koop_equiv}
     Si 
     \begin{equation*}
-        \U \H_\X \subset \H_\X, \quad \G \R^p \subset \H_\X,
+        \U \H_\X \subset \H_\X, \quad \G (\R^p)^* \subset \H_\X,
     \end{equation*}
     entonces se cumple que
     \begin{equation*}
@@ -427,6 +430,13 @@ Entonces, el operador de covarianza cruzada asociado a $X$ y a los \textit{embed
 \end{equation*}
 
 De este modo, en virtud del teorema \ref{teo:cov_koop_equiv}, se concluye que existe un operador de Koopman $\B : \R^n \to \H_\X$ tal que $C_{X|X} = \B^*$, al cual denominaremos operador de \textit{lifting back}. Este operador permitirá regresar al espacio original desde un espacio de dimensión mayor.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/content/chapter3/KoopDiag.pdf}
+    \caption{Diagrama explicativo de las transiciones que trata de representar el operador de Koopman. Elaboración propia inspirada en la versión original en \cite{Williams2015ADecomposition}.}
+    \label{fig:KoopDiag}
+\end{figure}
 
 \section{Aproximación de operadores de Koopman}
 
@@ -599,6 +609,11 @@ Primero se procede de la misma forma en que lo hicieron Philipp et al. \cite{Phi
     \[
     \| C_{X} - C_{X}^N \|, \, \| C_{XX^+} - C_{XX^+}^N \|, \, \| C_{XY} - C_{XY}^N \|, \, \| C_{XX} - C_{XX}^N \| \leq \varepsilon.
     \]
+    con 
+    \[
+    \delta = 2 \text{exp} \left ( 
+    -\frac{N \varepsilon^2}{8 \| k\|_\infty} \right )
+    \]
 \end{prop}
 
 \begin{proof}
@@ -696,7 +711,7 @@ Sean $\delta \in (0, 1)$ y $N \in \N$ tales que
 \[
 \delta > 2 \text{exp} \left ( -\frac{Nc_1^2}{8\|k\|_\infty}\right )
 \]
-con $c_1$ la constante de inyectividad de $C_X$. Luego si $\U \H_\X \subset \H_\X, \, \G \R^p \subset \H_\X, \, \B \R^n \subset \H_\X$, se tiene con probabilidad $(1-\delta)^4$ que 
+con $c_1$ la constante de inyectividad de $C_X$. Luego si $\U \H_\X \subset \H_\X, \, \G (\R^p)^* \subset \H_\X, \, \B (\R^n)^* \subset \H_\X$, se tiene con probabilidad $(1-\delta)^4$ que 
  \begin{equation}
     \| \U - \U_N \|_{\H_{\X} \to \H_{\X}} \leq C_\delta N^{-1/2},
     \label{eq:kEDMD_bound}
@@ -710,7 +725,7 @@ con $c_1$ la constante de inyectividad de $C_X$. Luego si $\U \H_\X \subset \H_\
 donde 
 \[
 C_\delta = \left ( \frac{2}{c_1} + \frac{\sqrt{\| k \|_{\infty}}}{c_1^2}
-  \right )\sqrt{8 \| k \|_\infty \ln \left ( \frac{2}{\delta}\right ) }
+  \right )\sqrt{8 \| k \|_\infty \ln \left ( \frac{2}{\delta}\right ) }.
 \]
 \end{teo}
 
@@ -923,7 +938,7 @@ Lo valioso de este resultado es que da un régimen asintótico para $N$ y $\delt
     \]
     Sea además \( \varepsilon \in (0, \delta_N) \) y \( \delta \in (0, 1) \) arbitrarios, y \( N \geq  \frac{8\|k\|^2_\infty \ln(2/\delta)}{\varepsilon^2} \). Si 
     \begin{equation*}
-        \U \H_\X \subset \H_\X, \, \G \R^p \subset \H_\X, \, \B \R^n \subset \H_\X
+        \U \H_\X \subset \H_\X, \, \G (\R^p)^* \subset \H_\X, \, \B (\R^n)^* \subset \H_\X
     \end{equation*}
     entonces, con probabilidad al menos \( (1 - \delta)^4 \), se cumple que:
     \[
@@ -1140,7 +1155,7 @@ Previo a la demostración, la intuición detrás de esta proposición es que el 
 \end{proof}
 
 \begin{teo}
-    Sea $\delta \in (0, 1)$, si $\U \H_X \subset \H_X$, $\G \R^p \subset \H_X$, $\B \R^n \subset \H_X$, $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$ y 
+    Sea $\delta \in (0, 1)$, si $\U \H_X \subset \H_X$, $\G (\R^p)^* \subset \H_X$, $\B (\R^n)^* \subset \H_X$, $\H_\X$ es equivalente en norma a $H^{\nu + n/2}$ y 
     \[
     8\|k\|^2_\infty \ln(2/\delta) \leq \frac{1}{2} (N+1)^{-5/2},
     \]
