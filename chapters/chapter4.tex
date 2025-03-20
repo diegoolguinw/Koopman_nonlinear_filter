@@ -490,7 +490,7 @@ Es con todo esto que se concluye la deducción del filtro, tanto en dimensión i
 \end{algorithm}
 
 \begin{algorithm}[h]
-\caption{Kernel Kalman Koopman Filter (KKF)}\label{alg:KKF}
+\caption{Kalman Koopman Filter (KKF)}\label{alg:KKF}
 \begin{algorithmic}[1]
 \State \textbf{Entrada:} Dinámica discreta como en (\ref{eq:no_lin_dis_chap3}), $\mathbf{x}_0$ \textit{prior} sobre la condición inicial, $\mathbf{y}_{1:N}$ observaciones, $\mathbf{k}:\X \times \X \to \R$ \textit{kernel} semidefinido positivo, $N$ dimensión de aproximación del operador de Koopman y $n_{\text{samples}}$ cantidad de muestras para aproximar las matrices de covarianza.
 \State \textbf{Salida:} $(\hat{\mathbf{x}}_{k|k})_{k=0}^{N}$ estimador de la trayectoria y $(\hat{\mathbf{P}}^{\mathbf{x}}_{k|k})_{k=0}^{N}$ matrices de covarianza de error.
@@ -977,7 +977,7 @@ tenga rango completo, donde $n$ es la dimensión del estado, en este caso $n=3$.
 \]
 que es una matriz de rango completo al tener columnas linealmente independientes.
 
-En las figuras \ref{fig:kalman_vs_kerKKF_01}, \ref{fig:kalman_vs_kerKKF_001} y \ref{fig:kalman_vs_kerKKF_025} se muestran los resultados del filtro de Kalman y KKF para tres casos de $\alpha$ para la matriz $\mathbf{A}$, comparando con la trayectoria real sin ruido, ni de dinámica ni de observación.
+En las figuras \ref{fig:kalman_vs_KKF_01}, \ref{fig:kalman_vs_KKF_001} y \ref{fig:kalman_vs_KKF_025} se muestran los resultados del filtro de Kalman y KKF para tres casos de $\alpha$ para la matriz $\mathbf{A}$, comparando con la trayectoria real sin ruido, ni de dinámica ni de observación.
 
 Se utiliza como condición inicial real del sistema $\mathbf{x}_0 = (1,1,1)$ y un prior sobre la condición inicial $\hat{\mathbf{x}}_0$ con media $(0.8, 1.2, 0.9)$ y matriz de covarianza diagonal con entradas $(0.01, 0.01, 0.01)$. Se utilizan como variables aleatorias para la dinámica y observación un ruido normal aditivo, centrado en el origen y con matrices de covarianza
 \begin{equation*}
@@ -1067,7 +1067,7 @@ El sistema a considerar es el sistema SIR ya visto anteriormente
 \end{equation*}
 en donde para esta subsección se considerarán $\beta$ y $\gamma$ conocidos y que la función de observación es
 \begin{equation*}
-    \mathbf{g}(S, I, R) = I,
+    \mathbf{g}(S, I, R, \mathbf{w}) = I + \mathbf{w},
 \end{equation*}
 es decir, solo se observan los infectados.
 
