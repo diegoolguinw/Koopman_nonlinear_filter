@@ -328,7 +328,7 @@ Esta sección se basa en \cite{Wendland2004ScatteredApproximation} y \cite{Berli
 \begin{defn}[Reproducing Kernel Hilbert Space (RKHS) \cite{Mercer1909XVI.Equations}]  
 Un espacio de Hilbert \( \mathcal{H} \subset \C^\X \) se dice un RKHS si existe una función \( k: \X \times \X \to \C \), llamada \textit{kernel reproduciente}, tal que:
 \begin{enumerate}
-    \item \( k_p \equiv K(\cdot, p) \in \mathcal{H}, \, \forall p \in \X \).
+    \item \( k_p \equiv k(\cdot, p) \in \mathcal{H}, \, \forall p \in \X \).
     \item \( f(p) = \langle f, k_p \rangle_{\mathcal{H}}, \quad \forall p \in \X, \, \forall f \in \mathcal{H}. \)
 \end{enumerate}
 \end{defn}
@@ -346,7 +346,7 @@ Un espacio de Hilbert \( \mathcal{H} \subset \C^\X \) posee un \textit{kernel} r
 \begin{defn}[Función semi-definida positiva]  
 Una función \( k: \X \times \X \to \C \) se dice semi-definida positiva si para todo \( n \geq 1 \), \( (c_1, \dots, c_n) \in \C^n \), y \( (x_1, \dots, x_n) \in \X^n \), se cumple que:
 \[
-\sum_{i=1}^n \sum_{j=1}^n c_i \bar{c_j} K(x_i, x_j) \geq 0.
+\sum_{i=1}^n \sum_{j=1}^n c_i \bar{c_j} k(x_i, x_j) \geq 0.
 \]
 \end{defn}
 
@@ -394,7 +394,7 @@ para \( (x_1, \dots, x_n) \in E^n \) y \( (y_1, \dots, y_m) \in \X^m \).
 El siguiente teorema permite transferir las propiedades de un RKHS a un espacio \( \ell^2 \), el cual resulta, en general, más sencillo de manipular.
 
 \begin{teo}
-Una función \( k: \X \times \X \to \C \) es un \textit{kernel} reproduciente si y solo si existe una función \( \varphi: E \to \ell^2 (\X) \), tal que para todo \( (x, y) \in \X \times \X \),
+Una función \( k: \X \times \X \to \C \) es un \textit{kernel} reproduciente si y solo si existe una función \( \varphi: \X \to \ell^2 (\X) \), tal que para todo \( (x, y) \in \X \times \X \),
 \[
 k(x, y)= \langle \varphi(x), \varphi(y) \rangle_{\ell^2(\X)}.
 \]
@@ -530,10 +530,10 @@ Algo que será muy utilizado en las secciones posteriores es la expresión que s
 	\end{equation*}
     \end{proof}
 	
-    \begin{cor}
-        \begin{equation*}
-            (C_{XX^+})^* = C_{X^+X}, \quad (C_{XY})^* = C_{YX}.
-        \end{equation*}
+    \begin{cor} \((C_{XX^+})^* = C_{X^+X}, \quad (C_{XY})^* = C_{YX}.\)
+        % \begin{equation*}
+        %     (C_{XX^+})^* = C_{X^+X}, \quad (C_{XY})^* = C_{YX}.
+        % \end{equation*}
     \end{cor}
     \begin{proof}
         Esto es directo ya que el operador adjunto y la esperanza son lineales:
@@ -675,7 +675,7 @@ Los modelos epidemiológicos constituyen un caso particular de modelos ecológic
 
 Además, es común incluir en los modelos el proceso de recuperación de la enfermedad, tras el cual los individuos adquieren inmunidad, al menos temporalmente. Otro factor relevante es el período de incubación, que representa el tiempo que transcurre desde que una persona se infecta hasta que desarrolla síntomas y se vuelve infecciosa; a estos individuos se les denomina \textit{latentes} o \textit{expuestos}.
 
-El primer ejemplo clásico es el modelo SIR, propuesto en primer lugar por Kermack y McKendrick \cite{Kermack1991ContributionsEndemicity, Kermack1991ContributionsEpidemicsI, Kermack1991ContributionsEndemicityb}, en el cual la dinámica de contagio se modela considerando que los individuos susceptibles e infectados interactúan, generando nuevos contagios a una tasa determinada. Posteriormente, los individuos infectados se recuperan a una cierta tasa, adquiriendo inmunidad y siendo removidos de la dinámica de contagio, sin volver a ser susceptibles.
+El primer ejemplo clásico es el modelo SIR, propuesto en primer lugar por Kermack y McKendrick \cite{Kermack1991ContributionsEpidemicsI, Kermack1991ContributionsEndemicity, Kermack1991ContributionsFurtherStudies}, en el cual la dinámica de contagio se modela considerando que los individuos susceptibles e infectados interactúan, generando nuevos contagios a una tasa determinada. Posteriormente, los individuos infectados se recuperan a una cierta tasa, adquiriendo inmunidad y siendo removidos de la dinámica de contagio, sin volver a ser susceptibles.
 
 En tiempo discreto, la evolución del modelo SIR se describe mediante las ecuaciones:
 
