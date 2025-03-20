@@ -106,21 +106,21 @@
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
-        \includegraphics[width=0.75\linewidth]{img/content/chapter4/kalman_vs_kerKKF_01.pdf}
+        \includegraphics[width=0.75\linewidth]{img/content/chapter4/kalman_kkkf_01.pdf}
     \caption{$\alpha = -0.1$.}
-    \label{fig:kalman_vs_kerKKF_01}
+    \label{fig:kalman_vs_KKF_01}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \centering \includegraphics[width=0.75\linewidth]{img/content/chapter4/kalman_vs_kerKKF_001.pdf}
+        \centering \includegraphics[width=0.75\linewidth]{img/content/chapter4/kalman_kkkf_001.pdf}
     \caption{$\alpha = 0.01$.}
-    \label{fig:kalman_vs_kerKKF_001}
+    \label{fig:kalman_vs_KKF_001}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \centering \includegraphics[width=0.75\linewidth]{img/content/chapter4/kalman_vs_kerKKF_025.pdf}
+        \centering \includegraphics[width=0.75\linewidth]{img/content/chapter4/kalman_kkkf_025.pdf}
     \caption{$\alpha = -0.25$.}
-    \label{fig:kalman_vs_kerKKF_025}
+    \label{fig:kalman_vs_KKF_025}
     \end{subfigure}
-    \caption{Comparación de Kalman con kerKKF para distintos valores de $\alpha$. En azul el resultado del sistema simulado sin ruidos ni de dinámica ni observación, en naranja la solución del filtro de Kalman y en verde la de kerKKF.}
+    \caption{Comparación de Kalman con KKF para distintos valores de $\alpha$. En azul el resultado del sistema simulado sin ruidos ni de dinámica ni observación, en naranja la solución del filtro de Kalman y en verde la de KKF.}
 \end{figure}
 
 \section{Comparación con otros filtros para modelos epidemiológicos}
@@ -142,7 +142,7 @@
     \caption{$\beta = 1.5$.}
     \label{fig:nonlinear_filters_sir_beta_15}
     \end{subfigure}
-    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y kerKKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. $\beta$ varía en cada caso para (a), (b) y (c), mientras que $\gamma = 0.3$ y $\sigma = 0.01$ fijos.}
+    \caption{Comparación de resultados de las trayectorias generadas por los filtros EKF (naranja), UKF (verde), PF (rojo) y KKF (púrpura), junto con la trayectoria real (puntos azules) sin ruidos, ni de dinámica ni de observación, esto para cada uno de los estados del modelo SIR. $\beta$ varía en cada caso para (a), (b) y (c), mientras que $\gamma = 0.3$ y $\sigma = 0.01$ fijos.}
 \end{figure}
 
 \begin{table}[h!]
@@ -152,7 +152,7 @@
     \caption{Errores para $\beta = 0.6$ y $\gamma = 0.3$}
     \begin{tabular}{|c|c|c|c|c|}
     \hline
-    \textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{kerKKF} \\ \hline
+    \textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKF} \\ \hline
     S & 0.2442 & 0.2379 & 0.3305 & 0.1629 \\ \hline
     I & 0.2904 & 0.2815 & 0.2903 & 0.1352 \\ \hline
     R & 0.4874 & 0.5503 & 0.4732 & 0.1210 \\ \hline
@@ -164,7 +164,7 @@
     \caption{Errores para $\beta = 0.9$ y $\gamma = 0.3$}
     \begin{tabular}{|c|c|c|c|c|}
     \hline
-    \textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{kerKKF} \\ \hline
+    \textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKF} \\ \hline
     S & 0.1486 & 0.1533 & 0.2195 & 0.1672 \\ \hline
     I & 0.2808 & 0.2590 & 0.2798 & 0.1628 \\ \hline
     R & 0.4866 & 0.5246 & 0.4907 & 0.1300 \\ \hline
@@ -176,7 +176,7 @@
     \caption{Errores para $\beta = 1.5$ y $\gamma = 0.3$}
     \begin{tabular}{|c|c|c|c|c|}
     \hline
-    \textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{kerKKF} \\ \hline
+    \textbf{Estado} & \textbf{EKF} & \textbf{UKF} & \textbf{PF} & \textbf{KKF} \\ \hline
     S & 0.0885 & 0.2296 & 0.2292 & 0.1906 \\ \hline
     I & 0.2834 & 0.2788 & 0.2816 & 0.1934 \\ \hline
     R & 0.4671 & 0.5295 & 0.4042 & 0.1435 \\ \hline
@@ -188,7 +188,7 @@
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\linewidth]{img/content/chapter4/nonlinear_filters_sir_error_beta.pdf}
-    \caption{Error en norma de EKF (azul), UKF (naranja), PF (verde) y kerKKF (rojo) para distintos valores de $\beta$ entre $0.1$ y $2.5$. Eje y en escala logarítmica.}
+    \caption{Error en norma de EKF (azul), UKF (naranja), PF (verde) y KKF (rojo) para distintos valores de $\beta$ entre $0.1$ y $2.5$. Eje y en escala logarítmica.}
     \label{fig:nonlinear_filters_sir_error_beta}
 \end{figure}
 
@@ -210,7 +210,7 @@
        \caption{}
    \end{subfigure}
     \caption{Resultado para modelo SIR \eqref{eq:SIR}. \\
-    (a) Resultado de kerKKF para estimación de parámetros, primera cadena. \\
+    (a) Resultado de KKF para estimación de parámetros, primera cadena. \\
     (b) Evolución de la estimación de los parámetros a través de las iteraciones del algoritmo de estimación, primera cadena. De color rojo, el régimen de \textit{warm up}, mientras que en naranja se encuentran que sí serán consideradas para la estimación. En azul se encuentra el valor real del parámetro.}
     \label{fig:param_estim_SIR}
 \end{figure}
@@ -245,7 +245,7 @@
          \label{fig:nonlinear_filters_sirs_params_evolution}
     \end{subfigure}
     \caption{Resultado para modelo SIR con pérdida de inmunidad \eqref{eq:SIRS}. \\
-    (a) Resultado de kerKKF para estimación de parámetros, primera cadena. \\
+    (a) Resultado de KKF para estimación de parámetros, primera cadena. \\
     (b) Evolución de la estimación de los parámetros a través de las iteraciones del algoritmo de estimación, primera cadena. De color rojo, el régimen de \textit{warm up}, mientras que en naranja se encuentran que sí serán consideradas para la estimación. En azul se encuentra el valor real del parámetro.}
     \label{fig:SIR_inmun}
 \end{figure}
@@ -278,7 +278,7 @@
          \label{fig:nonlinear_filters_seir_params_evolution}
     \end{subfigure}
     \caption{Resultado para modelo SEIR \eqref{eq:SEIR}. \\
-    (a) Resultado de kerKKF para estimación de parámetros, primera cadena. \\
+    (a) Resultado de KKF para estimación de parámetros, primera cadena. \\
     (b) Evolución de la estimación de los parámetros a través de las iteraciones del algoritmo de estimación, primera cadena. De color rojo, el régimen de \textit{warm up}, mientras que en naranja se encuentran que sí serán consideradas para la estimación. En azul se encuentra el valor real del parámetro.}
     \label{fig:SEIR}
 \end{figure}
